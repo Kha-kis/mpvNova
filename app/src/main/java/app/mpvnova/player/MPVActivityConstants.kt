@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -139,7 +136,6 @@ internal const val GPU_NEXT_FALLBACK_TOAST_MS = 5_200L
 internal const val DEFAULT_AUDIO_SAMPLE_RATE = 48_000
 internal const val DB_TO_LINEAR_BASE = 10.0
 internal const val DB_POWER_DIVISOR = 20.0
-internal const val PERCENT_SCALE_INT = 100
 internal const val PERCENT_SCALE_DOUBLE = 100.0
 internal const val DEFAULT_SUB_SCALE_INDEX = 3
 internal const val DEFAULT_SUB_POSITION_INDEX = 25
@@ -153,13 +149,9 @@ internal const val SUB_POSITION_STEP_PERCENT = 5
 internal const val PLAYER_TITLE_HORIZONTAL_MARGIN_DP = 64f
 internal const val PLAYER_TITLE_MIN_WIDTH_DP = 260f
 internal const val PLAYER_TITLE_MAX_WIDTH_DP = 980f
-internal const val GESTURE_TEXT_FADE_MS = 500L
-internal const val FIXED_SEEK_GESTURE_SECONDS = 10f
-internal const val CUSTOM_KEYCODE_BASE = 0x10002
 internal const val DPAD_LONG_PRESS_MS = 500L
 internal const val FLOATING_CONTROLS_BOTTOM_MARGIN_DP = 60f
 internal const val FLOATING_CONTROLS_SIDE_MARGIN_LANDSCAPE_DP = 60f
-internal const val FLOATING_CONTROLS_SIDE_MARGIN_DP = 24f
 internal const val STATS_PAGE_FIRST = 1
 internal const val STATS_PAGE_LAST = 3
 internal const val VIDEO_ADJUSTMENT_MIN = -100.0

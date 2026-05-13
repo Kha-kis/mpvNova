@@ -24,7 +24,6 @@ import java.util.zip.ZipOutputStream
 
 object SupportActions {
     private val PLAYER_UI_KEYS = arrayOf(
-        "auto_rotation",
         "display_media_title",
         "bottom_controls",
         "player_controls_timeout",

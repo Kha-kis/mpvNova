@@ -95,13 +95,4 @@
         android:text="@string/advanced_menu"
         android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/orientationBtn"
-        style="@style/Mpv.SurfaceButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/switch_orientation"
-        android:textAllCaps="false" />
-
 </LinearLayout>

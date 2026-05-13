@@ -5,12 +5,6 @@
         <item>Somente arquivos de áudio</item>
         <item>Sempre (Arquivos de vídeo também)</item>
     </string-array>
-    <string-array name="auto_rotation_entries">
-        <item>Automático</item>
-        <item>Paisagem padrão</item>
-        <item>Retrato padrão</item>
-        <item>Dispositivo</item>
-    </string-array>
 
     <string-array name="deband_entries">
         <item>Desativado</item>

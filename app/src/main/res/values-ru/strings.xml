@@ -4,7 +4,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- Simple strings. -->
     <string name="mpv_activity">mpvNova</string>
-    <string name="label_share_intent">Открыть в mpvNova</string>
     <string name="title_activity_settings">Настройки</string>
     <string name="dialog_cancel">Отмена</string>
     <string name="dialog_save">Сохранить</string>
@@ -20,10 +19,7 @@
     <string name="track_secondary">Дополнительный</string>
     <string name="btn_play">Воспроизведение</string>
     <string name="btn_pause">Пауза</string>
-    <string name="ui_volume">Громкость: %d%%</string>
-    <string name="ui_brightness">Яркость: %d%%</string>
     <string name="ui_chapter_fallback">Глава %1$d (%2$s)</string>
-    <string name="format_seconds">%.1f с.</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Скорость воспроизведения</string>
@@ -44,7 +40,6 @@
     <string name="uri_invalid_protocol">Неправильный протокол</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Сменить ориентацию</string>
     <string name="open_external_audio">Открыть внешнее аудио…</string>
     <string name="open_external_sub">Открыть внешние субтитры…</string>
     <string name="advanced_menu">Расширенные…</string>
@@ -52,12 +47,10 @@
     <string name="toggle_stats">Переключить статистику</string>
     <string name="chapter_button">Глава</string>
     <string name="sub_seek_button">Искать по субтитрам</string>
-    <string name="file_picker_old">Выбор файлов\n(устаревший)</string>
     <string name="action_settings">Настройки</string>
     <string name="action_playlist">Список воспроизведения</string>
     <string name="action_open_url">Открыть URL</string>
     <string name="action_open_doc">Открыть документ</string>
-    <string name="action_open_doc_tree">Открыть как документы</string>
     <string name="action_pick_file">Выбрать файл</string>
     <string name="action_pick_file_old">Выбрать файл (устаревшее)</string>
     <string name="action_external_storage">Внешнее хранилище</string>
@@ -67,7 +60,6 @@
     <string name="pref_header_general">Основные</string>
     <string name="pref_header_video">Видео</string>
     <string name="pref_header_ui">Интерфейс</string>
-    <string name="pref_header_gestures">Жесты</string>
     <string name="pref_header_developer">Для разработчиков</string>
     <string name="pref_header_advanced">Дополнительные</string>
     <string name="pref_header_about_mpv">О приложении mpvNova</string>
@@ -94,9 +86,6 @@
     <string name="pref_new_intent_replace_title">Немедленное воспроизведение новых файлов</string>
     <string name="pref_new_intent_replace_summary">При открытии новых файлов во время работы mpv в фоновом режиме будет создан новый список воспроизведения вместо добавления файлов в конец текущего.</string>
 
-    <string name="pref_auto_rotation_title">Ориентация экрана</string>
-    <string name="pref_auto_rotation_summary">Выбор альбомной или портретной ориентации, в которой mpv будет воспроизводить видео.</string>
-
 
     <string name="pref_bottom_controls_title">Показывать элементы управления внизу экрана</string>
 
@@ -105,22 +94,6 @@
 
     <string name="pref_playlist_exit_warning_title">Подтверждать выход из списка воспроизведения</string>
     <string name="pref_playlist_exit_warning_summary">Запрашивать подтверждение перед выходом из открытого списка воспроизведения.</string>
-
-    <string name="pref_seek_gesture_smooth_title">Плавный поиск</string>
-
-    <string name="pref_gesture_horiz_title">Горизонтальное перетаскивание</string>
-
-    <string name="pref_gesture_vert_left_title">Вертикальное перетаскивание (слева)</string>
-
-    <string name="pref_gesture_vert_right_title">Вертикальное перетаскивание (справа)</string>
-
-    <string name="pref_gesture_tap_left_title">Двойное нажатие (слева)</string>
-
-    <string name="pref_gesture_tap_center_title">Двойное нажатие (в центре)</string>
-
-    <string name="pref_gesture_tap_right_title">Двойное нажатие (справа)</string>
-
-    <string name="pref_gesture_custom_helptext">Если жест установлен на \"Своё\", его можно привязать к любой команде, отредактировав input.conf. Коды клавиш: <b>0x10001</b> (слева), <b>0x10002</b> (в центре), <b>0x10003</b> (справа).\nНапример, можно привязать поиск к 6 с:\n\t\t0x10003 no-osd seek 6</string>
 
     <string name="pref_video_upscale_title">Фильтр увеличения масштаба</string>
 
@@ -149,8 +122,6 @@
 
     <string name="pref_gpu_next_title">Использовать GPU-next</string>
     <string name="pref_gpu_next_summary">Использовать новый модуль визуализации видео, основанный на libplacebo.</string>
-
-    <string name="pref_version_info">Информация о версии</string>
 
     <string name="pref_edit_mpv_conf">Редактировать mpv.conf</string>
     <string name="pref_edit_mpv_conf_message">Можно напрямую отредактировать конфигурацию mpv здесь.</string>

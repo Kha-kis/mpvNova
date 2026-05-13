@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -75,8 +72,6 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 internal fun MPVActivity.controlsShouldBeVisible(): Boolean {
-    if (lockedUI)
-        return false
     return userIsOperatingSeekbar
 }
 
@@ -87,11 +82,6 @@ internal fun MPVActivity.shouldAutoHideControls(): Boolean {
 }
 
 internal fun MPVActivity.showControls() {
-    if (lockedUI) {
-        Log.w(MPV_ACTIVITY_TAG, "cannot show UI in locked mode")
-        return
-    }
-
     val controlsWereVisible = binding.controls.visibility == View.VISIBLE
     val controlsNeedAlphaReset = !controlsWereVisible ||
             fadeRunnable.hasStarted ||
@@ -177,9 +167,7 @@ internal fun MPVActivity.hideControlsFade() {
 }
 
 internal fun MPVActivity.toggleControls(): Boolean {
-    return if (lockedUI) {
-        false
-    } else if (controlsShouldBeVisible()) {
+    return if (controlsShouldBeVisible()) {
         true
     } else if (binding.controls.visibility == View.VISIBLE && !fadeRunnable.hasStarted) {
             hideControlsFade()
@@ -188,23 +176,4 @@ internal fun MPVActivity.toggleControls(): Boolean {
         showControls()
         true
     }
-}
-
-internal fun MPVActivity.showUnlockControls() {
-    fadeHandler.removeCallbacks(fadeRunnable2)
-    binding.unlockBtn.animate().setListener(null).cancel()
-
-    binding.unlockBtn.alpha = 1f
-    binding.unlockBtn.visibility = View.VISIBLE
-
-    fadeHandler.postDelayed(fadeRunnable2, DEFAULT_CONTROLS_DISPLAY_TIMEOUT)
-}
-
-internal fun MPVActivity.dispatchPointerMotionEvent(ev: MotionEvent): Boolean {
-    val scrollHandled = ev.actionMasked == MotionEvent.ACTION_SCROLL &&
-        dispatchPointerScrollEvent(ev)
-    val pointerHandled = scrollHandled || player.onPointerEvent(ev)
-    if (!pointerHandled && ev.actionMasked == MotionEvent.ACTION_HOVER_MOVE)
-        showControls()
-    return pointerHandled
 }

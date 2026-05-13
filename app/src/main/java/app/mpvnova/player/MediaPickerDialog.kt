@@ -342,8 +342,9 @@ internal class MediaPickerDialog {
      *  caller state changes while the dialog is open (e.g. swapping the
      *  primary / secondary subtitle pair). */
     fun updateItems(newItems: List<Item>) {
+        val oldCount = items.size
         items = newItems
-        binding.list.adapter?.notifyDataSetChanged()
+        binding.list.adapter?.notifyRangeRefresh(oldCount, items.size)
     }
 
     class Adapter(private val parent: MediaPickerDialog) :

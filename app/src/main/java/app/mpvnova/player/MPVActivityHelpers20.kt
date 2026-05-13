@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -93,17 +90,6 @@ internal fun MPVActivity.goIntoPiP() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
         return
     enterPictureInPictureMode(buildPiPParams())
-}
-
-internal fun MPVActivity.lockUI() {
-    lockedUI = true
-    hideControlsFade()
-}
-
-internal fun MPVActivity.unlockUI() {
-    binding.unlockBtn.visibility = View.GONE
-    lockedUI = false
-    showControls()
 }
 
 internal fun MPVActivity.genericMenu(

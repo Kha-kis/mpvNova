@@ -17,13 +17,6 @@
         <item>همیشه (همچنین پرونده‌های ویدیویی)</item>
     </string-array>
 
-    <string-array name="auto_rotation_entries">
-        <item>خودکار</item>
-        <item>پیش‌گزیده افقی</item>
-        <item>پیش‌گزیده عمودی</item>
-        <item>دستگاه</item>
-    </string-array>
-
     <string-array name="deband_entries">
         <item>غیرفعال</item>
         <item>CPU</item>
@@ -36,19 +29,5 @@
         <item>stats.lua: عمومی</item>
         <item>stats.lua: زمان‌بندی</item>
         <item>stats.lua: انباره</item>
-    </string-array>
-
-    <string-array name="gestures_entries">
-        <item>هیچکدام</item>
-        <item>جابه‌جایی</item>
-        <item>صدا</item>
-        <item>روشنایی</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>هیچکدام</item>
-        <item>جابه‌جایی</item>
-        <item>پخش/مکث</item>
-        <item>سفارشی</item>
     </string-array>
 </resources>

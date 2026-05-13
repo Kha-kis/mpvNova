@@ -15,14 +15,10 @@
     <string name="track_audio">Áudio</string>
     <string name="track_subs">Legendas</string>
     <string name="track_off">Desativado</string>
-    <string name="ui_volume">Volume: %d%%</string>
-    <string name="ui_brightness">Brilho: %d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">Capítulo %1$d (%2$s)</string>
     <string name="ui_chapter">%1$s (%2$s)</string>
-    <string name="format_seconds">%.1f s</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Velocidade de reprodução</string>
@@ -37,7 +33,6 @@
     <string name="sub_delay">Atraso da legenda</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Alterar Orientação</string>
     <string name="open_external_audio">Abrir áudio externo…</string>
     <string name="open_external_sub">Abrir legenda externa…</string>
     <string name="advanced_menu">Avançado…</string>
@@ -70,12 +65,6 @@
     <string name="pref_save_position_title">Salvar posição ao sair</string>
     <string name="pref_save_position_summary">Lembrar a posição atual de reprodução ao sair. Quando o mesmo arquivo for reproduzido novamente, retome da posição anterior.</string>
 
-    <string name="pref_auto_rotation_title">Orientação da tela</string>
-    <string name="pref_auto_rotation_summary">Decida em qual orientação o mpv irá reproduzir vídeos, paisagem ou retrato</string>
-
-
-    <string name="pref_header_gestures">Gestos de toque</string>
-
 
     <string name="pref_header_video">Vídeo</string>
 
@@ -106,8 +95,6 @@
 
 
     <string name="pref_header_advanced">Avançado</string>
-
-    <string name="pref_version_info">Informações sobre a versão</string>
 
     <string name="pref_edit_mpv_conf">Editar mpv.conf</string>
     <string name="pref_edit_mpv_conf_message">Você pode editar diretamente a configuração do mpv aqui.</string>

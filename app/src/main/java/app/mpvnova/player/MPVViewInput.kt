@@ -1,20 +1,8 @@
 package app.mpvnova.player
 
 import android.util.Log
-import android.view.InputDevice
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
-import android.view.MotionEvent
-
-internal fun MPVView.onPointerEvent(event: MotionEvent): Boolean {
-    assert(event.isFromSource(InputDevice.SOURCE_CLASS_POINTER))
-    if (event.actionMasked == MotionEvent.ACTION_SCROLL) {
-        // Scroll-wheel seeking is handled in MPVActivity so it can drive the
-        // app's custom seekbar instead of libmpv's default input path.
-        return false
-    }
-    return false
-}
 
 internal fun MPVView.onKey(event: KeyEvent): Boolean {
     val mapped = mappedKey(event)

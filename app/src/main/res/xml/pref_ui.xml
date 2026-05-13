@@ -1,15 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ListPreference
-        android:defaultValue="@string/pref_auto_rotation_default"
-        app:iconSpaceReserved="false"
-        android:key="auto_rotation"
-        android:summary="@string/pref_auto_rotation_summary"
-        android:entries="@array/auto_rotation_entries"
-        android:entryValues="@array/auto_rotation_values"
-        android:title="@string/pref_auto_rotation_title" />
-
     <SwitchPreferenceCompat
         app:iconSpaceReserved="false"
         android:defaultValue="true"

@@ -17,13 +17,6 @@
         <item>Завжди (включно з відеофайлами)</item>
     </string-array>
 
-    <string-array name="auto_rotation_entries">
-        <item>Автоматично</item>
-        <item>Типово ландшафтна</item>
-        <item>Типово портретна</item>
-        <item>Як на пристрої</item>
-    </string-array>
-
     <string-array name="deband_entries">
         <item>Вимкнено</item>
         <item>Процесор</item>
@@ -36,19 +29,5 @@
         <item>stats.lua: Загальне</item>
         <item>stats.lua: Таймінг</item>
         <item>stats.lua: Кеш</item>
-    </string-array>
-
-    <string-array name="gestures_entries">
-        <item>Нічого</item>
-        <item>Позиціювання</item>
-        <item>Гучність</item>
-        <item>Яскравість</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>Нічого</item>
-        <item>Позиціювання</item>
-        <item>Відтворення/Пауза</item>
-        <item>Користувацьке</item>
     </string-array>
 </resources>

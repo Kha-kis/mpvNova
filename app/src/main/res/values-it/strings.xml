@@ -4,7 +4,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- Simple strings. -->
     <string name="mpv_activity">mpvNova</string>
-    <string name="label_share_intent">Guarda con mpvNova</string>
     <string name="title_activity_settings">Impostazioni</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Annulla</string>
@@ -20,9 +19,6 @@
     <string name="track_secondary">Secondario</string>
     <string name="btn_play">Riproduci</string>
     <string name="btn_pause">Pausa</string>
-    <string name="ui_volume">Volume: %d%%</string>
-    <string name="ui_brightness">Luminosità: %d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">Capitolo %1$d (%2$s)</string>
@@ -30,7 +26,6 @@
     <string name="ui_track">#%d</string>
     <string name="ui_track_text">#%1$d: %2$s</string>
     <string name="ui_track_title_lang">#%1$d: %2$s (%3$s)</string>
-    <string name="format_seconds">%.1f s</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Velocità riproduzione</string>
@@ -50,7 +45,6 @@
     <string name="uri_invalid_protocol">Protocollo non valido</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Cambia orientamento</string>
     <string name="open_external_audio">Apri audio esterno…</string>
     <string name="open_external_sub">Apri sottotitoli esterni…</string>
     <string name="advanced_menu">Avanzate…</string>
@@ -58,12 +52,10 @@
     <string name="toggle_stats">Statistiche on/off</string>
     <string name="chapter_button">Capitolo</string>
     <string name="sub_seek_button">Cerca per sottotitolo</string>
-    <string name="file_picker_old">Selettore file\n(obsoleto)</string>
     <string name="action_settings">Impostazioni</string>
     <string name="action_playlist">Scaletta</string>
     <string name="action_open_url">Apri URL</string>
     <string name="action_open_doc">Apri documento</string>
-    <string name="action_open_doc_tree">Apri albero documenti</string>
     <string name="action_pick_file">Scegli file</string>
     <string name="action_pick_file_old">Scegli file (obsoleto)</string>
     <string name="action_external_storage">Archiviazione esterna</string>
@@ -73,7 +65,6 @@
     <string name="pref_header_general">Generali</string>
     <string name="pref_header_video">Video</string>
     <string name="pref_header_ui">Interfaccia utente</string>
-    <string name="pref_header_gestures">Gesti</string>
     <string name="pref_header_developer">Sviluppatore</string>
     <string name="pref_header_advanced">Avanzate</string>
 
@@ -94,30 +85,11 @@
     <string name="pref_save_position_title">Salva posizione all\'uscita</string>
     <string name="pref_save_position_summary">Ricorda la posizione di riproduzione all\'uscita. Quando verrà avviato lo stesso file, mpv passerà alla posizione precedente.</string>
 
-    <string name="pref_auto_rotation_title">Orientamento schermo</string>
-    <string name="pref_auto_rotation_summary">Decidi quale orientamento mpv userà per riprodurre i video</string>
-
 
     <string name="pref_bottom_controls_title">Mostra controlli in fondo allo schermo</string>
 
     <string name="pref_no_ui_pause_title">Continua riproduzione durante popup UI</string>
     <string name="pref_no_ui_pause_summary">Seleziona se la riproduzione deve continuare mentre vengono aperti i popup (es. finestra della scaletta)</string>
-
-    <string name="pref_seek_gesture_smooth_title">Ricerca più fluida</string>
-
-    <string name="pref_gesture_horiz_title">Scorrimento orizzontale</string>
-
-    <string name="pref_gesture_vert_left_title">Scorrimento verticale (sinistra)</string>
-
-    <string name="pref_gesture_vert_right_title">Scorrimento verticale (destra)</string>
-
-    <string name="pref_gesture_tap_left_title">Doppio tocco (sinistra)</string>
-
-    <string name="pref_gesture_tap_center_title">Doppio tocco (centro)</string>
-
-    <string name="pref_gesture_tap_right_title">Doppio tocco (destra)</string>
-
-    <string name="pref_gesture_custom_helptext">Quando un tocco è impostato su \"Personalizzato\" può essere associato a qualsiasi comando modificando input.conf. I codici chiave sono <b>0x10001</b> (sinistra), <b>0x10002</b> (centro), <b>0x10003</b> (destra).\nAd esempio potresti associare la ricerca di 6s:\n\t\t0x10003 no-osd seek 6</string>
 
     <string name="pref_video_upscale_title">Filtro upscaling</string>
 
@@ -143,8 +115,6 @@
     <string name="pref_stats_mode_summary">Seleziona quali statistiche mostrare</string>
 
     <string name="pref_gpu_debug_title">Attiva debug OpenGL</string>
-
-    <string name="pref_version_info">Informazioni di versione</string>
 
     <string name="pref_edit_mpv_conf">Modifica mpv.conf</string>
     <string name="pref_edit_mpv_conf_message">Puoi modificare direttamente qua la configurazione di mpv.</string>

@@ -11,7 +11,8 @@
         android:layout_margin="24dp"
         android:background="@drawable/bg_hero_panel"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="24dp"
+        tools:ignore="UselessParent">
 
         <TextView
             style="@style/MpvTv.TextSmallCaps"

@@ -1,5 +1,6 @@
 package is.xyz.filepicker;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -168,6 +169,7 @@ public class DocumentPickerFragment extends AbstractFilePickerFragment<Uri> {
 
     @NonNull
     @Override
+    @SuppressLint("StaticFieldLeak")
     public Loader<List<Uri>> getLoader() {
         final Uri root = mRoot;
         final Uri currentPath = mCurrentPath;

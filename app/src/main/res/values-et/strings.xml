@@ -4,7 +4,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- Simple strings. -->
     <string name="mpv_activity">mpvNova</string>
-    <string name="label_share_intent">Esita mpvNova-is</string>
     <string name="title_activity_settings">Sätted</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Katkesta</string>
@@ -21,9 +20,6 @@
     <string name="track_secondary">Teine</string>
     <string name="btn_play">Esita</string>
     <string name="btn_pause">Paus</string>
-    <string name="ui_volume">Helitugevus: %d%%</string>
-    <string name="ui_brightness">Heledus: %d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">Pealkiri %1$d (%2$s)</string>
@@ -31,7 +27,6 @@
     <string name="ui_track">#%d</string>
     <string name="ui_track_text">#%1$d: %2$s</string>
     <string name="ui_track_title_lang">#%1$d: %2$s (%3$s)</string>
-    <string name="format_seconds">%.1f s</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Esituskiirus</string>
@@ -51,7 +46,6 @@
     <string name="uri_invalid_protocol">Kehtetu protokolli</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Vaheta orientatsioon</string>
     <string name="open_external_audio">Avage väliaudio…</string>
     <string name="open_external_sub">Avage välisubtiitri…</string>
     <string name="advanced_menu">Rohkem…</string>
@@ -59,12 +53,10 @@
     <string name="toggle_stats">Lülita statistika</string>
     <string name="chapter_button">Pealkiri</string>
     <string name="sub_seek_button">Keri subtiitrilt</string>
-    <string name="file_picker_old">Faili valija\n(vana)</string>
     <string name="action_settings">Sätted</string>
     <string name="action_playlist">Esitusloend</string>
     <string name="action_open_url">Ava URL</string>
     <string name="action_open_doc">Ava Dokument</string>
-    <string name="action_open_doc_tree">Ava dokumendipuu</string>
     <string name="action_pick_file">Vali fail</string>
     <string name="action_pick_file_old">Vali fail (vana)</string>
     <string name="action_external_storage">Välimäluruum</string>
@@ -74,7 +66,6 @@
     <string name="pref_header_general">Üldine</string>
     <string name="pref_header_video">Video</string>
     <string name="pref_header_ui">Kasutajaliid</string>
-    <string name="pref_header_gestures">Puudumise liigutused</string>
     <string name="pref_header_developer">Arendajale</string>
     <string name="pref_header_advanced">Rohkem</string>
 
@@ -95,9 +86,6 @@
     <string name="pref_save_position_title">Salvesta positsioon väljumist</string>
     <string name="pref_save_position_summary">Jäta meelde praegune esitus positsioon väljumis. Kui sama fail on esitanud jälle mpv kerib eelmise positsiooni.</string>
 
-    <string name="pref_auto_rotation_title">Ekraan orientatsioon</string>
-    <string name="pref_auto_rotation_summary">Otsusta millise orientatsioon mpv hakkab esitama portraiti või maastik videod sisse.</string>
-
 
     <string name="pref_bottom_controls_title">Näita juhtmeid madalal ekraanit</string>
 
@@ -106,22 +94,6 @@
 
     <string name="pref_playlist_exit_warning_title">Esitusloend välja kinnitamine</string>
     <string name="pref_playlist_exit_warning_summary">Näita kinnitamise dialoogi enne väljumine kui esitusloend on laetud.</string>
-
-    <string name="pref_seek_gesture_smooth_title">Pehmeva kerimine</string>
-
-    <string name="pref_gesture_horiz_title">Horisontaalne lohi</string>
-
-    <string name="pref_gesture_vert_left_title">Vertikaalne lohi (vasak poolne)</string>
-
-    <string name="pref_gesture_vert_right_title">Vertikaalne lohi (paremal poolne)</string>
-
-    <string name="pref_gesture_tap_left_title">Kahetopsa (vasak)</string>
-
-    <string name="pref_gesture_tap_center_title">Kahetopsa (kesk)</string>
-
-    <string name="pref_gesture_tap_right_title">Kahetopsa (parem)</string>
-
-    <string name="pref_gesture_custom_helptext">Kui topsa puudumine on määratud \"Muud\" seda saad panna iga käsu input.conf muutmiselt. Võtikoodid on <b>0x10001</b> (vasak), <b>0x10002</b> (kesk), <b>0x10003</b> (parem).\nNäiteks võid lisada 6 sek kerida:\n\t\t0x10003 no-osd seek 6</string>
 
     <string name="pref_video_upscale_title">Üles skaleerimine filtri</string>
 
@@ -150,8 +122,6 @@
 
     <string name="pref_gpu_next_title">Kasuta gpu-next</string>
     <string name="pref_gpu_next_summary">Kasuta uue video rendrimise tagalõpp, tehtud libplacebo-nis.</string>
-
-    <string name="pref_version_info">Versioon informatsioon</string>
 
     <string name="pref_edit_mpv_conf">Muuda mpv.conf</string>
     <string name="pref_edit_mpv_conf_message">Võite muuda mpv\'i konfigratsioon siin.</string>

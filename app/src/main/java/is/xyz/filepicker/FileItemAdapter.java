@@ -27,8 +27,18 @@ class FileItemAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void setList(@Nullable List<T> list) {
+        int oldCount = getItemCount();
         mList = list;
-        notifyDataSetChanged();
+        int newCount = getItemCount();
+        int changedCount = Math.min(oldCount, newCount);
+        if (changedCount > 0) {
+            notifyItemRangeChanged(0, changedCount);
+        }
+        if (newCount > oldCount) {
+            notifyItemRangeInserted(oldCount, newCount - oldCount);
+        } else if (oldCount > newCount) {
+            notifyItemRangeRemoved(newCount, oldCount - newCount);
+        }
     }
 
     @NonNull

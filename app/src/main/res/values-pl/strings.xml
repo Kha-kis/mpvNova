@@ -4,7 +4,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Simple strings. -->
     <string name="mpv_activity">mpvNova</string>
-    <string name="label_share_intent">Odtwarzaj w mpvNova</string>
     <string name="title_activity_settings">Ustawienia</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Anuluj</string>
@@ -21,9 +20,6 @@
     <string name="track_secondary">Dodatkowe</string>
     <string name="btn_play">Odtwórz</string>
     <string name="btn_pause">Wstrzymaj</string>
-    <string name="ui_volume">Głośność: %d%%</string>
-    <string name="ui_brightness">Jasność: %d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f fps</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">Rozdział %1$d (%2$s)</string>
@@ -31,7 +27,6 @@
     <string name="ui_track">#%d</string>
     <string name="ui_track_text">#%1$d: %2$s</string>
     <string name="ui_track_title_lang">#%1$d: %2$s (%3$s)</string>
-    <string name="format_seconds">%.1f s</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Prędkość odtwarzania</string>
@@ -52,7 +47,6 @@
     <string name="uri_invalid_protocol">Nieprawidłowy protokół</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Przełącz orientację</string>
     <string name="open_external_audio">Otwórz zewnętrzne audio…</string>
     <string name="open_external_sub">Otwórz zewnętrzne napisy…</string>
     <string name="advanced_menu">Zaawansowane…</string>
@@ -60,12 +54,10 @@
     <string name="toggle_stats">Przełącz statystyki</string>
     <string name="chapter_button">Rozdział</string>
     <string name="sub_seek_button">Przeszukuj według podtytułu</string>
-    <string name="file_picker_old">Selektor plików\n(starsza wersja)</string>
     <string name="action_settings">Ustawienia</string>
     <string name="action_playlist">Lista odtwarzania</string>
     <string name="action_open_url">Otwórz adres URL</string>
     <string name="action_open_doc">Otwórz dokument</string>
-    <string name="action_open_doc_tree">Otwórz drzewo dokumentów</string>
     <string name="action_pick_file">Wybierz plik</string>
     <string name="action_pick_file_old">Wybierz plik (starsza wersja)</string>
     <string name="action_external_storage">Pamięć zewnętrzna</string>
@@ -80,9 +72,6 @@
 
     <string name="pref_header_ui">Interfejs użytkownika</string>
     <string name="pref_header_ui_summary"></string>
-
-    <string name="pref_header_gestures">Gesty dotykowe</string>
-    <string name="pref_header_gestures_summary"></string>
 
     <string name="pref_header_developer">Programista</string>
     <string name="pref_header_developer_summary"></string>
@@ -116,9 +105,6 @@
     <string name="pref_new_intent_replace_title">Odtwórz nowe pliki natychmiast</string>
     <string name="pref_new_intent_replace_summary">Podczas otwierania nowych plików, gdy mpv działa w tle, zastąp bieżącą listę odtwarzania zamiast dodawać pliki na jej końcu.</string>
 
-    <string name="pref_auto_rotation_title">Orientacja ekranu</string>
-    <string name="pref_auto_rotation_summary">Zdecyduj, w jakiej orientacji mpv będą odtwarzane filmy w orientacji poziomej czy pionowej.</string>
-
 
     <string name="pref_bottom_controls_title">Pokaż elementy sterujące na dole ekranu</string>
 
@@ -127,22 +113,6 @@
 
     <string name="pref_playlist_exit_warning_title">Potwierdzenie opuszczenia listy odtwarzania</string>
     <string name="pref_playlist_exit_warning_summary">Wyświetlaj okno dialogowe potwierdzenia przed wyjściem, gdy załadowana jest lista odtwarzania.</string>
-
-    <string name="pref_seek_gesture_smooth_title">Płynniejsze przewijanie</string>
-
-    <string name="pref_gesture_horiz_title">Przeciąganie w poziomie</string>
-
-    <string name="pref_gesture_vert_left_title">Przeciąganie w pionie (lewa strona)</string>
-
-    <string name="pref_gesture_vert_right_title">Przeciąganie w pionie (prawa strona)</string>
-
-    <string name="pref_gesture_tap_left_title">Podwójne stuknięcie (po lewej)</string>
-
-    <string name="pref_gesture_tap_center_title">Podwójne stuknięcie (na środku)</string>
-
-    <string name="pref_gesture_tap_right_title">Podwójne stuknięcie (po prawej)</string>
-
-    <string name="pref_gesture_custom_helptext">Gdy gest dotknięcia jest ustawiony na „Niestandardowy”, można go powiązać z dowolnym poleceniem, edytując plik input.conf. Kody klawiszy to <b>0x10001</b> (po lewej), <b>0x10002</b> (w środku), <b>0x10003</b> (po prawej).\nMożna na przykład powiązać przewijanie po 6 sekundach:\n\t\t0x10003 no-osd seek 6</string>
 
     <string name="pref_video_upscale_title">Filtr zwiększający skalę</string>
 
@@ -171,8 +141,6 @@
 
     <string name="pref_gpu_next_title">Używaj gpu-next</string>
     <string name="pref_gpu_next_summary">Używaj nowego backendu do renderowania wideo, opartego na libplacebo.</string>
-
-    <string name="pref_version_info">Informacje o wersji</string>
 
     <string name="pref_edit_mpv_conf">Edytuj plik mpv.conf</string>
     <string name="pref_edit_mpv_conf_message">Tutaj możesz bezpośrednio edytować konfigurację mpv.</string>

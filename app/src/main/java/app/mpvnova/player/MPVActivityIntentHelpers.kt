@@ -1,39 +1,8 @@
 package app.mpvnova.player
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.core.content.IntentCompat
-
-internal fun MPVActivity.safeResolveUri(uri: Uri?): String? {
-    return if (uri != null && uri.isHierarchical && !uri.isRelative) resolveUri(uri) else null
-}
-
-internal fun MPVActivity.pathFromSendIntent(intent: Intent): String? {
-    val streamUri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
-    val textUri = intent.getStringExtra(Intent.EXTRA_TEXT)?.let { Uri.parse(it.trim()) }
-    return safeResolveUri(streamUri ?: textUri)
-}
-
-internal fun MPVActivity.pathFromMultipleSendIntent(intent: Intent): String? {
-    val uris = IntentCompat.getParcelableArrayListExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
-    if (uris.isNullOrEmpty())
-        return null
-
-    val paths = uris.mapNotNull { uri -> safeResolveUri(uri) }
-    return when {
-        paths.size == 1 -> paths[0]
-        paths.isNotEmpty() -> memoryPlaylistPath(paths)
-        else -> null
-    }
-}
-
-internal fun memoryPlaylistPath(paths: List<String>): String {
-    val memoryUri = "memory://#EXTM3U\n${paths.joinToString("\n")}\n"
-    Log.v(MPV_ACTIVITY_TAG, "Created memory playlist URI (${paths.size})")
-    return memoryUri
-}
 
 internal fun MPVActivity.addOnloadOption(key: String, value: String) {
     onloadCommands.add(arrayOf("set", "file-local-options/${key}", value))

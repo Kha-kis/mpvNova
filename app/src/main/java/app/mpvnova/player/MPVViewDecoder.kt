@@ -134,7 +134,7 @@ private fun MPVView.isShieldH10pModeActive(): Boolean {
         matchesOption("gpu-api", "opengl") &&
         matchesOption("video-sync", "display-resample") &&
         matchesOption("cache", "no") &&
-        matchesOption("demuxer-max-bytes", MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES.toString(), "50mib")
+        matchesOption("demuxer-max-bytes", MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES.toString(), "64mib", "50mib")
 }
 
 private fun MPVView.matchesOption(name: String, vararg expected: String): Boolean {

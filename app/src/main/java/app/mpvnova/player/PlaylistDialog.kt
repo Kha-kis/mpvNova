@@ -50,9 +50,10 @@ internal class PlaylistDialog(private val player: MPVView) {
 
     fun refresh() {
         selectedIndex = mpvGetPropertyInt("playlist-pos") ?: -1
+        val oldCount = playlist.size
         playlist = player.loadPlaylist()
         Log.v(TAG, "PlaylistDialog: loaded ${playlist.size} items")
-        binding.list.adapter!!.notifyDataSetChanged()
+        binding.list.adapter!!.notifyRangeRefresh(oldCount, playlist.size)
         binding.list.scrollToPosition(playlist.indexOfFirst { it.index == selectedIndex })
 
         /*

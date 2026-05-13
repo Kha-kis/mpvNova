@@ -54,7 +54,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
+     * fragment (e.g. after configuration changes).
      */
     @SuppressWarnings("deprecation")
     public AbstractFilePickerFragment() {

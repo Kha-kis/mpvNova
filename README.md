@@ -95,12 +95,12 @@ Download the latest APK from the [GitHub releases page](https://github.com/Laskc
 
 ## What mpvNova Adds
 
-mpvNova inherits mpv-android's playback foundation: hardware/software decoding, gestures, libass subtitles, dual subtitles, advanced rendering settings, URL playback, background playback, Picture-in-Picture, and keyboard input. The additions below are the TV-focused layer built for this fork.
+mpvNova inherits mpv-android's playback foundation: hardware/software decoding, libass subtitles, dual subtitles, advanced rendering settings, URL playback, background playback, Picture-in-Picture, and keyboard input. The additions below are the TV-focused layer built for this fork.
 
 - Android TV, Google TV, and Fire OS launcher support with leanback entry points, TV banner assets, and a couch-first home screen
 - Redesigned player HUD with stronger D-pad focus, chapter markers, title display, TV-scale timing, and a compact chapter picker
 - Single-click chapter skipping, with remote/D-pad hold opening the chapter picker after a fixed delay
-- Custom subtitle panel with dual-track display, one-tap primary/secondary swap, independent position, size, delay, and secondary subtitle controls
+- Custom subtitle panel with dual-track display, quick primary/secondary swap, independent position, size, delay, and secondary subtitle controls
 - Smart subtitle memory: when **Persist subtitle settings** is enabled, mpvNova remembers a manually selected subtitle track and matches the closest language/title on the next file
 - Audio panel with Voice Boost, Volume Boost, DRC, Audio Normalization, Channel Downmix, surround-state feedback, and filter persistence
 - In-player decoder picker with `HW+`, `HW`, `SW`, `G-NEXT`, and `Shield Anime (Hi10P)` modes

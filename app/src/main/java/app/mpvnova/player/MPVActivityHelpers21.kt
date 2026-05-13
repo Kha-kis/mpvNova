@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -83,13 +80,6 @@ internal fun MPVActivity.openAdvancedMenu(restoreState: StateRestoreCallback) {
     )
 }
 
-internal fun MPVActivity.cycleOrientation() {
-    requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
-        ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-    else
-        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-}
-
 internal fun MPVActivity.openFilePickerFor(title: String, skip: Int?, callback: ActivityResultCallback) {
     val intent = Intent(this, FilePickerActivity::class.java)
     intent.putExtra("title", title)
@@ -115,7 +105,6 @@ internal fun MPVActivity.refreshUi() {
     updatePlaybackDuration(psc.duration)
     updateAudioUI()
     refreshAllFilterTints()
-    updateOrientation()
     updateMetadataDisplay()
     updateDecoderButton()
     updateSpeedButton()

@@ -137,15 +137,6 @@ inline fun <reified T: Parcelable> getParcelableArray(bundle: Bundle, key: Strin
 }
 
 /**
- * Helper method to determine if the device has an extra-large screen. For
- * example, 10" tablets are extra-large.
- */
-fun isXLargeTablet(context: Context): Boolean {
-    return context.resources.configuration.screenLayout and
-        Configuration.SCREENLAYOUT_SIZE_MASK >= Configuration.SCREENLAYOUT_SIZE_XLARGE
-}
-
-/**
  * Sets the inset listener for the given view so that system bars are simply avoided by padding.
  * Note that this will modify the view's padding and probably leave ugly empty space at the top
  * (if using an action bar).

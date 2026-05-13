@@ -17,13 +17,6 @@
         <item>Siempre (archivos de vídeo también)</item>
     </string-array>
 
-    <string-array name="auto_rotation_entries">
-        <item>Automática</item>
-        <item>Horizontal predeterminado</item>
-        <item>Vertical predeterminado</item>
-        <item>Dispositivo</item>
-    </string-array>
-
     <string-array name="deband_entries">
         <item>Desactivado</item>
         <item>CPU</item>
@@ -36,19 +29,5 @@
         <item>stats.lua: General</item>
         <item>stats.lua: Horarios</item>
         <item>stats.lua: Caché</item>
-    </string-array>
-
-    <string-array name="gestures_entries">
-        <item>Nada</item>
-        <item>Desplazamiento</item>
-        <item>Volumen</item>
-        <item>Brillo</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>Nada</item>
-        <item>Desplazamiento</item>
-        <item>Reproducir/Pausar</item>
-        <item>Personalizado</item>
     </string-array>
 </resources>

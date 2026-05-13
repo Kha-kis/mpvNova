@@ -4,11 +4,13 @@
             android:name=".IntentTestActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize"
+            android:screenOrientation="landscape"
             android:theme="@style/FilePickerTheme" />
         <activity
             android:name=".CodecInfoActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize"
+            android:screenOrientation="landscape"
             android:theme="@style/FilePickerTheme" />
     </application>
 </manifest>

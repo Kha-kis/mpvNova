@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -124,11 +121,9 @@ class MPVActivity : AppCompatActivity() {
     internal var mediaSession: MediaSessionCompat? = null
 
     internal lateinit var binding: PlayerBinding
-    internal lateinit var gestures: TouchGestures
     internal val lifecycleObserver = MpvActivityLifecycleObserver(this)
     internal val mpvEventObserver = MpvActivityEventObserver(this)
     internal val mpvLogObserver = MpvActivityLogObserver(this)
-    internal val touchGesturesObserver = MpvActivityTouchGestureObserver(this)
 
     internal val player get() = binding.player
 
@@ -181,24 +176,6 @@ class MPVActivity : AppCompatActivity() {
         }
     }
 
-    internal val fadeRunnable2 = object : Runnable {
-        private val listener = object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                binding.unlockBtn.visibility = View.GONE
-            }
-        }
-
-        override fun run() {
-            binding.unlockBtn.animate().alpha(0f).setDuration(CONTROLS_FADE_DURATION).setListener(listener)
-        }
-    }
-
-    internal val fadeRunnable3 = object : Runnable {
-        override fun run() {
-            binding.gestureTextView.visibility = View.GONE
-        }
-    }
-
     internal val playerToastHideRunnable = Runnable {
         binding.playerToast.animate()
             .alpha(0f)
@@ -228,8 +205,6 @@ class MPVActivity : AppCompatActivity() {
 
     internal var shouldSavePosition = false
 
-    internal var autoRotationMode = ""
-
     internal var controlsAtBottom = true
     internal var showMediaTitle = false
     internal var controlsDisplayTimeoutMs = DEFAULT_CONTROLS_DISPLAY_TIMEOUT
@@ -244,8 +219,6 @@ class MPVActivity : AppCompatActivity() {
     internal var ignoreAudioFocus = false
     internal var playlistExitWarning = true
     internal var newIntentReplace = false
-
-    internal var smoothSeekGesture = false
 
     internal var persistAudioFilters = false
     internal var persistSubFilters = false
@@ -294,8 +267,6 @@ class MPVActivity : AppCompatActivity() {
 
         initListeners()
 
-        gestures = TouchGestures(touchGesturesObserver)
-
         readSettings()
         onConfigurationChanged(resources.configuration)
         run {
@@ -307,10 +278,6 @@ class MPVActivity : AppCompatActivity() {
         }
         if (!packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE))
             binding.topPiPBtn.visibility = View.GONE
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN))
-            binding.topLockBtn.visibility = View.GONE
-
-        updateOrientation(true)
 
         // Best-effort cleanup: drop stale resume entries before we add a new
         // one for this session. Runs in O(table size) which is bounded.
@@ -414,7 +381,7 @@ class MPVActivity : AppCompatActivity() {
 
         if (!activityIsForeground && didResumeBackgroundPlayback) {
             applySavedAudioFilterDefaults()
-        applySavedSubFilterDefaults()
+            applySavedSubFilterDefaults()
             prepareStreamLoading(filepath)
             if (this.newIntentReplace) {
                 mpvCommand(arrayOf("loadfile", filepath, "replace"))
@@ -426,7 +393,7 @@ class MPVActivity : AppCompatActivity() {
             moveTaskToBack(true)
         } else {
             applySavedAudioFilterDefaults()
-        applySavedSubFilterDefaults()
+            applySavedSubFilterDefaults()
             prepareStreamLoading(filepath)
             mpvCommand(arrayOf("loadfile", filepath))
         }
@@ -442,8 +409,8 @@ class MPVActivity : AppCompatActivity() {
 
     override fun onPause() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (isInMultiWindowMode || isInPictureInPictureMode) {
-                Log.v(MPV_ACTIVITY_TAG, "Going into multi-window mode")
+            if (isInPictureInPictureMode) {
+                Log.v(MPV_ACTIVITY_TAG, "Playback continuing in picture-in-picture")
                 super.onPause()
                 return
             }
@@ -494,15 +461,10 @@ class MPVActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        // If we weren't actually in the background (e.g. multi window mode), don't reinitialize stuff
+        // If we never actually left the foreground, don't reinitialize playback state.
         if (activityIsForeground) {
             super.onResume()
             return
-        }
-
-        if (lockedUI) { // precaution
-            Log.w(MPV_ACTIVITY_TAG, "resumed with locked UI, unlocking")
-            unlockUI()
         }
 
         hideControls()
@@ -581,11 +543,6 @@ class MPVActivity : AppCompatActivity() {
 
     internal var useAudioUI = false
 
-    internal var lockedUI = false
-
-
-
-
     internal var clockFormatter: SimpleDateFormat? = null
     internal var clockFormatterIs24: Boolean? = null
 
@@ -605,52 +562,11 @@ class MPVActivity : AppCompatActivity() {
 
 
     override fun dispatchKeyEvent(ev: KeyEvent): Boolean {
-        return if (lockedUI) {
-            showUnlockControls()
-            super.dispatchKeyEvent(ev)
-        } else {
-            // try built-in event handler first, forward all other events to libmpv
-            val handled = interceptDpad(ev) ||
-                (ev.action == KeyEvent.ACTION_DOWN && interceptKeyDown(ev)) ||
-                player.onKey(ev)
-            handled || super.dispatchKeyEvent(ev)
-        }
-    }
-
-    override fun dispatchGenericMotionEvent(ev: MotionEvent?): Boolean {
-        return if (lockedUI) {
-            super.dispatchGenericMotionEvent(ev)
-        } else {
-            val handled = ev != null &&
-                ev.isFromSource(InputDevice.SOURCE_CLASS_POINTER) &&
-                dispatchPointerMotionEvent(ev)
-            handled || super.dispatchGenericMotionEvent(ev)
-        }
-    }
-
-
-
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        return if (lockedUI) {
-            if (ev.action == MotionEvent.ACTION_UP || ev.action == MotionEvent.ACTION_DOWN)
-                showUnlockControls()
-            super.dispatchTouchEvent(ev)
-        } else {
-            val handledByView = super.dispatchTouchEvent(ev)
-            if (handledByView) {
-                // reset delay if the event has been handled
-                // ideally we'd want to know if the event was delivered to controls, but we can't
-                if (binding.controls.visibility == View.VISIBLE && !fadeRunnable.hasStarted)
-                    showControls()
-            }
-            if (!handledByView || ev.action != MotionEvent.ACTION_UP) {
-                if (ev.action == MotionEvent.ACTION_DOWN)
-                    mightWantToToggleControls = true
-                if (ev.action == MotionEvent.ACTION_UP && mightWantToToggleControls)
-                    toggleControls()
-            }
-            true
-        }
+        // try built-in event handler first, forward all other events to libmpv
+        val handled = interceptDpad(ev) ||
+            (ev.action == KeyEvent.ACTION_DOWN && interceptKeyDown(ev)) ||
+            player.onKey(ev)
+        return handled || super.dispatchKeyEvent(ev)
     }
 
     /**
@@ -665,16 +581,6 @@ class MPVActivity : AppCompatActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val wm = windowManager.currentWindowMetrics
-            gestures.setMetrics(wm.bounds.width().toFloat(), wm.bounds.height().toFloat())
-        } else @Suppress("DEPRECATION") {
-            val dm = DisplayMetrics()
-            windowManager.defaultDisplay.getRealMetrics(dm)
-            gestures.setMetrics(dm.widthPixels.toFloat(), dm.heightPixels.toFloat())
-        }
 
         binding.controls.updateLayoutParams<MarginLayoutParams> {
             bottomMargin = if (!controlsAtBottom) {
@@ -685,7 +591,7 @@ class MPVActivity : AppCompatActivity() {
             leftMargin = if (!controlsAtBottom) {
                 Utils.convertDp(
                     this@MPVActivity,
-                    if (isLandscape) FLOATING_CONTROLS_SIDE_MARGIN_LANDSCAPE_DP else FLOATING_CONTROLS_SIDE_MARGIN_DP
+                    FLOATING_CONTROLS_SIDE_MARGIN_LANDSCAPE_DP
                 )
             } else {
                 0
@@ -1118,18 +1024,6 @@ class MPVActivity : AppCompatActivity() {
 
 
 
-
-
-
-
-    // Gesture handler
-
-    internal var initialSeek = 0f
-    internal var initialBright = 0f
-    internal var initialVolume = 0
-    internal var maxVolume = 0
-    /** 0 = initial, 1 = paused, 2 = was already paused */
-    internal var pausedForSeek = 0
 
 
 

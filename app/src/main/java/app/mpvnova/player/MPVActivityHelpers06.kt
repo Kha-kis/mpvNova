@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -73,26 +70,6 @@ import java.io.FileNotFoundException
 import java.lang.IllegalArgumentException
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
-
-internal fun MPVActivity.dispatchPointerScrollEvent(ev: MotionEvent): Boolean {
-    val horizontal = ev.getAxisValue(MotionEvent.AXIS_HSCROLL)
-    val vertical = ev.getAxisValue(MotionEvent.AXIS_VSCROLL)
-    val dominant = if (kotlin.math.abs(horizontal) > kotlin.math.abs(vertical)) {
-        horizontal
-    } else {
-        vertical
-    }
-    if (dominant != 0f) {
-        showControls()
-        btnSelected = 0
-        updateSelectedDpadButton()
-        binding.playbackSeekbar.requestFocus()
-        val notchCount = kotlin.math.max(1, kotlin.math.abs(dominant).roundToInt())
-        val direction = if (dominant < 0f) 1 else -1
-        seekPlaybackFromDpad(direction * notchCount * SEEK_DEFAULT_DPAD_STEP_MS)
-    }
-    return dominant != 0f
-}
 
 internal fun MPVActivity.dpadButtons(): List<View> {
     if (binding.controls.visibility != View.VISIBLE || binding.topControls.visibility != View.VISIBLE) {
@@ -201,9 +178,6 @@ internal fun MPVActivity.interceptKeyDown(event: KeyEvent): Boolean {
 }
 
 internal fun MPVActivity.onBackPressedImpl() {
-    if (lockedUI)
-        return showUnlockControls()
-
     val notYetPlayed = psc.playlistCount - psc.playlistPos - 1
     if (notYetPlayed <= 0 || !playlistExitWarning) {
         finishWithResult(RESULT_OK, true)

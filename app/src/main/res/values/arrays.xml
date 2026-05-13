@@ -30,18 +30,6 @@
         <item>audio-only</item>
         <item>always</item>
     </string-array>
-    <string-array name="auto_rotation_entries">
-        <item>Automatic</item>
-        <item>Default landscape</item>
-        <item>Default portrait</item>
-        <item>Device</item>
-    </string-array>
-    <string-array name="auto_rotation_values" translatable="false">
-        <item>auto</item>
-        <item>landscape</item>
-        <item>portrait</item>
-        <item>device</item>
-    </string-array>
 
     <string-array name="player_controls_timeout_entries">
         <item>3 seconds</item>
@@ -144,31 +132,5 @@
         <item>lua1</item>
         <item>lua2</item>
         <item>lua3</item>
-    </string-array>
-
-    <string-array name="gestures_entries">
-        <item>None</item>
-        <item>Seek</item>
-        <item>Volume</item>
-        <item>Brightness</item>
-    </string-array>
-    <string-array name="gestures_values" translatable="false">
-        <item>none</item>
-        <item>seek</item>
-        <item>volume</item>
-        <item>bright</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>None</item>
-        <item>Seek</item>
-        <item>Play/Pause</item>
-        <item>Custom</item>
-    </string-array>
-    <string-array name="tap_gestures_values" translatable="false">
-        <item>none</item>
-        <item>seek</item>
-        <item>playpause</item>
-        <item>custom</item>
     </string-array>
 </resources>

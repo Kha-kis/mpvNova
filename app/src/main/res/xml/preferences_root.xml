@@ -22,11 +22,6 @@
         app:summary="@string/pref_header_ui_summary"
         app:title="@string/pref_header_ui" />
     <Preference
-        app:fragment="app.mpvnova.player.preferences.PreferenceActivity$GesturePreference"
-        app:icon="@drawable/round_gesture_24"
-        app:summary="@string/pref_header_gestures_summary"
-        app:title="@string/pref_header_gestures" />
-    <Preference
         app:fragment="app.mpvnova.player.preferences.PreferenceActivity$DeveloperPreference"
         app:icon="@drawable/round_code_24"
         app:summary="@string/pref_header_developer_summary"

@@ -17,9 +17,6 @@
     <string name="track_off">Kapalı</string>
     <string name="btn_play">Oynat</string>
     <string name="btn_pause">Duraklat</string>
-    <string name="ui_volume">Ses seviyesi: %d%%</string>
-    <string name="ui_brightness">Parlaklık: %d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">Bölüm %1$d (%2$s)</string>
@@ -27,7 +24,6 @@
     <string name="ui_track">#%d</string>
     <string name="ui_track_text">#%1$d: %2$s</string>
     <string name="ui_track_title_lang">#%1$d: %2$s (%3$s)</string>
-    <string name="format_seconds">%.1f s</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Oynatma hızı</string>
@@ -46,7 +42,6 @@
     <string name="option_remember_choice">Bir sonraki başlangıçta seçimi hatırla</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Yönü Değiştir</string>
     <string name="open_external_audio">Harici ses aç…</string>
     <string name="open_external_sub">Harici alt yazı aç…</string>
     <string name="advanced_menu">Gelişmiş…</string>
@@ -54,11 +49,9 @@
     <string name="toggle_stats">İstatistikleri aç/kapat</string>
     <string name="chapter_button">Bölüm</string>
     <string name="sub_seek_button">Alt yazıya göre ara</string>
-    <string name="file_picker_old">Dosya Seçici\n(eski)</string>
     <string name="action_settings">Ayarlar</string>
     <string name="action_playlist">Oynatma Listesi</string>
     <string name="action_open_url">URL Aç</string>
-    <string name="action_open_doc_tree">Belge Ağacı Aç</string>
     <string name="action_pick_file">Dosya Seç</string>
     <string name="action_external_storage">Harici Depolama</string>
     <string name="action_toggle_filter">Filtreyi Aç/Kapat</string>
@@ -67,7 +60,6 @@
     <string name="pref_header_general">Genel</string>
     <string name="pref_header_video">Video</string>
     <string name="pref_header_ui">Kullanıcı Arayüzü</string>
-    <string name="pref_header_gestures">Dokunma hareketleri</string>
     <string name="pref_header_developer">Geliştirici</string>
     <string name="pref_header_advanced">Gelişmiş</string>
 
@@ -88,30 +80,11 @@
     <string name="pref_save_position_title">Çıkışta konumu kaydet</string>
     <string name="pref_save_position_summary">Çıkışta geçerli oynatma konumunu hatırla. Aynı dosya tekrar oynatıldığında mpv önceki konumda başlayacaktır.</string>
 
-    <string name="pref_auto_rotation_title">Ekran yönü</string>
-    <string name="pref_auto_rotation_summary">Yatay veya dikey videoları mpv\'nin hangi yönde oynatacağına karar verin</string>
-
 
     <string name="pref_bottom_controls_title">Denetimleri ekranın altında göster</string>
 
     <string name="pref_no_ui_pause_title">Kullanıcı arayüzü açılır pencereleri sırasında oynatmaya devam et</string>
     <string name="pref_no_ui_pause_summary">Açılır pencereler (örn. oynatma listesi penceresi) açıkken oynatmanın devam edip etmeyeceğini seçin</string>
-
-    <string name="pref_seek_gesture_smooth_title">Daha pürüzsüz arama</string>
-
-    <string name="pref_gesture_horiz_title">Yatay sürükleme</string>
-
-    <string name="pref_gesture_vert_left_title">Dikey sürükleme (sol)</string>
-
-    <string name="pref_gesture_vert_right_title">Dikey sürükleme (sağ)</string>
-
-    <string name="pref_gesture_tap_left_title">Çift dokunma (sol)</string>
-
-    <string name="pref_gesture_tap_center_title">Çift dokunma (orta)</string>
-
-    <string name="pref_gesture_tap_right_title">Çift dokunma (sağ)</string>
-
-    <string name="pref_gesture_custom_helptext">Bir dokunma hareketi \"Özel\" olarak ayarlandığında, input.conf düzenlenerek herhangi bir komuta atanabilir. Tuş kodları şunlardır: <b>0x10001</b> (sol), <b>0x10002</b> (orta), <b>0x10003</b> (sağ).\nÖrneğin, 6 saniye ileri sarmayı atamak için:\n\t\t0x10003 no-osd seek 6</string>
 
     <string name="pref_video_upscale_title">Üst ölçeklendirme filtresi</string>
 
@@ -137,8 +110,6 @@
     <string name="pref_stats_mode_summary">Hangi istatistiklerin görüntüleneceğini seçin</string>
 
     <string name="pref_gpu_debug_title">OpenGL hata ayıklamayı etkinleştir</string>
-
-    <string name="pref_version_info">Sürüm bilgisi</string>
 
     <string name="pref_edit_mpv_conf">mpv.conf dosyasını düzenle</string>
     <string name="pref_edit_mpv_conf_message">mpv yapılandırmasını burada doğrudan düzenleyebilirsiniz.</string>

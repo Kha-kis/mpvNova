@@ -16,12 +16,6 @@
         <item>Ainult audio failid</item>
         <item>Alati (Video failid ka)</item>
     </string-array>
-    <string-array name="auto_rotation_entries">
-        <item>Automaatne</item>
-        <item>Horisontaalne maastik</item>
-        <item>Vertikaalne portree</item>
-        <item>Seadme</item>
-    </string-array>
 
     <string-array name="deband_entries">
         <item>Deaktiveeritud</item>
@@ -35,19 +29,5 @@
         <item>stats.lua: Üldine</item>
         <item>stats.lua: Aegumised</item>
         <item>stats.lua: Vahemälu</item>
-    </string-array>
-
-    <string-array name="gestures_entries">
-        <item>Pole</item>
-        <item>Keri</item>
-        <item>Helitugevus</item>
-        <item>Heledus</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>Pole</item>
-        <item>Keri</item>
-        <item>Esita/Paus</item>
-        <item>Muud</item>
     </string-array>
 </resources>

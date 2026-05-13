@@ -13,8 +13,6 @@ internal fun MPVActivity.readPlaybackSettings(
     backgroundPlayMode = getString("background_play", R.string.pref_background_play_default)
     noUIPauseMode = getString("no_ui_pause", R.string.pref_no_ui_pause_default)
     shouldSavePosition = prefs.getBoolean("save_position", true)
-    if (autoRotationMode != "manual")
-        autoRotationMode = getString("auto_rotation", R.string.pref_auto_rotation_default)
     controlsAtBottom = prefs.getBoolean("bottom_controls", true)
     showMediaTitle = prefs.getBoolean("display_media_title", true)
     controlsDisplayTimeoutMs = parseControlsTimeout(
@@ -25,7 +23,6 @@ internal fun MPVActivity.readPlaybackSettings(
     ignoreAudioFocus = prefs.getBoolean("ignore_audio_focus", false)
     playlistExitWarning = prefs.getBoolean("playlist_exit_warning", true)
     newIntentReplace = prefs.getBoolean("new_intent_replace", false)
-    smoothSeekGesture = prefs.getBoolean("seek_gesture_smooth", false)
     autoDecoderFallback = prefs.getBoolean("decoder_auto_fallback", true)
     preferredDecoderMode = prefs.getString("preferred_decoder_mode", "") ?: ""
 }

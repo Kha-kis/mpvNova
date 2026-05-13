@@ -3,7 +3,7 @@
     MPV Player overlay - Android TV 10-foot UI
     ==========================================
     One-row left-aligned control bar at the bottom, thin purple seekbar, title
-    aligned left, time on the far right. Top-right pill for lock/PiP/menu.
+    aligned left, time on the far right. Top-right pill for PiP/menu.
 
     All @+id values that existed in the legacy layout are preserved so
     MPVActivity.kt binds unchanged; new buttons (controlsScrim,
@@ -180,6 +180,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:baselineAligned="false"
                 android:gravity="center_vertical"
                 android:layoutDirection="ltr"
                 android:orientation="horizontal">
@@ -206,7 +207,7 @@
                         <requestFocus />
                     </ImageButton>
 
-                    <!-- Next Chapter: tap = skip to next chapter, hold = chapter picker -->
+                    <!-- Next Chapter: press = skip to next chapter, hold = chapter picker -->
                     <ImageButton
                         android:id="@+id/nextChapterBtn"
                         style="@style/MpvPlayer.ButtonBarIconButton"
@@ -378,6 +379,7 @@
             android:layout_marginTop="20dp"
             android:background="@drawable/bg_glass_panel"
             android:gravity="center_horizontal"
+            android:minWidth="132dp"
             android:orientation="vertical"
             android:paddingStart="16dp"
             android:paddingTop="12dp"
@@ -489,24 +491,6 @@
                 tools:visibility="visible" />
         </LinearLayout>
 
-        <!-- =============== GESTURE TOAST =============== -->
-        <TextView
-            android:id="@+id/gestureTextView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:shadowColor="#FF000000"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="16"
-            android:textAlignment="center"
-            android:textColor="@color/tv_text"
-            android:textSize="38sp"
-            android:textStyle="bold"
-            android:letterSpacing="-0.01"
-            android:visibility="gone"
-            tools:text="[gesture]" />
-
         <LinearLayout
             android:id="@+id/playerToast"
             android:layout_width="wrap_content"
@@ -548,7 +532,7 @@
                 tools:text="Clear" />
         </LinearLayout>
 
-        <!-- =============== TOP-RIGHT: LOCK/PIP/MENU PILL =============== -->
+        <!-- =============== TOP-RIGHT: PIP/MENU PILL =============== -->
         <LinearLayout
             android:id="@+id/top_controls"
             android:layout_width="wrap_content"
@@ -560,15 +544,6 @@
             android:background="@drawable/bg_player_top"
             android:orientation="horizontal"
             android:padding="6dp">
-
-            <ImageButton
-                android:id="@+id/topLockBtn"
-                style="@style/MpvPlayer.ButtonBarIconButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                app:srcCompat="@drawable/ic_lock_24dp"
-                app:tint="@color/tv_text" />
 
             <ImageButton
                 android:id="@+id/topPiPBtn"
@@ -589,23 +564,6 @@
                 app:srcCompat="@drawable/ic_settings_black_24dp"
                 app:tint="@color/tv_text" />
         </LinearLayout>
-
-        <!-- =============== UNLOCK BUTTON =============== -->
-        <ImageButton
-            android:id="@+id/unlockBtn"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/bg_tv_player_icon_button"
-            android:padding="12dp"
-            android:visibility="gone"
-            app:srcCompat="@drawable/ic_lock_open_24dp"
-            app:tint="?attr/mpvAccentHot" />
 
     </RelativeLayout>
 </RelativeLayout>

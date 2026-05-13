@@ -13,12 +13,6 @@
         <item>Только аудиофайлы</item>
         <item>Всегда (видеофайлы тоже)</item>
     </string-array>
-    <string-array name="auto_rotation_entries">
-        <item>Автоматическая</item>
-        <item>По умолчанию альбомная</item>
-        <item>По умолчанию портретная</item>
-        <item>Устройства</item>
-    </string-array>
     <string-array name="deband_entries">
         <item>Отключён</item>
         <item>CPU</item>
@@ -30,18 +24,5 @@
         <item>stats.lua: общая</item>
         <item>stats.lua: тайминг</item>
         <item>stats.lua: кэш</item>
-    </string-array>
-    <string-array name="gestures_entries">
-        <item>Ничего</item>
-        <item>Поиск</item>
-        <item>Громкость</item>
-        <item>Яркость</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>Ничего</item>
-        <item>Поиск</item>
-        <item>Воспроизведение/Пауза</item>
-        <item>Своё</item>
     </string-array>
 </resources>

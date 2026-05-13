@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -160,13 +157,6 @@ internal fun MPVActivity.updateGpuNextRetryFrameConfirmation(prefix: String, tex
         gpuNextCopyRetryDisplayedFrame = true
         Log.w(MPV_ACTIVITY_TAG, "Confirmed gpu-next retry produced video output")
     }
-}
-
-internal fun MPVActivity.fadeGestureText() {
-    fadeHandler.removeCallbacks(fadeRunnable3)
-    binding.gestureTextView.visibility = View.VISIBLE
-
-    fadeHandler.postDelayed(fadeRunnable3, GESTURE_TEXT_FADE_MS)
 }
 
 internal fun MPVActivity.parseControlsTimeout(value: String?): Long {

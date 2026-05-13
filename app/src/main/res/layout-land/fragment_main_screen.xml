@@ -50,7 +50,8 @@
                     android:paddingStart="24dp"
                     android:paddingTop="12dp"
                     android:paddingEnd="24dp"
-                    android:paddingBottom="12dp">
+                    android:paddingBottom="12dp"
+                    tools:ignore="UselessParent">
 
                     <TextView
                         style="@style/MpvTv.TextSmallCaps"
@@ -87,6 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal"
                 android:weightSum="2">
 
@@ -183,6 +185,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal"
                 android:weightSum="2">
 

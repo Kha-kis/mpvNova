@@ -16,12 +16,6 @@
         <item>Solo file audio</item>
         <item>Sempre (anche i file video)</item>
     </string-array>
-    <string-array name="auto_rotation_entries">
-        <item>Automatico</item>
-        <item>Orizzontale predefinito</item>
-        <item>Verticale predefinito</item>
-        <item>Dispositivo</item>
-    </string-array>
 
     <string-array name="deband_entries">
         <item>Disattivato</item>
@@ -35,19 +29,5 @@
         <item>stats.lua: Generale</item>
         <item>stats.lua: Timings</item>
         <item>stats.lua: Cache</item>
-    </string-array>
-
-    <string-array name="gestures_entries">
-        <item>Nessuno</item>
-        <item>Cerca</item>
-        <item>Volume</item>
-        <item>Luminosità</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>Nessuno</item>
-        <item>Cerca</item>
-        <item>Riproduci/Pausa</item>
-        <item>Personalizzato</item>
     </string-array>
 </resources>

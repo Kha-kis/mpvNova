@@ -4,7 +4,6 @@
 <resources>
     <!-- Simple strings. -->
     <string name="mpv_activity">mpvNova</string>
-    <string name="label_share_intent">mpvNovaで再生</string>
     <string name="title_activity_settings">設定</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">キャンセル</string>
@@ -16,14 +15,10 @@
     <string name="track_audio">オーディオ</string>
     <string name="track_subs">字幕</string>
     <string name="track_off">オフ</string>
-    <string name="ui_volume">音量:%d%%</string>
-    <string name="ui_brightness">明るさ:%d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">チャプター %1$d (%2$s)</string>
     <string name="ui_chapter">%1$s (%2$s)</string>
-    <string name="format_seconds">%.1f 秒</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">再生スピード</string>
@@ -40,7 +35,6 @@
     <string name="notice_show_media_files">メディアファイルのみ表示</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">画面方向の切替</string>
     <string name="open_external_audio">外部オーディオファイルを読み込む…</string>
     <string name="open_external_sub">外部字幕ファイルを読み込む…</string>
     <string name="action_playlist">プレイリスト</string>
@@ -76,23 +70,6 @@
     <string name="pref_save_position_title">終了時に再生位置を保存</string>
     <string name="pref_save_position_summary">各ファイルの再生終了時に停止位置を保存します。同じファイルを再生した際に前回終了時の位置から再開します</string>
 
-    <string name="pref_auto_rotation_title">画面の方向</string>
-    <string name="pref_auto_rotation_summary">再生時に横向き/縦向きにするかの設定</string>
-
-    <string name="pref_header_gestures">タッチジェスチャー</string>
-
-    <string name="pref_gesture_horiz_title">水平にドラッグ</string>
-
-    <string name="pref_gesture_vert_left_title">垂直にドラッグ(画面左側)</string>
-
-    <string name="pref_gesture_vert_right_title">垂直にドラッグ(画面右側)</string>
-
-    <string name="pref_gesture_tap_left_title">ダブルタップ(画面左側)</string>
-
-    <string name="pref_gesture_tap_center_title">ダブルタップ(画面中央)</string>
-
-    <string name="pref_gesture_tap_right_title">ダブルタップ(画面右側)</string>
-
     <string name="pref_header_video">ビデオ</string>
 
     <string name="pref_video_upscale_title">アップスケール フィルタ</string>
@@ -120,8 +97,6 @@
     <string name="pref_gpu_debug_title">OpenGLデバッグを有効化</string>
 
     <string name="pref_header_advanced">詳細設定</string>
-
-    <string name="pref_version_info">バージョン情報</string>
 
     <string name="pref_edit_mpv_conf">mpv.confを編集</string>
     <string name="pref_edit_mpv_conf_message">mpvの設定ファイルを直接編集できます</string>

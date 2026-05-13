@@ -22,12 +22,7 @@ internal fun MPVActivity.topMenuItems(restoreState: StateRestoreCallback): Mutab
         MenuItem(R.id.chapterBtn) { openChapterMenu(restoreState) },
         MenuItem(R.id.chapterPrev) { seekChapterRelative(-1); true },
         MenuItem(R.id.chapterNext) { seekChapterRelative(1); true },
-        MenuItem(R.id.advancedBtn) { openAdvancedMenu(restoreState); false },
-        MenuItem(R.id.orientationBtn) {
-            autoRotationMode = "manual"
-            cycleOrientation()
-            true
-        }
+        MenuItem(R.id.advancedBtn) { openAdvancedMenu(restoreState); false }
     )
 }
 

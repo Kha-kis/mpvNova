@@ -63,6 +63,7 @@
         android:background="@drawable/bg_tv_panel_card"
         android:clipChildren="true"
         android:clipToOutline="true"
+        tools:targetApi="s"
         android:clipToPadding="true"
         android:overScrollMode="never"
         android:paddingStart="12dp"

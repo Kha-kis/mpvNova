@@ -1,6 +1,5 @@
 package app.mpvnova.player
 
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.addCallback
@@ -22,10 +21,8 @@ internal fun MPVActivity.bindClickListeners() = with(binding) {
     nightModeBtn.setOnClickListener { adjustNightMode(1, wrap = true) }
     audioNormBtn.setOnClickListener { adjustAudioNorm(1, wrap = true) }
     nextChapterBtn.setOnClickListener { seekChapterRelative(1) }
-    topLockBtn.setOnClickListener { lockUI() }
     topPiPBtn.setOnClickListener { goIntoPiP() }
     topMenuBtn.setOnClickListener { openTopMenu() }
-    unlockBtn.setOnClickListener { unlockUI() }
     playbackDurationTxt.setOnClickListener { toggleTimeRemainingDisplay() }
 }
 
@@ -50,18 +47,6 @@ internal fun MPVActivity.bindSeekbarListeners() = with(binding.playbackSeekbar) 
 }
 
 internal fun MPVActivity.bindTouchAndInsetsListeners() {
-    player.setOnTouchListener { _, event ->
-        if (lockedUI) {
-            false
-        } else {
-            val handled = gestures.onTouchEvent(event)
-            if (event.action == MotionEvent.ACTION_UP) {
-                player.performClick()
-            }
-            handled
-        }
-    }
-
     ViewCompat.setOnApplyWindowInsetsListener(binding.outside) { view, windowInsets ->
         val insets = windowInsets.getInsets(
             WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()

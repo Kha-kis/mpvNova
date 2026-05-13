@@ -28,8 +28,6 @@
     <string name="pref_hardware_decoding_title">Maskinvaredekoding</string>
     <string name="pref_hardware_decoding_summary">Prøver maskinvarebasert dekoding, og faller tilbake på programvarebasert dekoding hvis det ikke virker</string>
 
-    <string name="pref_header_gestures">Håndvendinger</string>
-
     <string name="pref_header_video">Video</string>
 
     <string name="pref_video_upscale_title">Oppskaleringsmetode</string>
@@ -53,8 +51,6 @@
 
     <string name="pref_gpu_debug_title">Skru på OpenGL-feilretting</string>
     <string name="pref_header_advanced">Avanserte Innstillinger</string>
-
-    <string name="pref_version_info">Vare Versjonsinformasjon</string>
 
     <string name="pref_edit_mpv_conf">Endre Konfigurasjonsfilen</string>
     <string name="pref_edit_mpv_conf_message">Du kan direkte redigere innstiller fil av mpv her.</string>

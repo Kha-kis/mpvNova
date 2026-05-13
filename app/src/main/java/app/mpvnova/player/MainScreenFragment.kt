@@ -6,7 +6,6 @@ import app.mpvnova.player.databinding.FragmentMainScreenBinding
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -119,13 +118,6 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         if (BuildConfig.DEBUG) {
             binding.settingsBtn.setOnLongClickListener { showDebugMenu(); true }
         }
-
-        onConfigurationChanged(view.resources.configuration)
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // The TV hero now keeps a consistent compact shape across orientations.
     }
 
     override fun onResume() {

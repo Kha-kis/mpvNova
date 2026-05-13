@@ -273,42 +273,6 @@
         <item name="mpvStrokeStrong">#4AFFA8C8</item>
     </style>
 
-    <style name="FilePickerTheme.Oled" parent="FilePickerTheme">
-        <item name="colorPrimary">#FFFFFFFF</item>
-        <item name="colorPrimaryDark">#FFE0E0E0</item>
-        <item name="colorAccent">#FFFFFFFF</item>
-        <item name="mpvAccent">#FFFFFFFF</item>
-        <item name="mpvAccentHot">#FFFFFFFF</item>
-        <item name="mpvAccentDeep">#FFE0E0E0</item>
-        <item name="mpvFilterActiveIcon">#FFFFFFFF</item>
-        <item name="mpvStrokeFocus">#FFFFFFFF</item>
-        <item name="mpvFocusWash">#26FFFFFF</item>
-        <item name="mpvFocusWashSoft">#14FFFFFF</item>
-        <item name="mpvWindowStart">#FF000000</item>
-        <item name="mpvWindowCenter">#FF000000</item>
-        <item name="mpvWindowEnd">#FF000000</item>
-        <item name="mpvWindowGlowStart">#00000000</item>
-        <item name="mpvWindowGlowEnd">#00000000</item>
-        <item name="mpvWindowGlowAltStart">#00000000</item>
-        <item name="mpvWindowGlowAltEnd">#00000000</item>
-        <item name="mpvSurfaceStart">#CC050505</item>
-        <item name="mpvSurfaceEnd">#E6000000</item>
-        <item name="mpvSurfaceAltStart">#66080808</item>
-        <item name="mpvSurfaceAltEnd">#52000000</item>
-        <item name="mpvSurfaceSoft">#10FFFFFF</item>
-        <item name="mpvSurfaceStrongStart">#E0080808</item>
-        <item name="mpvSurfaceStrongEnd">#D0000000</item>
-        <item name="mpvHeroStart">#D0080808</item>
-        <item name="mpvHeroEnd">#C2000000</item>
-        <item name="mpvOverlayStart">#B8050505</item>
-        <item name="mpvOverlayCenter">#AA020202</item>
-        <item name="mpvOverlayEnd">#A0000000</item>
-        <item name="mpvChipStart">#16FFFFFF</item>
-        <item name="mpvChipEnd">#0CFFFFFF</item>
-        <item name="mpvStroke">#22FFFFFF</item>
-        <item name="mpvStrokeStrong">#44FFFFFF</item>
-    </style>
-
     <style name="FilePickerThemeSpecial.Ocean" parent="FilePickerTheme.Ocean">
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
@@ -330,10 +294,6 @@
     </style>
 
     <style name="FilePickerThemeSpecial.Rose" parent="FilePickerTheme.Rose">
-        <item name="android:windowTranslucentNavigation">true</item>
-    </style>
-
-    <style name="FilePickerThemeSpecial.Oled" parent="FilePickerTheme.Oled">
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
@@ -614,42 +574,6 @@
         <item name="mpvChipEnd">#12D81B60</item>
         <item name="mpvStroke">#2AFF8CB2</item>
         <item name="mpvStrokeStrong">#4AFFA8C8</item>
-    </style>
-
-    <style name="AppTheme.Oled" parent="AppTheme">
-        <item name="colorPrimary">#FFFFFFFF</item>
-        <item name="colorPrimaryDark">#FFE0E0E0</item>
-        <item name="colorAccent">#FFFFFFFF</item>
-        <item name="mpvAccent">#FFFFFFFF</item>
-        <item name="mpvAccentHot">#FFFFFFFF</item>
-        <item name="mpvAccentDeep">#FFE0E0E0</item>
-        <item name="mpvFilterActiveIcon">#FFFFFFFF</item>
-        <item name="mpvStrokeFocus">#FFFFFFFF</item>
-        <item name="mpvFocusWash">#26FFFFFF</item>
-        <item name="mpvFocusWashSoft">#14FFFFFF</item>
-        <item name="mpvWindowStart">#FF000000</item>
-        <item name="mpvWindowCenter">#FF000000</item>
-        <item name="mpvWindowEnd">#FF000000</item>
-        <item name="mpvWindowGlowStart">#00000000</item>
-        <item name="mpvWindowGlowEnd">#00000000</item>
-        <item name="mpvWindowGlowAltStart">#00000000</item>
-        <item name="mpvWindowGlowAltEnd">#00000000</item>
-        <item name="mpvSurfaceStart">#CC050505</item>
-        <item name="mpvSurfaceEnd">#E6000000</item>
-        <item name="mpvSurfaceAltStart">#66080808</item>
-        <item name="mpvSurfaceAltEnd">#52000000</item>
-        <item name="mpvSurfaceSoft">#10FFFFFF</item>
-        <item name="mpvSurfaceStrongStart">#E0080808</item>
-        <item name="mpvSurfaceStrongEnd">#D0000000</item>
-        <item name="mpvHeroStart">#D0080808</item>
-        <item name="mpvHeroEnd">#C2000000</item>
-        <item name="mpvOverlayStart">#B8050505</item>
-        <item name="mpvOverlayCenter">#AA020202</item>
-        <item name="mpvOverlayEnd">#A0000000</item>
-        <item name="mpvChipStart">#16FFFFFF</item>
-        <item name="mpvChipEnd">#0CFFFFFF</item>
-        <item name="mpvStroke">#22FFFFFF</item>
-        <item name="mpvStrokeStrong">#44FFFFFF</item>
     </style>
 
     <style name="MpvThemeOverlay" />
@@ -969,42 +893,6 @@
         <item name="mpvStrokeStrong">#4AFFA8C8</item>
     </style>
 
-    <style name="AppTheme.Preference.Oled" parent="AppTheme.Preference">
-        <item name="colorPrimary">#FFFFFFFF</item>
-        <item name="colorPrimaryInverse">#FFFFFFFF</item>
-        <item name="colorSecondary">#FFFFFFFF</item>
-        <item name="mpvAccent">#FFFFFFFF</item>
-        <item name="mpvAccentHot">#FFFFFFFF</item>
-        <item name="mpvAccentDeep">#FFE0E0E0</item>
-        <item name="mpvFilterActiveIcon">#FFFFFFFF</item>
-        <item name="mpvStrokeFocus">#FFFFFFFF</item>
-        <item name="mpvFocusWash">#26FFFFFF</item>
-        <item name="mpvFocusWashSoft">#14FFFFFF</item>
-        <item name="mpvWindowStart">#FF000000</item>
-        <item name="mpvWindowCenter">#FF000000</item>
-        <item name="mpvWindowEnd">#FF000000</item>
-        <item name="mpvWindowGlowStart">#00000000</item>
-        <item name="mpvWindowGlowEnd">#00000000</item>
-        <item name="mpvWindowGlowAltStart">#00000000</item>
-        <item name="mpvWindowGlowAltEnd">#00000000</item>
-        <item name="mpvSurfaceStart">#CC050505</item>
-        <item name="mpvSurfaceEnd">#E6000000</item>
-        <item name="mpvSurfaceAltStart">#66080808</item>
-        <item name="mpvSurfaceAltEnd">#52000000</item>
-        <item name="mpvSurfaceSoft">#10FFFFFF</item>
-        <item name="mpvSurfaceStrongStart">#E0080808</item>
-        <item name="mpvSurfaceStrongEnd">#D0000000</item>
-        <item name="mpvHeroStart">#D0080808</item>
-        <item name="mpvHeroEnd">#C2000000</item>
-        <item name="mpvOverlayStart">#B8050505</item>
-        <item name="mpvOverlayCenter">#AA020202</item>
-        <item name="mpvOverlayEnd">#A0000000</item>
-        <item name="mpvChipStart">#16FFFFFF</item>
-        <item name="mpvChipEnd">#0CFFFFFF</item>
-        <item name="mpvStroke">#22FFFFFF</item>
-        <item name="mpvStrokeStrong">#44FFFFFF</item>
-    </style>
-
     <style name="AppTheme.Toolbar.Style" parent="Widget.Material3.Toolbar">
         <item name="android:background">@android:color/transparent</item>
         <item name="titleTextColor">@color/tv_text</item>
@@ -1018,10 +906,6 @@
         <item name="colorPrimary">?attr/mpvAccent</item>
         <item name="colorOnSurface">@color/tv_text</item>
         <item name="android:colorBackground">?attr/mpvSurfaceStrongEnd</item>
-    </style>
-
-    <style name="Preference.SwitchPreferenceCompat" parent="Preference.SwitchPreferenceCompat.Material" tools:override="true">
-        <item name="android:widgetLayout">@layout/material_preferences_switch</item>
     </style>
 
     <style name="MpvPlayer.ButtonBar" parent="Widget.AppCompat.ButtonBar">
@@ -1054,23 +938,6 @@
         <item name="android:padding">8dp</item>
     </style>
 
-    <style name="MpvTv.Tile" parent="Widget.AppCompat.Button">
-        <item name="android:background">@drawable/bg_tv_tile</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">false</item>
-        <item name="android:clickable">true</item>
-        <item name="android:textColor">@color/tv_text</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:letterSpacing">0.01</item>
-        <item name="android:gravity">center</item>
-        <item name="android:drawablePadding">12dp</item>
-        <item name="android:padding">20dp</item>
-        <item name="android:drawableTint" tools:targetApi="m">@color/tv_text</item>
-        <item name="android:stateListAnimator">@null</item>
-    </style>
-
     <style name="Mpv.SurfaceButton" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/bg_dialog_action</item>
         <item name="android:minHeight">54dp</item>
@@ -1101,14 +968,4 @@
         <item name="android:letterSpacing">0.22</item>
     </style>
 
-    <style name="MpvTv.HeroTitle">
-        <item name="android:textColor">@color/tv_text</item>
-        <item name="android:textSize">38sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">-0.01</item>
-        <item name="android:shadowColor">#CC000000</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">2</item>
-        <item name="android:shadowRadius">12</item>
-    </style>
 </resources>

@@ -12,6 +12,7 @@
 backups/
 app/default/release/
 logs/
+qa-artifacts/
 
 # Local agent/tool scratch
 .claude/

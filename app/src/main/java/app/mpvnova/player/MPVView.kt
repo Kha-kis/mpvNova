@@ -18,12 +18,12 @@ private data class PreferredOption(val preferenceName: String, val mpvOption: St
 
 internal const val MPV_VIEW_LOG_TAG = "mpv"
 internal const val MPV_VIEW_HWDECS = "mediacodec,mediacodec-copy"
-internal const val MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES = 50 * 1024 * 1024
+internal const val MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES = 64 * 1024 * 1024
 internal const val MPV_VIEW_MIN_VALID_ASPECT = 0.001
 internal const val MPV_VIEW_HALF_ROTATION_DEGREES = 180
 internal const val MPV_VIEW_RIGHT_ANGLE_DEGREES = 90
-internal const val MPV_VIEW_MODERN_DEMUXER_CACHE_MIB = 64
-internal const val MPV_VIEW_LEGACY_DEMUXER_CACHE_MIB = 32
+internal const val MPV_VIEW_MODERN_DEMUXER_CACHE_MIB = 128
+internal const val MPV_VIEW_LEGACY_DEMUXER_CACHE_MIB = 64
 internal const val MPV_VIEW_BYTES_PER_MIB = 1024 * 1024
 private const val PLAYBACK_SPEED_HALF = 0.5
 private const val PLAYBACK_SPEED_THREE_QUARTERS = 0.75
@@ -43,11 +43,6 @@ internal val MPV_VIEW_PLAYBACK_SPEED_STEPS = doubleArrayOf(
 )
 
 internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(context, attrs) {
-    override fun performClick(): Boolean {
-        super.performClick()
-        return true
-    }
-
     override fun initOptions() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -140,7 +135,7 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
         // has to evict cached glyphs/bitmaps and re-rasterize them mid-scene.
         mpvSetOptionString("sub-bitmap-max-size", "256")
         mpvSetOptionString("sub-glyph-limit", "200000")
-        // Limit demuxer cache since the defaults are too high for mobile devices
+        // Keep demuxer cache bounded for TV boxes with limited free memory.
         val cacheBytes = defaultDemuxerCacheBytes()
         mpvSetOptionString("demuxer-max-bytes", cacheBytes.toString())
         mpvSetOptionString("demuxer-max-back-bytes", cacheBytes.toString())

@@ -2,7 +2,6 @@ package app.mpvnova.player.preferences
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -527,23 +526,9 @@ class PreferenceActivity : AppCompatActivity(),
 
     class UIPreference : StyledPreferenceFragment(R.xml.pref_ui) {
         override fun onPreferencesLoaded() {
-            val packageManager = requireContext().packageManager
-            if (!packageManager.hasSystemFeature(PackageManager.FEATURE_SCREEN_PORTRAIT))
-                // Disabled top rows can trap Android TV D-pad focus before it reaches the toolbar.
-                findPreference<Preference>("auto_rotation")?.isVisible = false
             findPreference<Preference>("reset_player_ui_settings")?.setOnPreferenceClickListener {
                 activity?.let(SupportActions::resetPlayerUiSettings)
                 true
-            }
-        }
-    }
-
-    class GesturePreference : StyledPreferenceFragment(R.xml.pref_gestures) {
-        override fun onPreferencesLoaded() {
-            val packageManager = requireContext().packageManager
-            if (!packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
-                for (i in 0 until preferenceScreen.preferenceCount)
-                    preferenceScreen.getPreference(i).isEnabled = false
             }
         }
     }

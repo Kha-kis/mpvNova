@@ -17,13 +17,6 @@
         <item>Zawsze (także pliki wideo)</item>
     </string-array>
 
-    <string-array name="auto_rotation_entries">
-        <item>Automatycznie</item>
-        <item>Domyślny krajobraz</item>
-        <item>Domyślny portret</item>
-        <item>Urządzenie</item>
-    </string-array>
-
     <string-array name="deband_entries">
         <item>Wyłączone</item>
         <item>CPU</item>
@@ -36,19 +29,5 @@
         <item>stats.lua: Ogólne</item>
         <item>stats.lua: Czasy</item>
         <item>stats.lua: Pamięć podręczna</item>
-    </string-array>
-
-    <string-array name="gestures_entries">
-        <item>Brak</item>
-        <item>Przewijanie</item>
-        <item>Głośność</item>
-        <item>Jasność</item>
-    </string-array>
-
-    <string-array name="tap_gestures_entries">
-        <item>Brak</item>
-        <item>Przewijanie</item>
-        <item>Odtwórz/Wstrzymaj</item>
-        <item>Niestandardowy</item>
     </string-array>
 </resources>

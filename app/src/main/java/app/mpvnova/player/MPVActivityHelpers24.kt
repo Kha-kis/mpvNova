@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -177,17 +174,6 @@ internal fun MPVActivity.showChapterPickerDialog() {
             maxHeightDp = 540f,
         )
     )
-}
-
-internal fun MPVActivity.updateOrientation(initial: Boolean = false) {
-    if (!packageManager.hasSystemFeature(PackageManager.FEATURE_SCREEN_PORTRAIT))
-        return
-    if (autoRotationMode != "auto" && initial) {
-        requestedOrientation = fixedOrientationForMode(autoRotationMode)
-    } else if (autoRotationMode == "auto" && !initial && player.vid != -1) {
-        val ratio = player.getVideoAspect()?.toFloat() ?: 0f
-        requestedOrientation = autoOrientationForAspect(ratio)
-    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

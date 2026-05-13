@@ -12,6 +12,7 @@
         android:background="@drawable/bg_text_field_surface"
         android:fontFamily="monospace"
         android:gravity="top"
+        android:hint="@string/pref_edit_mpv_conf_message"
         android:inputType="textMultiLine|textNoSuggestions"
         android:maxLines="16"
         android:minLines="4"

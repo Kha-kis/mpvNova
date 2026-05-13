@@ -2,7 +2,6 @@ mpvNova to odtwarzacz wideo dla systemu Android oparty na <a href="https://githu
 
 Cechy:
 * Sprzętowe i programowe dekodowanie wideo
-* Wyszukiwanie na podstawie gestów, regulacja głośności/jasności i nie tylko
 * obsługa libass dla stylizowanych napisów
 * Obługa dodatkowych (lub podwójnych) napisów
 * Zaawansowane ustawienia wideo (interpolacja, usuwanie pasm, skalery, ...)

@@ -4,7 +4,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- Simple strings. -->
     <string name="mpv_activity">mpvNova</string>
-    <string name="label_share_intent">Відтворити з mpvNova</string>
     <string name="title_activity_settings">Налаштування</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Скасувати</string>
@@ -21,9 +20,6 @@
     <string name="track_secondary">Додаткове</string>
     <string name="btn_play">Відтворення</string>
     <string name="btn_pause">Пауза</string>
-    <string name="ui_volume">Звук: %d%%</string>
-    <string name="ui_brightness">Яскравість: %d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">Розділ %1$d (%2$s)</string>
@@ -31,7 +27,6 @@
     <string name="ui_track">#%d</string>
     <string name="ui_track_text">#%1$d: %2$s</string>
     <string name="ui_track_title_lang">#%1$d: %2$s (%3$s)</string>
-    <string name="format_seconds">%.1f s</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Швидкість відтворення</string>
@@ -51,7 +46,6 @@
     <string name="uri_invalid_protocol">Некоректний протокол</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Змінити орієнтацію</string>
     <string name="open_external_audio">Відкрити зовнішнє аудіо…</string>
     <string name="open_external_sub">Відкрити зовнішні субтитри…</string>
     <string name="advanced_menu">Додатково…</string>
@@ -59,12 +53,10 @@
     <string name="toggle_stats">Показати/приховати статистику</string>
     <string name="chapter_button">Розділ</string>
     <string name="sub_seek_button">Позиціювання за субтитрами</string>
-    <string name="file_picker_old">Вибір файлів\n(застарілий)</string>
     <string name="action_settings">Налаштування</string>
     <string name="action_playlist">Список відтворення</string>
     <string name="action_open_url">Відкрити адресу</string>
     <string name="action_open_doc">Відкрити документ</string>
-    <string name="action_open_doc_tree">Відкрити дерево документів</string>
     <string name="action_pick_file">Вибір файлів</string>
     <string name="action_pick_file_old">Вибір файлів (застарілий)</string>
     <string name="action_external_storage">Зовнішнє сховище</string>
@@ -74,7 +66,6 @@
     <string name="pref_header_general">Загальне</string>
     <string name="pref_header_video">Відео</string>
     <string name="pref_header_ui">Інтерфейс користувача</string>
-    <string name="pref_header_gestures">Жести дотику</string>
     <string name="pref_header_developer">Для розробника</string>
     <string name="pref_header_advanced">Розширені</string>
 
@@ -95,9 +86,6 @@
     <string name="pref_save_position_title">Зберігати позицію при виході</string>
     <string name="pref_save_position_summary">Запамʼятати поточну позицію відтворення при виході. Коли той самий файл буде відкрито повторно, mpv повернеться до попереднього часу відтворення.</string>
 
-    <string name="pref_auto_rotation_title">Орієнтація екрана</string>
-    <string name="pref_auto_rotation_summary">Визначає, в якій орієнтації mpv буде відтворювати ландшафтні чи портретні відео.</string>
-
 
     <string name="pref_bottom_controls_title">Показувати елементи керування знизу екрана</string>
 
@@ -106,22 +94,6 @@
 
     <string name="pref_playlist_exit_warning_title">Підтверджувати вихід, коли є список відтворення</string>
     <string name="pref_playlist_exit_warning_summary">Виводити діалог підтвердження виходу, коли завантажений список відтворення.</string>
-
-    <string name="pref_seek_gesture_smooth_title">Більш плавне прокручування</string>
-
-    <string name="pref_gesture_horiz_title">Горизонтальне перетягування</string>
-
-    <string name="pref_gesture_vert_left_title">Вертикальне перетягування (лівий бік)</string>
-
-    <string name="pref_gesture_vert_right_title">Вертикальне перетягування (правий бік)</string>
-
-    <string name="pref_gesture_tap_left_title">Подвійне натискання (зліва)</string>
-
-    <string name="pref_gesture_tap_center_title">Подвійне натискання (по центру)</string>
-
-    <string name="pref_gesture_tap_right_title">Подвійне натискання (справа)</string>
-
-    <string name="pref_gesture_custom_helptext">Коли вибрано \"Користувацьке\", для жесту дотику можна призначити будь-яку команду, відредагувавши input.conf. Коди клавіш: <b>0x10001</b> (зліва), <b>0x10002</b> (по центру), <b>0x10003</b> (справа).\nНаприклад, можна призначити гортання на 6 секунд:\n\t\t0x10003 no-osd seek 6</string>
 
     <string name="pref_video_upscale_title">Фільтр збільшення масштабу</string>
 
@@ -150,8 +122,6 @@
 
     <string name="pref_gpu_next_title">Використовувати gpu-next</string>
     <string name="pref_gpu_next_summary">Використати новий бекенд обробки відео на основі libplacebo.</string>
-
-    <string name="pref_version_info">Інформація про версію</string>
 
     <string name="pref_edit_mpv_conf">Редагувати mpv.conf</string>
     <string name="pref_edit_mpv_conf_message">Ви можете відредагувати конфігурацію mpv безпосередньо тут.</string>

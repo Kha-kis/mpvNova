@@ -43,6 +43,7 @@ internal class SubTrackDialog(private val player: MPVView) {
     }
 
     fun refresh() {
+        val oldCount = tracks.size
         tracks = player.tracks.getValue(TRACK_TYPE)
         selectedMpvId = player.sid
         selectedMpvId2 = player.secondarySid
@@ -79,7 +80,7 @@ internal class SubTrackDialog(private val player: MPVView) {
             binding.divider.visibility = View.GONE
         }
 
-        binding.list.adapter!!.notifyDataSetChanged()
+        binding.list.adapter!!.notifyRangeRefresh(oldCount, tracks.size)
         val index = tracks.indexOfFirst { it.mpvId == if (secondary) selectedMpvId2 else selectedMpvId }
         if (index >= 0)
             binding.list.scrollToPosition(index)

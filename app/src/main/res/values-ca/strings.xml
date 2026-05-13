@@ -4,7 +4,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- Simple strings. -->
     <string name="mpv_activity">mpvNova</string>
-    <string name="label_share_intent">Reprodueix a mpvNova</string>
     <string name="title_activity_settings">Paràmetres</string>
     <string name="dialog_ok">Accepta</string>
     <string name="dialog_cancel">Cancel·la</string>
@@ -21,9 +20,6 @@
     <string name="track_secondary">Secundari</string>
     <string name="btn_play">Reprodueix</string>
     <string name="btn_pause">Pausa</string>
-    <string name="ui_volume">Volum: %d%%</string>
-    <string name="ui_brightness">Lluminositat: %d%%</string>
-    <string name="ui_seek_distance">%1$s\n[%2$s]</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
     <string name="ui_chapter_fallback">Capítol %1$d (%2$s)</string>
@@ -31,7 +27,6 @@
     <string name="ui_track">#%d</string>
     <string name="ui_track_text">#%1$d: %2$s</string>
     <string name="ui_track_title_lang">#%1$d: %2$s (%3$s)</string>
-    <string name="format_seconds">%.1f s</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Velocitat de reproducció</string>
@@ -51,7 +46,6 @@
     <string name="uri_invalid_protocol">Protocol invàlid</string>
 
     <!-- Action buttons -->
-    <string name="switch_orientation">Canvia l\'orientació</string>
     <string name="open_external_audio">Obre un àudio extern…</string>
     <string name="open_external_sub">Obre uns subtítols externs…</string>
     <string name="advanced_menu">Avançat…</string>
@@ -59,12 +53,10 @@
     <string name="toggle_stats">Commuta les estadístiques</string>
     <string name="chapter_button">Capítol</string>
     <string name="sub_seek_button">Filtra pels subtítols</string>
-    <string name="file_picker_old">Selector de fitxers\n(heretat)</string>
     <string name="action_settings">Paràmetres</string>
     <string name="action_playlist">Llista de reproducció</string>
     <string name="action_open_url">Obre l\'URL</string>
     <string name="action_open_doc">Obre el document</string>
-    <string name="action_open_doc_tree">Obre la carpeta dels documents</string>
     <string name="action_pick_file">Escull el fitxer</string>
     <string name="action_pick_file_old">Escull el fitxer (heretat)</string>
     <string name="action_external_storage">Emmagatzematge extern</string>
@@ -74,7 +66,6 @@
     <string name="pref_header_general">General</string>
     <string name="pref_header_video">Vídeo</string>
     <string name="pref_header_ui">Interfície d\'usuari</string>
-    <string name="pref_header_gestures">Gestos tàctils</string>
     <string name="pref_header_developer">Desenvolupador</string>
     <string name="pref_header_advanced">Avançat</string>
     <string name="pref_header_about_mpv">Quant a mpvNova</string>
@@ -98,9 +89,6 @@
     
     <string name="pref_save_position_title">Desa la posició en sortir</string>
     <string name="pref_save_position_summary">Recorda la posició de reproducció actual en sortir. Quan es torni a reproduir el mateix fitxer mpv anirà a la posició desada.</string>
-
-    <string name="pref_auto_rotation_title">Orientació de pantalla</string>
-    <string name="pref_auto_rotation_summary">Decideix l\'orientació, horitzontal o vertical, en què mpv reproduirà els vídeos.</string>
     
 
     <string name="pref_bottom_controls_title">Mostra els controls al capdavall de la pantalla</string>
@@ -110,22 +98,6 @@
     
     <string name="pref_playlist_exit_warning_title">Confirmació de sortida de la llista de reproducció</string>
     <string name="pref_playlist_exit_warning_summary">Mostra un diàleg de confirmació abans de sortir de la llista de reproducció activa.</string>
-
-    <string name="pref_seek_gesture_smooth_title">Vés endavant/endarrere amb suavitat</string>
-
-    <string name="pref_gesture_horiz_title">Arrossegament horitzontal</string>
-    
-    <string name="pref_gesture_vert_left_title">Arrossegament vertical (banda esquerra)</string>
-    
-    <string name="pref_gesture_vert_right_title">Arrossegament vertical (banda dreta)</string>
-    
-    <string name="pref_gesture_tap_left_title">Doble toc (esquerra)</string>
-    
-    <string name="pref_gesture_tap_center_title">Doble toc (centre)</string>
-    
-    <string name="pref_gesture_tap_right_title">Doble toc (dreta)</string>
-    
-    <string name="pref_gesture_custom_helptext">Quan configures un gest tàctil com a \"Personalitzat\" el pots vincular a qualsevol ordre editant-lo a input.conf. Els codis són <b>0x10001</b> (esquerra), <b>0x10002</b> (centre), <b>0x10003</b> (dreta).\nPer exemple, pots vincular l\'ordre "Vés endavant/endarrere 6 segons" amb la instrucció:\n\t\t0x10003 no-osd seek 6</string>
 
     <string name="pref_video_upscale_title">Filtre d\'increment d\'escala</string>
 
@@ -154,8 +126,6 @@
 
     <string name="pref_gpu_next_title">Usa gpu-next</string>
     <string name="pref_gpu_next_summary">Usa aquest nou renderitzador de vídeo basat en libplacebo.</string>
-    
-    <string name="pref_version_info">Informació de la versió</string>
 
     <string name="pref_edit_mpv_conf">Edita mpv.conf</string>
     <string name="pref_edit_mpv_conf_message">Pots editar directament la configuració de mpv aquí.</string>

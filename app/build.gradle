@@ -3,7 +3,7 @@ apply plugin: 'io.gitlab.arturbosch.detekt'
 apply plugin: 'com.autonomousapps.dependency-analysis'
 import java.util.Properties
 
-ext.appVersionCode = 8093
+ext.appVersionCode = 8095
 
 def releaseKeystoreProperties = new Properties()
 def releaseKeystorePropertiesFile = rootProject.file("keystore.properties")
@@ -27,7 +27,7 @@ android {
         applicationId = 'app.mpvnova.player'
 
         versionCode = project.ext.appVersionCode
-        versionName = "2026-05-11"
+        versionName = "2026-05-13"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -92,30 +92,23 @@ android {
             // Keep lint useful for build-breaking correctness checks while
             // filtering noisy style/resource warnings that do not match this
             // TV-focused fork or are already intentional upstream patterns.
+            "ChromeOsAbiSupport",
             "ContentDescription",
-            "DefaultLocale",
-            "DisableBaselineAlignment",
             "DiscouragedApi",
+            "GradleDependency",
             "HardcodedText",
             "IconLauncherShape",
-            "LabelFor",
-            "NestedWeights",
-            "NotifyDataSetChanged",
+            "OldTargetApi",
             "PictureInPictureIssue",
             "PluralsCandidate",
-            "RelativeOverlap",
             "RtlSymmetry",
             "ScopedStorage",
             "SelectedPhotoAccess",
             "SetTextI18n",
             "SmallSp",
-            "StaticFieldLeak",
             "TooManyViews",
             "TypographyEllipsis",
-            "UnusedAttribute",
-            "UnusedResources",
             "UseKtx",
-            "UselessParent",
         ]
     }
 

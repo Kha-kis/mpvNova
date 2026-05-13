@@ -9,6 +9,7 @@ package is.xyz.filepicker;
 import app.mpvnova.player.R;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -237,6 +238,7 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
      */
     @NonNull
     @Override
+    @SuppressLint("StaticFieldLeak")
     public Loader<List<File>> getLoader() {
         return new AsyncTaskLoader<>(requireContext()) {
             FileObserver fileObserver;

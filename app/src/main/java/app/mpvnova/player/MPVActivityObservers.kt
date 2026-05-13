@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -35,10 +34,8 @@ import android.util.DisplayMetrics
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import android.view.Gravity
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
@@ -86,7 +83,6 @@ internal class MpvActivityLifecycleObserver(private val activity: MPVActivity) :
         activity.activityIsStopped = true
     }
 }
-
 internal class MpvActivityEventObserver(private val activity: MPVActivity) : MpvEventObserver {
     override fun eventProperty(property: String) {
         with(activity) {
@@ -203,15 +199,6 @@ internal class MpvActivityLogObserver(private val activity: MPVActivity) : MpvLo
                 )
             }
         }
-    }
-    }
-
-}
-
-internal class MpvActivityTouchGestureObserver(private val activity: MPVActivity) : TouchGesturesObserver {
-    override fun onPropertyChange(p: PropertyChange, diff: Float) {
-        with(activity) {
-        handleGestureChange(p, diff)
     }
     }
 

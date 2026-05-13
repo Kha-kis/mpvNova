@@ -16,13 +16,6 @@
         <item>Només fitxers d\'àudio</item>
         <item>Sempre (Fitxers de vídeo també)</item>
     </string-array>
-
-    <string-array name="auto_rotation_entries">
-        <item>Automàtica</item>
-        <item>Horitzontal per defecte</item>
-        <item>Vertical per defecte</item>
-        <item>Dispositiu</item>
-    </string-array>
  
     <string-array name="deband_entries">
         <item>Inhabilitat</item>
@@ -36,19 +29,5 @@
         <item>Lua: General</item>
         <item>Lua: Temps d\'actualització d\'imatge</item>
         <item>Lua: Memòria cau</item>
-    </string-array>
-    
-    <string-array name="gestures_entries">
-        <item>Res</item>
-        <item>Vés endavant/endarrere</item>
-        <item>Volum</item>
-        <item>Lluminositat</item>
-    </string-array>
-    
-    <string-array name="tap_gestures_entries">
-        <item>Res</item>
-        <item>Vés endavant/endarrere</item>
-        <item>Reprodueix/Pausa</item>
-        <item>Personalitzat</item>
     </string-array>
 </resources>
