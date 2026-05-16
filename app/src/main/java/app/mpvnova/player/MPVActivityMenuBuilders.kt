@@ -27,17 +27,21 @@ internal fun MPVActivity.topMenuItems(restoreState: StateRestoreCallback): Mutab
 }
 
 private fun MPVActivity.openExternalAudio(restoreState: StateRestoreCallback): Boolean {
-    openFilePickerFor(R.string.open_external_audio) { result, data ->
-        addExternalThing("audio-add", result, data)
-        restoreState()
+    eventUiHandler.post {
+        openFilePickerFor(R.string.open_external_audio) { result, data ->
+            addExternalThing("audio-add", result, data)
+            restoreState()
+        }
     }
     return false
 }
 
 private fun MPVActivity.openExternalSubtitle(restoreState: StateRestoreCallback): Boolean {
-    openFilePickerFor(R.string.open_external_sub) { result, data ->
-        addExternalThing("sub-add", result, data)
-        restoreState()
+    eventUiHandler.post {
+        openFilePickerFor(R.string.open_external_sub) { result, data ->
+            addExternalThing("sub-add", result, data)
+            restoreState()
+        }
     }
     return false
 }
@@ -54,22 +58,35 @@ private fun MPVActivity.openChapterMenu(restoreState: StateRestoreCallback): Boo
     val chapters = player.loadChapters()
     if (chapters.isEmpty())
         return true
-    val chapterArray = chapters.map {
+    val items = chapters.map {
         val timecode = Utils.prettyTime(it.time.roundToInt())
-        if (!it.title.isNullOrEmpty())
-            getString(R.string.ui_chapter, it.title, timecode)
-        else
-            getString(R.string.ui_chapter_fallback, it.index + 1, timecode)
-    }.toTypedArray()
-    val selectedIndex = mpvGetPropertyInt("chapter") ?: 0
-    with(AlertDialog.Builder(this)) {
-        setSingleChoiceItems(chapterArray, selectedIndex) { dialog, item ->
-            mpvSetPropertyInt("chapter", chapters[item].index)
-            dialog.dismiss()
-        }
-        setOnDismissListener { restoreState() }
-        create().show()
+        val title = it.title?.takeIf { chapterTitle -> chapterTitle.isNotBlank() }
+            ?: "${getString(R.string.chapter_button)} ${it.index + 1}"
+        ChapterPickerDialog.Item(it.index, title, timecode)
     }
+    val selected = mpvGetPropertyInt("chapter") ?: 0
+    val impl = ChapterPickerDialog(items, selected)
+    lateinit var dialog: AlertDialog
+    impl.onItemPicked = { item ->
+        mpvSetPropertyInt("chapter", item.index)
+        dialog.dismiss()
+    }
+    impl.onCancelClick = { dialog.cancel() }
+    dialog = with(AlertDialog.Builder(this)) {
+        val inflater = layoutInflater
+        setView(impl.buildView(inflater))
+        setOnDismissListener { restoreState() }
+        create()
+    }
+    showWidePlayerDialog(
+        dialog,
+        PlayerDialogLayout(
+            widthFraction = 0.46f,
+            maxWidthDp = 560f,
+            heightFraction = 0.62f,
+            maxHeightDp = 540f,
+        )
+    )
     return false
 }
 

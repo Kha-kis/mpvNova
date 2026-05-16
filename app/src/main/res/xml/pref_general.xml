@@ -32,27 +32,6 @@
         android:title="@string/pref_material_you_theming_title"
         app:iconSpaceReserved="false" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
-        app:iconSpaceReserved="false"
-        android:key="hardware_decoding"
-        android:summary="@string/pref_hardware_decoding_summary"
-        android:title="@string/pref_hardware_decoding_title" />
-
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
-        app:iconSpaceReserved="false"
-        android:key="decoder_auto_fallback"
-        android:summary="@string/pref_decoder_auto_fallback_summary"
-        android:title="@string/pref_decoder_auto_fallback_title" />
-
-    <ListPreference
-        android:defaultValue=""
-        android:key="preferred_decoder_mode"
-        android:summary="@string/pref_preferred_decoder_mode_summary"
-        android:title="@string/pref_preferred_decoder_mode_title"
-        app:iconSpaceReserved="false" />
-
     <ListPreference
         android:defaultValue="@string/pref_background_play_default"
         app:iconSpaceReserved="false"

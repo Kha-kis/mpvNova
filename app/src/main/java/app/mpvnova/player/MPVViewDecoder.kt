@@ -8,7 +8,7 @@ internal val MPVView.currentDecoderMode: String
         val requestedHwdec = getOptionString("hwdec").trim().lowercase()
         val requestedVo = requestedVideoOutput.trim().lowercase()
         return when {
-            isShieldH10pModeActive() -> MPVView.DECODER_MODE_SHIELD_H10P
+            isShieldH10pSoftwareModeActive() -> MPVView.DECODER_MODE_SHIELD_H10P
             requestedVo.startsWith("gpu-next") && requestedHwdec == "mediacodec-copy" -> MPVView.DECODER_MODE_GNEXT
             requestedHwdec == "mediacodec" -> MPVView.DECODER_MODE_HW_PLUS
             requestedHwdec == "mediacodec-copy" -> MPVView.DECODER_MODE_HW
@@ -60,17 +60,7 @@ internal fun MPVView.applyDecoderMode(mode: String) {
             setRuntimeOption("hwdec", "mediacodec-copy")
         }
         MPVView.DECODER_MODE_SHIELD_H10P -> {
-            setRuntimeVo("gpu-next")
-            setRuntimeOption("hwdec", "no")
-            setRuntimeOption("vd-lavc-threads", "6")
-            setRuntimeOption("vd-lavc-fast", "yes")
-            setRuntimeOption("vd-lavc-skiploopfilter", "nonref")
-            setRuntimeOption("framedrop", "vo")
-            setRuntimeOption("gpu-api", "opengl")
-            setRuntimeOption("video-sync", "display-resample")
-            setRuntimeOption("cache", "no")
-            setRuntimeOption("demuxer-max-bytes", MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES.toString())
-            setRuntimeOption("demuxer-max-back-bytes", MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES.toString())
+            applyShieldHi10pFallback(sharedPreferences)
         }
     }
 }
@@ -88,7 +78,7 @@ internal fun MPVView.fallbackGpuNextToCopyHwdec() {
     setRuntimeOption("hwdec", "mediacodec-copy")
 }
 
-private fun MPVView.applyStandardDecoderTuning(sharedPreferences: SharedPreferences, vo: String) {
+internal fun MPVView.applyStandardDecoderTuning(sharedPreferences: SharedPreferences, vo: String) {
     setRuntimeVo(vo)
     setRuntimeOption("video-sync", defaultVideoSync(sharedPreferences))
     if (sharedPreferences.getBoolean("video_fastdecode", false)) {
@@ -107,12 +97,12 @@ private fun MPVView.applyStandardDecoderTuning(sharedPreferences: SharedPreferen
     setRuntimeOption("demuxer-max-back-bytes", cacheBytes)
 }
 
-private fun MPVView.setRuntimeVo(vo: String) {
+internal fun MPVView.setRuntimeVo(vo: String) {
     setVo(vo)
     mpvSetPropertyString("vo", vo)
 }
 
-private fun setRuntimeOption(name: String, value: String) {
+internal fun setRuntimeOption(name: String, value: String) {
     mpvSetOptionString(name, value)
     mpvSetPropertyString(name, value)
 }
@@ -124,20 +114,4 @@ private fun selectedVideoTrackString(name: String): String {
             mpvGetPropertyBoolean("track-list/$index/selected") == true
     }
     return selectedTrack?.let { mpvGetPropertyString("track-list/$it/$name") } ?: ""
-}
-
-private fun MPVView.isShieldH10pModeActive(): Boolean {
-    return matchesOption("vd-lavc-threads", "6") &&
-        matchesOption("vd-lavc-fast", "yes") &&
-        matchesOption("vd-lavc-skiploopfilter", "nonref") &&
-        matchesOption("framedrop", "vo") &&
-        matchesOption("gpu-api", "opengl") &&
-        matchesOption("video-sync", "display-resample") &&
-        matchesOption("cache", "no") &&
-        matchesOption("demuxer-max-bytes", MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES.toString(), "64mib", "50mib")
-}
-
-private fun MPVView.matchesOption(name: String, vararg expected: String): Boolean {
-    val value = getOptionString(name).trim().lowercase()
-    return expected.any { value == it.lowercase() }
 }

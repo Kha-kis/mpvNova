@@ -36,8 +36,10 @@ internal class PlaylistDialog(private val player: MPVView) {
         binding.urlBtn.setOnClickListener { listeners?.openUrl() }
 
         binding.shuffleBtn.setOnClickListener {
-            player.changeShuffle(true)
-            refresh()
+            if (playlist.size > 1) {
+                player.changeShuffle(true)
+                refresh()
+            }
         }
         binding.repeatBtn.setOnClickListener {
             player.cycleRepeat()
@@ -65,19 +67,27 @@ internal class PlaylistDialog(private val player: MPVView) {
             binding.list.parent.requestLayout()
         }
 
-        val accent = ContextCompat.getColor(binding.root.context, R.color.accent)
-        val disabled = ContextCompat.getColor(binding.root.context, R.color.alpha_disabled)
+        val context = binding.root.context
+        val accent = ContextCompat.getColor(context, R.color.accent)
+        val normal = ContextCompat.getColor(context, R.color.tv_text)
+        val disabled = ContextCompat.getColor(context, R.color.tv_text_dim)
         val shuffleState = player.getShuffle()
         binding.shuffleBtn.apply {
-            isEnabled = playlist.size > 1
-            imageTintList = if (isEnabled)
-                if (shuffleState) ColorStateList.valueOf(accent) else null
-            else
-                ColorStateList.valueOf(disabled)
+            isEnabled = true
+            isSelected = shuffleState
+            alpha = if (playlist.size > 1) 1f else UNAVAILABLE_ACTION_ALPHA
+            imageTintList = ColorStateList.valueOf(
+                when {
+                    shuffleState -> accent
+                    playlist.size > 1 -> normal
+                    else -> disabled
+                }
+            )
         }
         val repeatState = player.getRepeat()
         binding.repeatBtn.apply {
-            imageTintList = if (repeatState > 0) ColorStateList.valueOf(accent) else null
+            isSelected = repeatState > 0
+            imageTintList = ColorStateList.valueOf(if (repeatState > 0) accent else normal)
             setImageResource(if (repeatState == 2) R.drawable.ic_repeat_one_24dp else R.drawable.ic_repeat_24dp)
         }
     }
@@ -133,5 +143,6 @@ internal class PlaylistDialog(private val player: MPVView) {
 
     companion object {
         private const val TAG = "mpv"
+        private const val UNAVAILABLE_ACTION_ALPHA = 0.55f
     }
 }

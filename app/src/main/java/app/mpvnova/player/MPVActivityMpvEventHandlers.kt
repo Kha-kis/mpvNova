@@ -43,6 +43,7 @@ private fun MPVActivity.handleMpvStartFile() {
     }
     applySessionDecoderModeIfNeeded()
     runOnloadCommands()
+    applyRememberedVideoAdjustments()
     playbackHasStarted = true
 }
 

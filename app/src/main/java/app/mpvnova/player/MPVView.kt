@@ -18,12 +18,12 @@ private data class PreferredOption(val preferenceName: String, val mpvOption: St
 
 internal const val MPV_VIEW_LOG_TAG = "mpv"
 internal const val MPV_VIEW_HWDECS = "mediacodec,mediacodec-copy"
-internal const val MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES = 64 * 1024 * 1024
+internal const val MPV_VIEW_SHIELD_H10P_DEMUXER_BYTES = 50 * 1024 * 1024
 internal const val MPV_VIEW_MIN_VALID_ASPECT = 0.001
 internal const val MPV_VIEW_HALF_ROTATION_DEGREES = 180
 internal const val MPV_VIEW_RIGHT_ANGLE_DEGREES = 90
-internal const val MPV_VIEW_MODERN_DEMUXER_CACHE_MIB = 128
-internal const val MPV_VIEW_LEGACY_DEMUXER_CACHE_MIB = 64
+internal const val MPV_VIEW_MODERN_DEMUXER_CACHE_MIB = 64
+internal const val MPV_VIEW_LEGACY_DEMUXER_CACHE_MIB = 32
 internal const val MPV_VIEW_BYTES_PER_MIB = 1024 * 1024
 private const val PLAYBACK_SPEED_HALF = 0.5
 private const val PLAYBACK_SPEED_THREE_QUARTERS = 0.75
@@ -131,11 +131,7 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
         // its own timeline UI and routes supported seek inputs through it.
         mpvSetOptionString("osd-on-seek", "no")
         mpvSetOptionString("osd-bar", "no")
-        // Give libass more room for complex ASS/SSA subtitle effects before it
-        // has to evict cached glyphs/bitmaps and re-rasterize them mid-scene.
-        mpvSetOptionString("sub-bitmap-max-size", "256")
-        mpvSetOptionString("sub-glyph-limit", "200000")
-        // Keep demuxer cache bounded for TV boxes with limited free memory.
+        // Match upstream mpv-android's demuxer cache bounds.
         val cacheBytes = defaultDemuxerCacheBytes()
         mpvSetOptionString("demuxer-max-bytes", cacheBytes.toString())
         mpvSetOptionString("demuxer-max-back-bytes", cacheBytes.toString())
@@ -216,5 +212,7 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
         const val DECODER_MODE_SW = "sw"
         const val DECODER_MODE_GNEXT = "g_next"
         const val DECODER_MODE_SHIELD_H10P = "shield_h10p"
+        const val SHIELD_DECODER_FALLBACK_COPY = "g_next_copy"
+        const val SHIELD_DECODER_FALLBACK_SW = "g_next_sw"
     }
 }

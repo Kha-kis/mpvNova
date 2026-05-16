@@ -133,7 +133,10 @@ internal fun MPVActivity.eventLongPropertyUi(property: String) {
 internal fun MPVActivity.eventDoublePropertyUi(property: String) {
     if (!activityIsForeground) return
     when (property) {
-        "time-pos/full" -> updatePlaybackTimeline(psc.position)
+        "time-pos/full" -> {
+            if (!userIsOperatingSeekbar && pendingSeekbarSeekMs == null && pendingDpadSeekPreviewMs == null)
+                updatePlaybackTimeline(psc.position)
+        }
         "duration/full" -> updatePlaybackDuration(psc.duration)
         "video-params/aspect", "video-params/rotate" -> updatePiPParams()
     }

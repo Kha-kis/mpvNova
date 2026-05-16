@@ -451,15 +451,42 @@ class PreferenceActivity : AppCompatActivity(),
         override fun onPreferencesLoaded() {
             preferenceManager.findPreference<Preference>("material_you_theming")?.isVisible =
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        }
+    }
 
+    class VideoPreference : StyledPreferenceFragment(R.xml.pref_video)
+
+    class UIPreference : StyledPreferenceFragment(R.xml.pref_ui) {
+        override fun onPreferencesLoaded() {
+            findPreference<Preference>("reset_player_ui_settings")?.setOnPreferenceClickListener {
+                activity?.let(SupportActions::resetPlayerUiSettings)
+                true
+            }
+        }
+    }
+
+    class DeveloperPreference : StyledPreferenceFragment(R.xml.pref_developer)
+
+    class AdvancePreference : StyledPreferenceFragment(R.xml.pref_advanced) {
+        override fun onPreferencesLoaded() {
             val autoFallbackPref = findPreference<SwitchPreferenceCompat>("decoder_auto_fallback")
+            val shieldDecoderPref = findPreference<SwitchPreferenceCompat>("shield_decoder_mode")
             val preferredDecoderPref = findPreference<ListPreference>("preferred_decoder_mode")
-            if (preferredDecoderPref != null) {
-                val (entries, values) = buildDecoderPreferenceOptions()
+
+            fun refreshDecoderPreferenceOptions(
+                shieldDecoderEnabled: Boolean = shieldDecoderPref?.isChecked != false
+            ) {
+                if (preferredDecoderPref == null)
+                    return
+
+                val (entries, values) = buildDecoderPreferenceOptions(shieldDecoderEnabled)
                 preferredDecoderPref.entries = entries
                 preferredDecoderPref.entryValues = values
-                if (preferredDecoderPref.value.isNullOrBlank())
+                if (preferredDecoderPref.value.isNullOrBlank() ||
+                    !values.contains(preferredDecoderPref.value)
+                ) {
                     preferredDecoderPref.value = defaultPreferredDecoderMode()
+                }
                 preferredDecoderPref.summaryProvider = SummaryProvider<ListPreference> { pref ->
                     val entry = pref.entry?.toString()
                         ?: getString(R.string.pref_preferred_decoder_mode_summary)
@@ -470,6 +497,8 @@ class PreferenceActivity : AppCompatActivity(),
                     )
                 }
             }
+
+            refreshDecoderPreferenceOptions()
             fun syncDecoderPreferenceVisibility() {
                 preferredDecoderPref?.isVisible = autoFallbackPref?.isChecked == false
             }
@@ -478,9 +507,21 @@ class PreferenceActivity : AppCompatActivity(),
                 preferredDecoderPref?.isVisible = (newValue as? Boolean) == false
                 true
             }
+            shieldDecoderPref?.setOnPreferenceChangeListener { _, newValue ->
+                val enabled = (newValue as? Boolean) != false
+                if (!enabled &&
+                    preferredDecoderPref?.value == app.mpvnova.player.MPVView.DECODER_MODE_SHIELD_H10P
+                ) {
+                    preferredDecoderPref.value = defaultPreferredDecoderMode()
+                }
+                refreshDecoderPreferenceOptions(enabled)
+                true
+            }
         }
 
-        private fun buildDecoderPreferenceOptions(): Pair<Array<CharSequence>, Array<CharSequence>> {
+        private fun buildDecoderPreferenceOptions(
+            includeShieldMode: Boolean
+        ): Pair<Array<CharSequence>, Array<CharSequence>> {
             val entries = mutableListOf<CharSequence>()
             val values = mutableListOf<CharSequence>()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -493,8 +534,10 @@ class PreferenceActivity : AppCompatActivity(),
             values.add(app.mpvnova.player.MPVView.DECODER_MODE_SW)
             entries.add(getString(R.string.decoder_mode_gnext_settings))
             values.add(app.mpvnova.player.MPVView.DECODER_MODE_GNEXT)
-            entries.add(getString(R.string.decoder_mode_shield_h10p_settings))
-            values.add(app.mpvnova.player.MPVView.DECODER_MODE_SHIELD_H10P)
+            if (includeShieldMode) {
+                entries.add(getString(R.string.decoder_mode_shield_h10p_settings))
+                values.add(app.mpvnova.player.MPVView.DECODER_MODE_SHIELD_H10P)
+            }
             return Pair(entries.toTypedArray(), values.toTypedArray())
         }
 
@@ -521,21 +564,6 @@ class PreferenceActivity : AppCompatActivity(),
                 app.mpvnova.player.MPVView.DECODER_MODE_HW
         }
     }
-
-    class VideoPreference : StyledPreferenceFragment(R.xml.pref_video)
-
-    class UIPreference : StyledPreferenceFragment(R.xml.pref_ui) {
-        override fun onPreferencesLoaded() {
-            findPreference<Preference>("reset_player_ui_settings")?.setOnPreferenceClickListener {
-                activity?.let(SupportActions::resetPlayerUiSettings)
-                true
-            }
-        }
-    }
-
-    class DeveloperPreference : StyledPreferenceFragment(R.xml.pref_developer)
-
-    class AdvancePreference : StyledPreferenceFragment(R.xml.pref_advanced)
 
     class SupportPreference : StyledPreferenceFragment(R.xml.pref_support) {
         override fun onPreferencesLoaded() {

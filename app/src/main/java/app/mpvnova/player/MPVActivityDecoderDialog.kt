@@ -8,8 +8,9 @@ internal fun MPVActivity.decoderRawItems(currentMode: String): MutableList<Pair<
         decoderItem(MPVView.DECODER_MODE_HW, currentMode),
         decoderItem(MPVView.DECODER_MODE_SW, currentMode),
         decoderItem(MPVView.DECODER_MODE_GNEXT, currentMode),
-        decoderItem(MPVView.DECODER_MODE_SHIELD_H10P, currentMode),
     )
+    if (shieldDecoderModeEnabled)
+        items.add(decoderItem(MPVView.DECODER_MODE_SHIELD_H10P, currentMode))
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         items.add(0, decoderItem(MPVView.DECODER_MODE_HW_PLUS, currentMode))
     return items
@@ -28,8 +29,7 @@ internal fun List<Pair<CharSequence, String>>.toDecoderPickerItems(
 internal fun currentGpuNextPathLabel(
     useActivePath: Boolean,
     requestedHwdec: String,
-    activeHwdec: String,
-    currentDecoderMode: String
+    activeHwdec: String
 ): String {
     val effectiveHwdec = when {
         useActivePath && activeHwdec.isNotBlank() && activeHwdec != "no" -> activeHwdec
@@ -41,7 +41,7 @@ internal fun currentGpuNextPathLabel(
     return when {
         effectiveHwdec == "mediacodec-copy" -> "copy"
         effectiveHwdec == "mediacodec" -> "direct"
-        effectiveHwdec == "no" || currentDecoderMode == MPVView.DECODER_MODE_SHIELD_H10P -> "software"
+        effectiveHwdec == "no" -> "software"
         else -> "copy"
     }
 }

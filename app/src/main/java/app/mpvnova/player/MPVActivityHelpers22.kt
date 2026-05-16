@@ -94,11 +94,41 @@ internal fun MPVActivity.seekPlaybackFromDpad(deltaMs: Long) {
     val durationMs = psc.duration.coerceAtLeast(0L)
     if (durationMs <= 0L)
         return
-    val currentPositionMs = psc.position.coerceAtLeast(0L)
+    val displayedPositionMs = if (binding.playbackSeekbar.max > 0) {
+        millisFromSeekbarProgress(binding.playbackSeekbar.progress)
+    } else {
+        psc.position
+    }
+    val currentPositionMs = (
+        pendingDpadSeekPreviewMs
+            ?: pendingSeekbarSeekMs
+            ?: displayedPositionMs
+    ).coerceAtLeast(0L)
     val newPositionMs = (currentPositionMs + deltaMs).coerceIn(0L, durationMs)
-    player.timePos = newPositionMs / MPV_MILLIS_PER_SECOND_DOUBLE
+    pendingDpadSeekPreviewMs = newPositionMs
+    pendingSeekbarSeekMs = newPositionMs
+    eventUiHandler.removeCallbacks(commitSeekbarSeekRunnable)
+    eventUiHandler.postDelayed(commitSeekbarSeekRunnable, DPAD_SEEK_DEBOUNCE_MS)
     setPlaybackSeekbarProgress(seekbarProgressFromMillis(newPositionMs))
     updatePlaybackTimeline(newPositionMs, forceTextUpdate = true)
+}
+
+internal fun MPVActivity.scheduleSeekbarSeek(positionMs: Long) {
+    pendingSeekbarSeekMs = positionMs
+    eventUiHandler.removeCallbacks(commitSeekbarSeekRunnable)
+    if (userIsOperatingSeekbar) {
+        eventUiHandler.postDelayed(commitSeekbarSeekRunnable, SEEKBAR_SEEK_DEBOUNCE_MS)
+    } else {
+        commitPendingSeekbarSeek()
+    }
+}
+
+internal fun MPVActivity.commitPendingSeekbarSeek() {
+    val positionMs = pendingSeekbarSeekMs ?: return
+    pendingSeekbarSeekMs = null
+    pendingDpadSeekPreviewMs = null
+    eventUiHandler.removeCallbacks(commitSeekbarSeekRunnable)
+    player.timePos = positionMs / MPV_MILLIS_PER_SECOND_DOUBLE
 }
 
 internal fun MPVActivity.seekDeltaFromDpadEvent(ev: KeyEvent): Long {
@@ -147,9 +177,11 @@ internal fun MPVActivity.updatePlaybackText(position: Int, force: Boolean = fals
         binding.playbackDurationTxt.setTextIfChanged(durationText)
     }
 
-    // Keep the expensive secondary UI work at roughly once per second even
-    // though the seekbar itself now updates with full playback precision.
-    updateStats()
-    if (binding.timeInfoPanel.visibility == View.VISIBLE)
-        updateClockInfo()
+    // Avoid running secondary UI work while the user is scrubbing; heavy
+    // decoder paths can already be busy with the actual seek.
+    if (!userIsOperatingSeekbar && pendingDpadSeekPreviewMs == null) {
+        updateStats()
+        if (binding.timeInfoPanel.visibility == View.VISIBLE)
+            updateClockInfo()
+    }
 }

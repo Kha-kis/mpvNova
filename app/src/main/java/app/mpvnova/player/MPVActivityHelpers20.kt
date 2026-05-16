@@ -104,9 +104,12 @@ internal fun MPVActivity.genericMenu(
         val buttonView = dialogView.findViewById<Button>(button.idRes)
         buttonView.setOnClickListener {
             val ret = button.handler()
-            if (ret) // restore state immediately
+            if (ret) {
                 restoreState()
-            dialog.dismiss()
+            }
+            if (ret || !button.keepMenuOpen) {
+                dialog.dismiss()
+            }
         }
     }
 
@@ -130,8 +133,6 @@ internal fun MPVActivity.genericMenu(
         PlayerDialogLayout(
             widthFraction = 0.56f,
             maxWidthDp = 620f,
-            heightFraction = 0.72f,
-            maxHeightDp = 520f,
         )
     )
 }
@@ -150,23 +151,24 @@ internal fun MPVActivity.genericPickerDialog(
     picker: PickerDialog, @StringRes titleRes: Int, property: String,
     restoreState: StateRestoreCallback
 ) {
-    val dialog = with(AlertDialog.Builder(this)) {
-        setTitle(titleRes)
-        val inflater = LayoutInflater.from(context)
-        setView(picker.buildView(inflater))
-        setPositiveButton(R.string.dialog_ok) { _, _ ->
-            picker.number?.let {
-                if (picker.isInteger())
-                    mpvSetPropertyInt(property, it.toInt())
-                else
-                    mpvSetPropertyDouble(property, it)
-            }
-        }
-        setNegativeButton(R.string.dialog_cancel) { dialog, _ -> dialog.cancel() }
-        setOnDismissListener { restoreState() }
-        create()
-    }
-
+    val pickerView = picker.buildView(layoutInflater)
     picker.number = mpvGetPropertyDouble(property)
-    dialog.show()
+    showPlayerPickerDialog(
+        titleRes = titleRes,
+        contentView = pickerView,
+        restoreState = restoreState,
+        layout = PlayerDialogLayout(
+            widthFraction = 0.56f,
+            maxWidthDp = 620f,
+            heightFraction = 0.62f,
+            maxHeightDp = 520f,
+        ),
+    ) {
+        picker.number?.let {
+            if (picker.isInteger())
+                mpvSetPropertyInt(property, it.toInt())
+            else
+                mpvSetPropertyDouble(property, it)
+        }
+    }
 }

@@ -62,7 +62,12 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.hide()
+        binding.toolbar.isClickable = true
+        binding.toolbar.isFocusable = true
         binding.toolbar.setNavigationOnClickListener {
+            onBackPressedImpl()
+        }
+        binding.toolbar.setOnClickListener {
             onBackPressedImpl()
         }
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
@@ -91,31 +96,24 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         }
 
         val openedDirectly = when (intent.getIntExtra("skip", -1)) {
-            URL_DIALOG -> {
-                showUrlDialog()
-                true
-            }
-            FILE_PICKER -> {
-                initFilePicker()
-                true
-            }
+            URL_DIALOG -> { showUrlDialog(); true }
+            FILE_PICKER -> { initFilePicker(); true }
             DOC_PICKER -> {
-                val root = Uri.parse(intent.getStringExtra("root")!!)
-                initDocPicker(root)
+                initDocPicker(Uri.parse(intent.getStringExtra("root")!!))
                 true
             }
             else -> false
         }
         if (!openedDirectly) {
+            binding.toolbar.visibility = View.INVISIBLE
             val args = Bundle().apply {
                 putString("title", intent.getStringExtra("title"))
                 putBoolean("allow_document", intent.getBooleanExtra("allow_document", false))
             }
-            with (supportFragmentManager.beginTransaction()) {
-                setReorderingAllowed(true)
-                add(R.id.fragment_container_view, ChoiceFragment::class.java, args, null)
-                commit()
-            }
+            supportFragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.fragment_container_view, ChoiceFragment::class.java, args, null)
+                .commit()
         }
     }
 
@@ -309,7 +307,7 @@ private fun FilePickerActivity.focusToolbarNavigation(): Boolean {
             }
         }
     }
-    return false
+    return toolbar.requestFocus()
 }
 
 private fun FilePickerActivity.initFilePicker() {

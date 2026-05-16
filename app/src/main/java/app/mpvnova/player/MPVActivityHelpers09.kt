@@ -225,23 +225,8 @@ internal fun MPVActivity.pickSub() {
 
 internal fun MPVActivity.openSubDelayDialog() {
     val restore = keepPlaybackForDialog()
-    val picker = SubDelayDialog(SUB_DELAY_MIN_SEC, SUB_DELAY_MAX_SEC)
-    val dialog = with(AlertDialog.Builder(this)) {
-        setTitle(R.string.sub_delay)
-        val inflater = LayoutInflater.from(context)
-        setView(picker.buildView(inflater))
-        setPositiveButton(R.string.dialog_ok) { _, _ ->
-            picker.delay1?.let { player.subDelay = it }
-            picker.delay2?.let { player.secondarySubDelay = it }
-        }
-        setNegativeButton(R.string.dialog_cancel) { d, _ -> d.cancel() }
-        setOnDismissListener { restore() }
-        create()
-    }
-    picker.delay1 = player.subDelay ?: 0.0
-    picker.delay2 = if (player.secondarySid != -1) player.secondarySubDelay else null
-    showWidePlayerDialog(
-        dialog,
+    showSubDelayPicker(
+        restore,
         PlayerDialogLayout(
             widthFraction = 0.82f,
             maxWidthDp = 980f,

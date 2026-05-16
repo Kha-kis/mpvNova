@@ -13,8 +13,10 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.preference.PreferenceManager
 import app.mpvnova.player.BuildConfig
+import app.mpvnova.player.MPVView
 import app.mpvnova.player.NativeLibraryVersion
 import app.mpvnova.player.R
+import app.mpvnova.player.toShieldDecoderFallback
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -28,6 +30,15 @@ object SupportActions {
         "bottom_controls",
         "player_controls_timeout",
         "keep_controls_visible_paused",
+        "remember_player_screen_brightness",
+        "player_screen_brightness_percent",
+        "player_screen_brightness_initialized",
+        "remember_video_contrast",
+        "video_contrast",
+        "remember_video_gamma",
+        "video_gamma",
+        "remember_video_saturation",
+        "video_saturation",
         "no_ui_pause",
         "playlist_exit_warning",
         "use_time_remaining",
@@ -98,6 +109,11 @@ object SupportActions {
         val hasTouchscreen = packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
         val hasFakeTouch = packageManager.hasSystemFeature(PackageManager.FEATURE_FAKETOUCH)
         val autoDecoder = prefs.getBoolean("decoder_auto_fallback", true)
+        val shieldDecoder = prefs.getBoolean("shield_decoder_mode", true)
+        val shieldDecoderFallback = prefs.getString(
+            "shield_decoder_fallback",
+            MPVView.SHIELD_DECODER_FALLBACK_COPY
+        ).toShieldDecoderFallback()
         val preferredDecoder = prefs.getString("preferred_decoder_mode", null)
             ?.takeIf { it.isNotBlank() }
             ?: "default"
@@ -123,6 +139,8 @@ object SupportActions {
                     "faketouch=${if (hasFakeTouch) "yes" else "no"}"
             )
             appendLine("Decoder setting: $decoder")
+            appendLine("Shield decoder mode: ${if (shieldDecoder) "enabled" else "disabled"}")
+            appendLine("Shield Hi10P fallback: $shieldDecoderFallback")
             appendLine("mpv: ${nativeVersion(context, "libmpv.so", "mpv v")}")
             appendLine("FFmpeg: ${nativeVersion(context, "libavcodec.so", "FFmpeg version ")}")
         }

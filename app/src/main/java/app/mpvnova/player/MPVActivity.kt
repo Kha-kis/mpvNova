@@ -106,6 +106,8 @@ class MPVActivity : AppCompatActivity() {
     internal var activityIsForeground = true
     internal var didResumeBackgroundPlayback = false
     internal var userIsOperatingSeekbar = false
+    internal var pendingSeekbarSeekMs: Long? = null
+    internal var pendingDpadSeekPreviewMs: Long? = null
     internal var lastDisplayedPlaybackSecond = Int.MIN_VALUE
     internal var lastSeekbarProgress = Int.MIN_VALUE
     internal var lastSeekbarUiUpdateMs = 0L
@@ -132,7 +134,7 @@ class MPVActivity : AppCompatActivity() {
             if (!fromUser)
                 return
             val positionMs = millisFromSeekbarProgress(progress)
-            player.timePos = positionMs / MPV_MILLIS_PER_SECOND_DOUBLE
+            scheduleSeekbarSeek(positionMs)
             updatePlaybackTimeline(positionMs, forceTextUpdate = true)
         }
 
@@ -142,8 +144,13 @@ class MPVActivity : AppCompatActivity() {
 
         override fun onStopTrackingTouch(seekBar: SeekBar) {
             userIsOperatingSeekbar = false
+            commitPendingSeekbarSeek()
             showControls() // re-trigger display timeout
         }
+    }
+
+    internal val commitSeekbarSeekRunnable = Runnable {
+        commitPendingSeekbarSeek()
     }
 
     internal var becomingNoisyReceiverRegistered = false
@@ -209,6 +216,15 @@ class MPVActivity : AppCompatActivity() {
     internal var showMediaTitle = false
     internal var controlsDisplayTimeoutMs = DEFAULT_CONTROLS_DISPLAY_TIMEOUT
     internal var keepControlsVisibleWhilePaused = false
+    internal var playerScreenBrightnessActive = false
+    internal var rememberPlayerScreenBrightness = false
+    internal var playerScreenBrightnessPercent = DEFAULT_PLAYER_SCREEN_BRIGHTNESS_PERCENT
+    internal var rememberVideoContrast = false
+    internal var videoContrastValue = VIDEO_ADJUSTMENT_DEFAULT_INT
+    internal var rememberVideoGamma = false
+    internal var videoGammaValue = VIDEO_ADJUSTMENT_DEFAULT_INT
+    internal var rememberVideoSaturation = false
+    internal var videoSaturationValue = VIDEO_ADJUSTMENT_DEFAULT_INT
     internal var useTimeRemaining = false
     internal var pendingItemTitle: String? = null
     internal var pendingFileName: String? = null
@@ -230,6 +246,8 @@ class MPVActivity : AppCompatActivity() {
     internal var secondaryPosLevel = DEFAULT_SECONDARY_SUB_POSITION_INDEX
     internal var sessionDecoderMode: String? = null
     internal var autoDecoderFallback = true
+    internal var shieldDecoderModeEnabled = true
+    internal var shieldDecoderFallback = MPVView.SHIELD_DECODER_FALLBACK_COPY
     internal var preferredDecoderMode = ""
     internal var audioNormUnderrunHintShown = false
     internal var gpuNextRenderFallbackStage = 0
@@ -268,6 +286,7 @@ class MPVActivity : AppCompatActivity() {
         initListeners()
 
         readSettings()
+        applyPlayerScreenBrightnessPreference()
         onConfigurationChanged(resources.configuration)
         run {
             // edge-to-edge & immersive mode
@@ -331,6 +350,7 @@ class MPVActivity : AppCompatActivity() {
         // Stop periodic resume saves; one final save runs from onPause()
         // already so no need to flush again here.
         periodicSaveHandler.removeCallbacks(periodicSaveRunnable)
+        eventUiHandler.removeCallbacks(commitSeekbarSeekRunnable)
 
         if (becomingNoisyReceiverRegistered) {
             unregisterReceiver(becomingNoisyReceiver)
@@ -469,6 +489,7 @@ class MPVActivity : AppCompatActivity() {
 
         hideControls()
         readSettings()
+        applyPlayerScreenBrightnessPreference()
 
         activityIsForeground = true
         stopServiceHandler.removeCallbacks(stopServiceRunnable)
@@ -936,6 +957,15 @@ class MPVActivity : AppCompatActivity() {
     internal val filePickerResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             pendingActivityResultCallback?.invoke(it.resultCode, it.data)
+            pendingActivityResultCallback = null
+        }
+    internal val documentResultLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            val result = uri?.let { Intent().putExtra("path", it.toString()) }
+            pendingActivityResultCallback?.invoke(
+                if (uri != null) RESULT_OK else RESULT_CANCELED,
+                result
+            )
             pendingActivityResultCallback = null
         }
 

@@ -133,4 +133,13 @@
         <item>lua2</item>
         <item>lua3</item>
     </string-array>
+
+    <string-array name="shield_decoder_fallback_entries">
+        <item>G-NEXT + MediaCodec copy</item>
+        <item>G-NEXT + software decode</item>
+    </string-array>
+    <string-array name="shield_decoder_fallback_values" translatable="false">
+        <item>g_next_copy</item>
+        <item>g_next_sw</item>
+    </string-array>
 </resources>

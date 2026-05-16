@@ -19,11 +19,26 @@ internal fun MPVActivity.readPlaybackSettings(
         prefs.getString("player_controls_timeout", DEFAULT_CONTROLS_DISPLAY_TIMEOUT.toString())
     )
     keepControlsVisibleWhilePaused = prefs.getBoolean("keep_controls_visible_paused", false)
+    rememberPlayerScreenBrightness = prefs.getBoolean("remember_player_screen_brightness", false)
+    playerScreenBrightnessActive = rememberPlayerScreenBrightness
+    playerScreenBrightnessPercent = prefs.getInt(
+        "player_screen_brightness_percent",
+        DEFAULT_PLAYER_SCREEN_BRIGHTNESS_PERCENT
+    ).coerceIn(MIN_PLAYER_SCREEN_BRIGHTNESS_PERCENT, MAX_PLAYER_SCREEN_BRIGHTNESS_PERCENT)
+    readVideoAdjustmentSettings(
+        getRemember = { key -> prefs.getBoolean(key, false) },
+        getValue = { key -> prefs.getInt(key, VIDEO_ADJUSTMENT_DEFAULT_INT) }
+    )
     useTimeRemaining = prefs.getBoolean("use_time_remaining", false)
     ignoreAudioFocus = prefs.getBoolean("ignore_audio_focus", false)
     playlistExitWarning = prefs.getBoolean("playlist_exit_warning", true)
     newIntentReplace = prefs.getBoolean("new_intent_replace", false)
     autoDecoderFallback = prefs.getBoolean("decoder_auto_fallback", true)
+    shieldDecoderModeEnabled = prefs.getBoolean("shield_decoder_mode", true)
+    shieldDecoderFallback = prefs.getString(
+        "shield_decoder_fallback",
+        MPVView.SHIELD_DECODER_FALLBACK_COPY
+    ).toShieldDecoderFallback()
     preferredDecoderMode = prefs.getString("preferred_decoder_mode", "") ?: ""
 }
 

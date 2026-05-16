@@ -12,11 +12,11 @@ The goal is simple: keep mpv powerful, but make it feel natural on a TV from the
 
 - TV-first home screen and launcher integration
 - Remote-friendly player HUD with strong D-pad focus behavior
-- Custom subtitle, audio, chapter, decoder, and settings panels
+- Custom subtitle, audio, chapter, decoder, video-adjustment, and settings panels
 - Smart subtitle matching for binge-watching, tied to persisted subtitle settings
 - Multiple built-in color themes, AMOLED mode, and pure black surfaces
 - Dialogue-focused audio tools for stereo and surround playback
-- Device-aware decoder paths including gpu-next and Shield Anime handling
+- Device-aware decoder paths including gpu-next and optional Shield Hi10P fallback handling
 - In-app update checks backed by GitHub releases
 - Leanback launcher support and TV banner assets
 - Built for sideloading on Android TV, Google TV, and Android-based Fire OS TV devices
@@ -103,7 +103,10 @@ mpvNova inherits mpv-android's playback foundation: hardware/software decoding, 
 - Custom subtitle panel with dual-track display, quick primary/secondary swap, independent position, size, delay, and secondary subtitle controls
 - Smart subtitle memory: when **Persist subtitle settings** is enabled, mpvNova remembers a manually selected subtitle track and matches the closest language/title on the next file
 - Audio panel with Voice Boost, Volume Boost, DRC, Audio Normalization, Channel Downmix, surround-state feedback, and filter persistence
-- In-player decoder picker with `HW+`, `HW`, `SW`, `G-NEXT`, and `Shield Anime (Hi10P)` modes
+- In-player decoder picker with `HW+`, `HW`, `SW`, `G-NEXT`, and optional `Shield Anime (Hi10P)` modes
+- Advanced decoder settings for hardware decoding, automatic fallback, and Shield Hi10P fallback behavior
+- Shield Hi10P fallback can use the default `G-NEXT + MediaCodec copy` path or the older tuned `G-NEXT + software decode` path
+- Player-side video adjustment panels for brightness, contrast, gamma, and saturation, with optional remembered values
 - Live `G-NEXT` path display for direct, copy, or software-backed playback paths, plus automatic decoder fallback for known trouble cases
 - Appearance themes for White, Crimson, Ocean, Violet, Emerald, Amber, and Rose, plus AMOLED mode and pure black surfaces
 - Home-screen update prompt, manual update checks, APK handoff to Android's installer, and release-note history from Settings

@@ -18,12 +18,15 @@ internal fun MPVActivity.interceptDpadWithoutControls(ev: KeyEvent): Boolean {
             true
         }
         KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
-            if (ev.action == KeyEvent.ACTION_DOWN) {
-                showControls()
-                btnSelected = 0
-                updateSelectedDpadButton()
-                binding.playbackSeekbar.requestFocus()
-                seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
+            when (ev.action) {
+                KeyEvent.ACTION_DOWN -> {
+                    showControls()
+                    btnSelected = 0
+                    updateSelectedDpadButton()
+                    binding.playbackSeekbar.requestFocus()
+                    seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
+                }
+                KeyEvent.ACTION_UP -> commitPendingSeekbarSeek()
             }
             true
         }
@@ -79,6 +82,8 @@ internal fun MPVActivity.handleVerticalDpad(
     controls: List<View>
 ): Boolean {
     if (ev.action == KeyEvent.ACTION_DOWN) {
+        if (seekbarSelected)
+            commitPendingSeekbarSeek()
         when {
             ev.keyCode == KeyEvent.KEYCODE_DPAD_UP && !seekbarSelected -> btnSelected = 0
             ev.keyCode == KeyEvent.KEYCODE_DPAD_DOWN && seekbarSelected && controls.size > 1 -> btnSelected = 1
@@ -95,16 +100,25 @@ internal fun MPVActivity.handleHorizontalDpad(
     seekbarSelected: Boolean,
     controls: List<View>
 ): Boolean {
-    if (ev.action == KeyEvent.ACTION_DOWN) {
-        if (seekbarSelected) {
-            seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
-        } else {
-            val direction = if (ev.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1
-            val count = controls.count()
-            btnSelected = (count + btnSelected + direction) % count
+    when (ev.action) {
+        KeyEvent.ACTION_DOWN -> {
+            if (seekbarSelected) {
+                seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
+            } else {
+                val direction = if (ev.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1
+                val count = controls.count()
+                btnSelected = (count + btnSelected + direction) % count
+                updateSelectedDpadButton()
+            }
+            showControls()
+        }
+        KeyEvent.ACTION_UP -> {
+            if (seekbarSelected)
+                commitPendingSeekbarSeek()
+            else
+                showControls()
             updateSelectedDpadButton()
         }
-        showControls()
     }
     return true
 }

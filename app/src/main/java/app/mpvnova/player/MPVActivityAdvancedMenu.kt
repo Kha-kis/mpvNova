@@ -1,43 +1,29 @@
 package app.mpvnova.player
 
 import androidx.appcompat.app.AlertDialog
+import kotlin.math.roundToInt
+
+private const val ADVANCED_MENU_REOPEN_DELAY_MS = 80L
 
 internal fun MPVActivity.advancedMenuItems(restoreState: StateRestoreCallback): MutableList<MenuItem> {
+    val reopenAdvancedMenu: StateRestoreCallback = {
+        eventUiHandler.postDelayed(
+            { openAdvancedMenu(restoreState) },
+            ADVANCED_MENU_REOPEN_DELAY_MS
+        )
+    }
     val buttons = mutableListOf(
         MenuItem(R.id.subSeekPrev) { mpvCommand(arrayOf("sub-seek", "-1")); true },
         MenuItem(R.id.subSeekNext) { mpvCommand(arrayOf("sub-seek", "1")); true },
         MenuItem(R.id.statsBtn) {
             mpvCommand(arrayOf("script-binding", "stats/display-stats-toggle")); true
         },
-        MenuItem(R.id.aspectBtn) { openAspectMenu(restoreState) },
+        MenuItem(R.id.aspectBtn) { openAspectMenu(reopenAdvancedMenu) },
     )
     addStatsPageButtons(buttons)
-    addVideoAdjustmentButtons(buttons, restoreState)
-    addDelayButtons(buttons, restoreState)
+    addVideoAdjustmentButtons(buttons, reopenAdvancedMenu)
+    addDelayButtons(buttons, reopenAdvancedMenu)
     return buttons
-}
-
-private fun MPVActivity.openAspectMenu(restoreState: StateRestoreCallback): Boolean {
-    val ratios = resources.getStringArray(R.array.aspect_ratios)
-    with(AlertDialog.Builder(this)) {
-        setItems(R.array.aspect_ratio_names) { dialog, item ->
-            applyAspectRatioChoice(ratios[item])
-            dialog.dismiss()
-        }
-        setOnDismissListener { restoreState() }
-        create().show()
-    }
-    return false
-}
-
-private fun applyAspectRatioChoice(ratio: String) {
-    if (ratio == "panscan") {
-        mpvSetPropertyString("video-aspect-override", "-1")
-        mpvSetPropertyDouble("panscan", 1.0)
-    } else {
-        mpvSetPropertyString("video-aspect-override", ratio)
-        mpvSetPropertyDouble("panscan", 0.0)
-    }
 }
 
 private fun MPVActivity.addStatsPageButtons(buttons: MutableList<MenuItem>) {
@@ -53,26 +39,64 @@ private fun MPVActivity.addVideoAdjustmentButtons(
     buttons: MutableList<MenuItem>,
     restoreState: StateRestoreCallback
 ) {
-    val ids = arrayOf(R.id.contrastBtn, R.id.brightnessBtn, R.id.gammaBtn, R.id.saturationBtn)
-    val props = arrayOf("contrast", "brightness", "gamma", "saturation")
-    val titles = arrayOf(R.string.contrast, R.string.video_brightness, R.string.gamma, R.string.saturation)
-    ids.forEachIndexed { index, id ->
-        buttons.add(MenuItem(id) { openVideoAdjustmentPicker(titles[index], props[index], restoreState) })
-    }
+    buttons.add(MenuItem(R.id.contrastBtn) {
+        openVideoAdjustmentPicker(VIDEO_CONTRAST_ADJUSTMENT, restoreState)
+    })
+    buttons.add(MenuItem(R.id.brightnessBtn) {
+        openPlayerBrightnessPicker(restoreState)
+    })
+    buttons.add(MenuItem(R.id.gammaBtn) {
+        openVideoAdjustmentPicker(VIDEO_GAMMA_ADJUSTMENT, restoreState)
+    })
+    buttons.add(MenuItem(R.id.saturationBtn) {
+        openVideoAdjustmentPicker(VIDEO_SATURATION_ADJUSTMENT, restoreState)
+    })
 }
 
 private fun MPVActivity.openVideoAdjustmentPicker(
-    titleRes: Int,
-    property: String,
+    spec: VideoAdjustmentSpec,
     restoreState: StateRestoreCallback
 ): Boolean {
-    val slider = SliderPickerDialog(
-        VIDEO_ADJUSTMENT_MIN,
-        VIDEO_ADJUSTMENT_MAX,
-        VIDEO_ADJUSTMENT_STEP,
-        R.string.format_fixed_number
+    val previousValue = (
+        mpvGetPropertyDouble(spec.property)
+            ?: VIDEO_ADJUSTMENT_DEFAULT_INT.toDouble()
+        )
+        .roundToInt()
+        .coerceIn(VIDEO_ADJUSTMENT_MIN_INT, VIDEO_ADJUSTMENT_MAX_INT)
+    val picker = VideoAdjustmentDialog(
+        config = VideoAdjustmentDialogConfig(
+            titleRes = spec.titleRes,
+            minValue = VIDEO_ADJUSTMENT_MIN_INT,
+            maxValue = VIDEO_ADJUSTMENT_MAX_INT,
+            defaultValue = VIDEO_ADJUSTMENT_DEFAULT_INT,
+            valueFormatRes = R.string.format_fixed_number
+        ),
+        initialValue = previousValue,
+        initialRemember = rememberVideoAdjustment(spec),
+        onPreview = { value -> mpvSetPropertyInt(spec.property, value) }
     )
-    genericPickerDialog(slider, titleRes, property, restoreState)
+    var accepted = false
+    lateinit var dialog: AlertDialog
+    dialog = with(AlertDialog.Builder(this)) {
+        setView(picker.buildView(
+            layoutInflater,
+            onOk = {
+                accepted = true
+                mpvSetPropertyInt(spec.property, picker.value)
+                saveVideoAdjustmentChoice(spec, picker.value, picker.rememberValue)
+                dialog.dismiss()
+            },
+            onCancel = { dialog.cancel() }
+        ))
+        setOnDismissListener {
+            if (!accepted) {
+                mpvSetPropertyInt(spec.property, previousValue)
+            }
+            restoreState()
+        }
+        create()
+    }
+    showWidePlayerDialog(dialog, videoAdjustmentDialogLayout())
     return false
 }
 
@@ -92,23 +116,7 @@ private fun MPVActivity.addDelayButtons(
 }
 
 private fun MPVActivity.openAdvancedSubDelayDialog(restoreState: StateRestoreCallback) {
-    val picker = SubDelayDialog(SUB_DELAY_MIN_SEC, SUB_DELAY_MAX_SEC)
-    val dialog = with(AlertDialog.Builder(this)) {
-        setTitle(R.string.sub_delay)
-        val inflater = layoutInflater
-        setView(picker.buildView(inflater))
-        setPositiveButton(R.string.dialog_ok) { _, _ ->
-            picker.delay1?.let { player.subDelay = it }
-            picker.delay2?.let { player.secondarySubDelay = it }
-        }
-        setNegativeButton(R.string.dialog_cancel) { dialog, _ -> dialog.cancel() }
-        setOnDismissListener { restoreState() }
-        create()
-    }
-
-    picker.delay1 = player.subDelay ?: 0.0
-    picker.delay2 = if (player.secondarySid != -1) player.secondarySubDelay else null
-    showWidePlayerDialog(dialog, advancedSubDelayLayout())
+    showSubDelayPicker(restoreState, advancedSubDelayLayout())
 }
 
 private fun advancedSubDelayLayout(): PlayerDialogLayout {

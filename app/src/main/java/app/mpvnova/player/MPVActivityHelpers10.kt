@@ -112,8 +112,9 @@ internal fun MPVActivity.cycleDecoderMode() {
         MPVView.DECODER_MODE_HW,
         MPVView.DECODER_MODE_SW,
         MPVView.DECODER_MODE_GNEXT,
-        MPVView.DECODER_MODE_SHIELD_H10P
     )
+    if (shieldDecoderModeEnabled)
+        modes.add(MPVView.DECODER_MODE_SHIELD_H10P)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         modes.add(0, MPVView.DECODER_MODE_HW_PLUS)
     val currentMode = player.currentDecoderMode
@@ -134,8 +135,7 @@ internal fun MPVActivity.currentGpuNextPathLabel(useActivePath: Boolean): String
     return currentGpuNextPathLabel(
         useActivePath,
         requestedHwdec,
-        activeHwdec,
-        player.currentDecoderMode
+        activeHwdec
     )
 }
 
@@ -149,7 +149,7 @@ internal fun MPVActivity.currentGpuNextBadge(): String {
     val effectiveHwdec = when {
         activeHwdec == "mediacodec-copy" -> "mediacodec-copy"
         activeHwdec == "mediacodec" -> "mediacodec"
-        requestedHwdec == "no" || player.currentDecoderMode == MPVView.DECODER_MODE_SHIELD_H10P -> "no"
+        requestedHwdec == "no" -> "no"
         requestedHwdec.isNotBlank() -> requestedHwdec
         else -> activeHwdec
     }

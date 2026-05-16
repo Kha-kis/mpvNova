@@ -81,10 +81,14 @@ internal fun MPVActivity.openAdvancedMenu(restoreState: StateRestoreCallback) {
 }
 
 internal fun MPVActivity.openFilePickerFor(title: String, skip: Int?, callback: ActivityResultCallback) {
+    if (skip == null) {
+        openFileSourceDialog(title, callback)
+        return
+    }
     val intent = Intent(this, FilePickerActivity::class.java)
     intent.putExtra("title", title)
     intent.putExtra("allow_document", true)
-    skip?.let { intent.putExtra("skip", it) }
+    intent.putExtra("skip", skip)
     // start file picker at directory of current file
     val path = mpvGetPropertyString("path") ?: ""
     if (path.startsWith('/'))
@@ -96,6 +100,44 @@ internal fun MPVActivity.openFilePickerFor(title: String, skip: Int?, callback: 
 
 internal fun MPVActivity.openFilePickerFor(@StringRes titleRes: Int, callback: ActivityResultCallback) {
     openFilePickerFor(getString(titleRes), null, callback)
+}
+
+private fun MPVActivity.openFileSourceDialog(title: String, callback: ActivityResultCallback) {
+    lateinit var dialog: AlertDialog
+    var launchedPicker = false
+    val view = LayoutInflater.from(this).inflate(R.layout.dialog_file_source, null)
+    view.findViewById<TextView>(R.id.sourceTitle).text = title
+    view.findViewById<Button>(R.id.fileBtn).setOnClickListener {
+        launchedPicker = true
+        dialog.dismiss()
+        openFilePickerFor(title, FilePickerActivity.FILE_PICKER, callback)
+    }
+    view.findViewById<Button>(R.id.urlBtn).setOnClickListener {
+        launchedPicker = true
+        dialog.dismiss()
+        openFilePickerFor(title, FilePickerActivity.URL_DIALOG, callback)
+    }
+    view.findViewById<Button>(R.id.docBtn).setOnClickListener {
+        launchedPicker = true
+        dialog.dismiss()
+        pendingActivityResultCallback = callback
+        documentResultLauncher.launch(arrayOf("*/*"))
+    }
+    dialog = with(AlertDialog.Builder(this)) {
+        setView(view)
+        setOnDismissListener {
+            if (!launchedPicker)
+                callback(RESULT_CANCELED, null)
+        }
+        create()
+    }
+    showWidePlayerDialog(
+        dialog,
+        PlayerDialogLayout(
+            widthFraction = 0.56f,
+            maxWidthDp = 620f,
+        )
+    )
 }
 
 internal fun MPVActivity.refreshUi() {
