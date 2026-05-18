@@ -52,7 +52,7 @@ internal fun MPVActivity.requestFirstControlFocusIfNeeded(ev: KeyEvent) {
 }
 
 internal fun MPVActivity.interceptDpadActivation(ev: KeyEvent, controls: List<View>): Boolean {
-    if (ev.keyCode !in arrayOf(KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN))
+    if (ev.keyCode != KeyEvent.KEYCODE_DPAD_UP && ev.keyCode != KeyEvent.KEYCODE_DPAD_DOWN)
         return false
     if (ev.action == KeyEvent.ACTION_DOWN) {
         activateDpadSelection(ev, controls)
@@ -104,19 +104,22 @@ internal fun MPVActivity.handleHorizontalDpad(
         KeyEvent.ACTION_DOWN -> {
             if (seekbarSelected) {
                 seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
+                keepVisibleControlsFresh()
             } else {
                 val direction = if (ev.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1
-                val count = controls.count()
+                val count = controls.size
                 btnSelected = (count + btnSelected + direction) % count
                 updateSelectedDpadButton()
+                showControls()
             }
-            showControls()
         }
         KeyEvent.ACTION_UP -> {
-            if (seekbarSelected)
+            if (seekbarSelected) {
                 commitPendingSeekbarSeek()
-            else
+                keepVisibleControlsFresh()
+            } else {
                 showControls()
+            }
             updateSelectedDpadButton()
         }
     }

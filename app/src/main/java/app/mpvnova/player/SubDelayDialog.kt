@@ -46,7 +46,7 @@ internal class SubDelayDialog(
 
     /** Primary sub delay */
     var delay1: Double?
-        set(v) = binding.editText.setText(v!!.toString())
+        set(v) = binding.editText.setText(v?.toString().orEmpty())
         get() = binding.editText.text.toString().toDoubleOrNull()
 
     /**

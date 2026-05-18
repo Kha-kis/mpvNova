@@ -8,7 +8,7 @@ import kotlin.math.roundToInt
 internal fun MPVActivity.addExternalThing(cmd: String, result: Int, data: Intent?) {
     if (result != RESULT_OK)
         return
-    val path = data!!.getStringExtra("path")!!
+    val path = data?.getStringExtra("path") ?: return
     val resolvedPath = if (path.startsWith("content://")) translateContentUri(Uri.parse(path)) else path
     mpvCommand(arrayOf(cmd, resolvedPath, "cached"))
 }

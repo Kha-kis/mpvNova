@@ -2,11 +2,15 @@ package app.mpvnova.player
 
 internal var MPVView.paused: Boolean?
     get() = mpvGetPropertyBoolean("pause")
-    set(paused) = mpvSetPropertyBoolean("pause", paused!!)
+    set(paused) {
+        paused?.let { mpvSetPropertyBoolean("pause", it) }
+    }
 
 internal var MPVView.timePos: Double?
     get() = mpvGetPropertyDouble("time-pos/full")
-    set(progress) = mpvSetPropertyDouble("time-pos", progress!!)
+    set(progress) {
+        progress?.let { mpvSetPropertyDouble("time-pos", it) }
+    }
 
 /** name of currently active hardware decoder or "no" */
 internal val MPVView.hwdecActive: String
@@ -24,15 +28,21 @@ internal val MPVView.requestedVideoOutput: String
 
 internal var MPVView.playbackSpeed: Double?
     get() = mpvGetPropertyDouble("speed")
-    set(speed) = mpvSetPropertyDouble("speed", speed!!)
+    set(speed) {
+        speed?.let { mpvSetPropertyDouble("speed", it) }
+    }
 
 internal var MPVView.subDelay: Double?
     get() = mpvGetPropertyDouble("sub-delay")
-    set(speed) = mpvSetPropertyDouble("sub-delay", speed!!)
+    set(speed) {
+        speed?.let { mpvSetPropertyDouble("sub-delay", it) }
+    }
 
 internal var MPVView.secondarySubDelay: Double?
     get() = mpvGetPropertyDouble("secondary-sub-delay")
-    set(speed) = mpvSetPropertyDouble("secondary-sub-delay", speed!!)
+    set(speed) {
+        speed?.let { mpvSetPropertyDouble("secondary-sub-delay", it) }
+    }
 
 internal val MPVView.estimatedVfFps: Double?
     get() = mpvGetPropertyDouble("estimated-vf-fps")

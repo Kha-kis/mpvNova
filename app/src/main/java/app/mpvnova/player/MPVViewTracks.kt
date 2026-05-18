@@ -15,7 +15,7 @@ internal fun MPVView.loadTracks() {
         list.clear()
         list.add(MPVView.Track(-1, context.getString(R.string.track_off)))
     }
-    val count = mpvGetPropertyInt("track-list/count")!!
+    val count = mpvGetPropertyInt("track-list/count") ?: return
     // Note that because events are async, properties might disappear at any moment
     // so skip incomplete entries instead of asserting them.
     for (index in 0 until count) {
@@ -53,9 +53,9 @@ private fun MPVView.trackName(index: Int, mpvId: Int): String {
 
 internal fun MPVView.loadPlaylist(): MutableList<MPVView.PlaylistItem> {
     val playlist = mutableListOf<MPVView.PlaylistItem>()
-    val count = mpvGetPropertyInt("playlist-count")!!
+    val count = mpvGetPropertyInt("playlist-count") ?: return playlist
     for (index in 0 until count) {
-        val filename = mpvGetPropertyString("playlist/$index/filename")!!
+        val filename = mpvGetPropertyString("playlist/$index/filename") ?: continue
         val title = mpvGetPropertyString("playlist/$index/title")
         playlist.add(MPVView.PlaylistItem(index = index, filename = filename, title = title))
     }
@@ -64,10 +64,10 @@ internal fun MPVView.loadPlaylist(): MutableList<MPVView.PlaylistItem> {
 
 internal fun MPVView.loadChapters(): MutableList<MPVView.Chapter> {
     val chapters = mutableListOf<MPVView.Chapter>()
-    val count = mpvGetPropertyInt("chapter-list/count")!!
+    val count = mpvGetPropertyInt("chapter-list/count") ?: return chapters
     for (index in 0 until count) {
         val title = mpvGetPropertyString("chapter-list/$index/title")
-        val time = mpvGetPropertyDouble("chapter-list/$index/time")!!
+        val time = mpvGetPropertyDouble("chapter-list/$index/time") ?: continue
         chapters.add(MPVView.Chapter(index = index, title = title, time = time))
     }
     return chapters

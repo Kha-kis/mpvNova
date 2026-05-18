@@ -10,8 +10,9 @@ import androidx.core.app.PendingIntentCompat
 
 class NotificationButtonReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.v(TAG, "NotificationButtonReceiver: ${intent!!.action}")
-        when (intent.action) {
+        val action = intent?.action ?: return
+        Log.v(TAG, "NotificationButtonReceiver: $action")
+        when (action) {
             "$PREFIX.PLAY_PAUSE" -> mpvCommand(arrayOf("cycle", "pause"))
             "$PREFIX.ACTION_PREV" -> mpvCommand(arrayOf("playlist-prev"))
             "$PREFIX.ACTION_NEXT" -> mpvCommand(arrayOf("playlist-next"))
@@ -22,8 +23,9 @@ class NotificationButtonReceiver : BroadcastReceiver() {
         fun createIntent(context: Context, action: String): PendingIntent {
             val intent = Intent("$PREFIX.$action")
             intent.component = ComponentName(context, NotificationButtonReceiver::class.java)
-            return PendingIntentCompat.getBroadcast(context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT, false)!!
+            return checkNotNull(
+                PendingIntentCompat.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT, false)
+            )
         }
 
         private const val TAG = "mpv"

@@ -24,7 +24,7 @@ class ChapterSeekBar @JvmOverloads constructor(
     private var chapterFractions: FloatArray = FloatArray(0)
     private var dpadSelected = false
 
-    private val markerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val markerPaint = Paint().apply {
         color = MARKER_COLOR
         style = Paint.Style.FILL
     }
@@ -38,6 +38,12 @@ class ChapterSeekBar @JvmOverloads constructor(
     }
 
     private val density: Float get() = resources.displayMetrics.density
+    private val trackHeightPx = TRACK_HEIGHT_DP * density
+    private val selectionStrokePx = SELECTION_STROKE_DP * density
+    private val selectionInsetPx = SELECTION_INSET_DP * density
+    private val selectionCornerRadiusPx = SELECTION_CORNER_RADIUS_DP * density
+    private val markerWidthPx = MARKER_WIDTH_DP * density
+    private val markerHeightPx = MARKER_HEIGHT_DP * density
 
     /**
      * Update the chapter markers drawn on the track.
@@ -46,21 +52,25 @@ class ChapterSeekBar @JvmOverloads constructor(
      * @param duration      total media duration in seconds (> 0)
      */
     fun setChapters(chapterTimes: List<Double>, duration: Double) {
-        chapterFractions = if (duration <= 0.0 || chapterTimes.isEmpty()) {
-            FloatArray(0)
-        } else {
-            chapterTimes
-                .filter { it > EDGE_CHAPTER_SKIP_SECONDS && it < duration - EDGE_CHAPTER_SKIP_SECONDS }
-                .map { (it / duration).toFloat() }
-                .toFloatArray()
+        if (duration <= 0.0 || chapterTimes.isEmpty()) {
+            updateChapterFractions(EMPTY_CHAPTER_FRACTIONS)
+            return
         }
-        invalidate()
+
+        val fractions = FloatArray(chapterTimes.size)
+        var count = 0
+        for (time in chapterTimes) {
+            if (time > EDGE_CHAPTER_SKIP_SECONDS && time < duration - EDGE_CHAPTER_SKIP_SECONDS) {
+                fractions[count] = (time / duration).toFloat()
+                count++
+            }
+        }
+        updateChapterFractions(if (count == 0) EMPTY_CHAPTER_FRACTIONS else fractions.copyOf(count))
     }
 
     /** Remove all chapter markers (e.g. when a new file is loaded). */
     fun clearChapters() {
-        chapterFractions = FloatArray(0)
-        invalidate()
+        updateChapterFractions(EMPTY_CHAPTER_FRACTIONS)
     }
 
     fun setDpadSelected(selected: Boolean) {
@@ -81,46 +91,49 @@ class ChapterSeekBar @JvmOverloads constructor(
 
         val centerY     = height / 2f
         val trackHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-            maxOf(maxHeight.toFloat(), TRACK_HEIGHT_DP * density)
+            maxOf(maxHeight.toFloat(), trackHeightPx)
         else
-            TRACK_HEIGHT_DP * density
+            trackHeightPx
         val trackHalfH  = trackHeight / 2f
         if (dpadSelected) {
-            selectionPaint.strokeWidth = SELECTION_STROKE_DP * density
-            val inset = SELECTION_INSET_DP * density
+            selectionPaint.strokeWidth = selectionStrokePx
             canvas.drawRoundRect(
-                trackLeft - inset,
-                centerY - trackHalfH - inset,
-                trackRight + inset,
-                centerY + trackHalfH + inset,
-                SELECTION_CORNER_RADIUS_DP * density,
-                SELECTION_CORNER_RADIUS_DP * density,
+                trackLeft - selectionInsetPx,
+                centerY - trackHalfH - selectionInsetPx,
+                trackRight + selectionInsetPx,
+                centerY + trackHalfH + selectionInsetPx,
+                selectionCornerRadiusPx,
+                selectionCornerRadiusPx,
                 selectionPaint
             )
         }
 
         if (chapterFractions.isEmpty()) return
 
-        val markerW     = (MARKER_WIDTH_DP * density)
-        val markerH     = (MARKER_HEIGHT_DP * density)
-        val halfW       = markerW / 2f
-        val halfH       = markerH / 2f
-        val cornerR     = MARKER_CORNER_RADIUS_DP * density
+        val halfW       = markerWidthPx / 2f
+        val halfH       = markerHeightPx / 2f
 
         for (fraction in chapterFractions) {
             val cx = trackLeft + fraction * trackSpan
-            canvas.drawRoundRect(
+            canvas.drawRect(
                 cx - halfW,
                 centerY - halfH,
                 cx + halfW,
                 centerY + halfH,
-                cornerR, cornerR,
                 markerPaint
             )
         }
     }
 
+    private fun updateChapterFractions(fractions: FloatArray) {
+        if (chapterFractions.contentEquals(fractions))
+            return
+        chapterFractions = fractions
+        invalidate()
+    }
+
     companion object {
+        private val EMPTY_CHAPTER_FRACTIONS = FloatArray(0)
         private const val MARKER_COLOR = 0xCCFFFFFF.toInt()
         private const val EDGE_CHAPTER_SKIP_SECONDS = 0.5
         private const val TRACK_HEIGHT_DP = 8f
@@ -129,6 +142,5 @@ class ChapterSeekBar @JvmOverloads constructor(
         private const val SELECTION_CORNER_RADIUS_DP = 10f
         private const val MARKER_WIDTH_DP = 3f
         private const val MARKER_HEIGHT_DP = 12f
-        private const val MARKER_CORNER_RADIUS_DP = 1.5f
     }
 }

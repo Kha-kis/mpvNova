@@ -105,7 +105,7 @@ internal fun MPVActivity.tryStartForegroundService(intent: Intent): Boolean {
 internal fun MPVActivity.readSettings() {
     val prefs = getDefaultSharedPreferences(applicationContext)
     val getString: (String, Int) -> String = { key, defaultRes ->
-        prefs.getString(key, resources.getString(defaultRes))!!
+        prefs.getString(key, resources.getString(defaultRes)) ?: resources.getString(defaultRes)
     }
 
     readPlaybackSettings(prefs, getString)

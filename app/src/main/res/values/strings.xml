@@ -42,6 +42,7 @@
     <string name="btn_audio_norm_summary">Even quiet and loud passages in real time.</string>
     <string name="btn_next_chapter">Next chapter</string>
     <string name="dialog_title_chapter">Go to chapter</string>
+    <string name="toast_next_chapter_detail">Skipped to %1$s - %2$s</string>
     <string name="toast_audio_norm_surround_hint">Surround track is heavy to process. Try Channel Downmix for smoother playback.</string>
     <string name="player_ends_at">Ends at %1$s</string>
     <string name="player_loading_stream">Opening stream...</string>
@@ -304,6 +305,11 @@
     <string name="pref_player_controls_timeout_default" translatable="false">5000</string>
     <string name="pref_keep_controls_visible_paused_title">Keep controls visible while paused</string>
     <string name="pref_keep_controls_visible_paused_summary">When playback is paused, keep the player controls on screen until playback resumes or you hide them manually.</string>
+    <string name="pref_remote_next_chapter_button_title">Remote button for next chapter</string>
+    <string name="pref_remote_next_chapter_capture_message">Press the remote button to use for next chapter. Press Back to cancel.</string>
+    <string name="pref_remote_next_chapter_reserved_button">That button is reserved. Choose another remote button.</string>
+    <string name="pref_remote_button_unassigned">Not set</string>
+    <string name="pref_remote_button_unassigned_value" translatable="false">off</string>
     <string name="remember_video_adjustment">Remember choice</string>
     <string name="remember_video_adjustment_summary">Use this value automatically when playback starts.</string>
     <string name="pref_reset_player_ui_title">Reset player UI settings</string>

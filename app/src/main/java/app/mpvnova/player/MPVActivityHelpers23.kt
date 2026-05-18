@@ -131,11 +131,12 @@ internal fun MPVActivity.toggleStatsOverlay() {
 }
 
 internal fun MPVActivity.maybeApplyShieldHi10pFallback() {
+    val currentMode = player.currentDecoderMode
     val shouldFallback = autoDecoderFallback &&
         shieldDecoderModeEnabled &&
         isNvidiaShieldDevice() &&
         player.isHi10pH264Video() &&
-        player.currentDecoderMode in arrayOf(MPVView.DECODER_MODE_HW, MPVView.DECODER_MODE_HW_PLUS)
+        (currentMode == MPVView.DECODER_MODE_HW || currentMode == MPVView.DECODER_MODE_HW_PLUS)
     if (shouldFallback) {
         player.applyShieldHi10pFallback(shieldDecoderFallback)
         updateDecoderButton()

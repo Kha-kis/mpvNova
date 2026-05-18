@@ -30,6 +30,7 @@ object SupportActions {
         "bottom_controls",
         "player_controls_timeout",
         "keep_controls_visible_paused",
+        "remote_next_chapter_button",
         "remember_player_screen_brightness",
         "player_screen_brightness_percent",
         "player_screen_brightness_initialized",

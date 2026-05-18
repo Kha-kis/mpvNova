@@ -39,19 +39,19 @@ internal fun Throwable.cleanMessage(): String {
 internal fun String.cleanMarkdown(): String {
     return lines().joinToString("\n") { line ->
         line.replace("`", "")
-            .replace(Regex("^#{1,6}\\s*"), "")
+            .replace(MARKDOWN_HEADING_PREFIX_PATTERN, "")
             .trimEnd()
     }.trim()
 }
 
 internal fun String.safeFilePart(): String {
-    return replace(Regex("[^A-Za-z0-9._-]"), "_")
+    return replace(SAFE_FILE_PART_PATTERN, "_")
 }
 
 internal fun String?.versionParts(): List<Int> {
     if (isNullOrBlank())
         return emptyList()
-    return Regex("\\d+").findAll(trim().removePrefix("v").removePrefix("V"))
+    return VERSION_PART_PATTERN.findAll(trim().removePrefix("v").removePrefix("V"))
         .mapNotNull { it.value.toIntOrNull() }
         .toList()
 }
@@ -100,3 +100,7 @@ internal fun chooseBestApkAssetName(
         }
     }
 }
+
+private val MARKDOWN_HEADING_PREFIX_PATTERN = Regex("^#{1,6}\\s*")
+private val SAFE_FILE_PART_PATTERN = Regex("[^A-Za-z0-9._-]")
+private val VERSION_PART_PATTERN = Regex("\\d+")

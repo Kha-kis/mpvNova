@@ -30,11 +30,8 @@ import androidx.core.widget.addTextChangedListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import app.mpvnova.player.databinding.DialogUrlInputBinding
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -49,29 +46,33 @@ private const val MILLIS_PER_SECOND_FLOAT = 1_000f
 private const val MILLIS_PER_SECOND_DOUBLE = 1_000.0
 private val IGNORED_MOUNT_PREFIXES = listOf("/proc", "/sys", "/dev", "/apex")
 
-private fun copyAssetFile(assetManager: AssetManager, filename: String, outFile: File): Boolean {
-    var ins: InputStream? = null
-    var out: OutputStream? = null
-    return try {
-        ins = assetManager.open(filename, AssetManager.ACCESS_STREAMING)
+private object AssetCopier {
+    fun copyFile(assetManager: AssetManager, filename: String, outFile: File): Boolean {
+        return try {
+            assetManager.open(filename, AssetManager.ACCESS_STREAMING).use { input ->
+                copyIfNeeded(input, outFile, filename)
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to copy asset file: $filename", e)
+            false
+        }
+    }
+
+    private fun copyIfNeeded(input: InputStream, outFile: File, filename: String): Boolean {
         // Note that .available() will return the full file size for asset streams, and it even works
         // for compressed assets. Though none of this is documented...
-        val avail = ins.available().toLong()
+        val avail = input.available().toLong()
         if (outFile.length() == avail) {
             Log.v(TAG, "Skipping copy of asset file (exists same size): $filename")
-            true
-        } else {
-            out = FileOutputStream(outFile)
-            ins.copyTo(out)
-            Log.w(TAG, "Copied asset file ($avail bytes): $filename")
-            true
+            return true
         }
-    } catch (e: IOException) {
-        Log.e(TAG, "Failed to copy asset file: $filename", e)
-        false
-    } finally {
-        out?.close()
-        ins?.close()
+        return copyStream(input, outFile, avail, filename)
+    }
+
+    private fun copyStream(input: InputStream, outFile: File, avail: Long, filename: String): Boolean {
+        outFile.outputStream().use { output -> input.copyTo(output) }
+        Log.w(TAG, "Copied asset file ($avail bytes): $filename")
+        return true
     }
 }
 
@@ -112,13 +113,52 @@ private fun twoDigits(value: Int): String {
     return if (value in 0..MAX_SINGLE_DIGIT) "0$value" else value.toString()
 }
 
-private fun isIgnoredMountPath(path: String): Boolean {
-    return IGNORED_MOUNT_PREFIXES.any { path.startsWith(it) }
-}
-
 @SuppressLint("NewApi")
-private fun StorageVolume.isReadableMounted(): Boolean {
-    return state == Environment.MEDIA_MOUNTED || state == Environment.MEDIA_MOUNTED_READ_ONLY
+private object StorageVolumeResolver {
+    @Suppress("DEPRECATION")
+    fun collectCandidates(context: Context): List<String> {
+        val candidates = mutableListOf<String>()
+        context.externalMediaDirs.forEach {
+            if (it != null)
+                candidates.add(it.absolutePath)
+        }
+        File("/proc/mounts").forEachLine { line -> addProcMountCandidate(candidates, line) }
+        return candidates
+    }
+
+    fun findRoot(storageManager: StorageManager, path: String): Pair<File, StorageVolume>? {
+        var root = File(path)
+        val vol = getStorageVolumeSafely(storageManager, root)
+        if (vol == null || !vol.isReadableMounted())
+            return null
+
+        while (true) {
+            val parent = root.parentFile
+            if (parent == null || getStorageVolumeSafely(storageManager, parent) != vol)
+                break
+            root = parent
+        }
+        return root to vol
+    }
+
+    private fun getStorageVolumeSafely(storageManager: StorageManager, file: File): StorageVolume? {
+        return try {
+            storageManager.getStorageVolume(file)
+        } catch (ignored: SecurityException) {
+            null
+        }
+    }
+
+    private fun StorageVolume.isReadableMounted(): Boolean {
+        return state == Environment.MEDIA_MOUNTED || state == Environment.MEDIA_MOUNTED_READ_ONLY
+    }
+
+    private fun addProcMountCandidate(candidates: MutableList<String>, line: String) {
+        val path = line.split(' ', limit = 3).getOrNull(1) ?: return
+        if (!IGNORED_MOUNT_PREFIXES.any { path.startsWith(it) }) {
+            candidates.add(path)
+        }
+    }
 }
 
 fun visibleChildren(view: View): Int {
@@ -170,7 +210,7 @@ internal object Utils {
         val configDir = context.filesDir.path
 
         for (name in files) {
-            copyAssetFile(assetManager, name, File("$configDir/$name"))
+            AssetCopier.copyFile(assetManager, name, File("$configDir/$name"))
         }
 
         File("$configDir/subfont.ttf").delete()
@@ -184,21 +224,17 @@ internal object Utils {
     }
 
     fun findRealPath(fd: Int): String? {
-        var ins: InputStream? = null
         var realPath: String? = null
         try {
             val path = File("/proc/self/fd/${fd}").canonicalPath
             if (!path.startsWith("/proc") && File(path).canRead()) {
-                ins = FileInputStream(path)
-                ins.read()
+                File(path).inputStream().use { it.read() }
                 realPath = path
             }
         } catch (ignored: IOException) {
             realPath = null
         } catch (ignored: SecurityException) {
             realPath = null
-        } finally {
-            ins?.close()
         }
         return realPath
     }
@@ -250,40 +286,11 @@ internal object Utils {
 
         val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
 
-        val candidates = mutableListOf<String>()
-        context.externalMediaDirs.forEach {
-            if (it != null)
-                candidates.add(it.absolutePath)
-        }
-        File("/proc/mounts").forEachLine { line ->
-            val path = line.split(' ')[1]
-            if (!isIgnoredMountPath(path)) {
-                candidates.add(path)
+        for (path in StorageVolumeResolver.collectCandidates(context)) {
+            val (root, volume) = StorageVolumeResolver.findRoot(storageManager, path) ?: continue
+            if (!list.any { it.path == root }) {
+                list.add(StoragePath(root, volume.getDescription(context)))
             }
-        }
-
-        val wrapGetStorageVolume = { file: File ->
-            try {
-                storageManager.getStorageVolume(file)
-            } catch (ignored: SecurityException) {
-                null
-            }
-        }
-
-        for (path in candidates) {
-            var root = File(path)
-            val vol = wrapGetStorageVolume(root)
-            if (vol == null || !vol.isReadableMounted()) continue
-
-            while (true) {
-                val parent = root.parentFile
-                if (parent == null || wrapGetStorageVolume(parent) != vol)
-                    break
-                root = parent
-            }
-
-            if (!list.any { it.path == root })
-                list.add(StoragePath(root, vol.getDescription(context)))
         }
         return list
     }
@@ -388,8 +395,8 @@ internal object Utils {
             val albumEmpty = mediaAlbum.isNullOrEmpty()
             return when {
                 !artistEmpty && !albumEmpty -> "$mediaArtist / $mediaAlbum"
-                !artistEmpty -> mediaAlbum
-                !albumEmpty -> mediaArtist
+                !artistEmpty -> mediaArtist
+                !albumEmpty -> mediaAlbum
                 else -> null
             }
         }
@@ -437,8 +444,10 @@ internal object Utils {
             } else {
                 when (property) {
                     "speed" -> {
-                        speed = value.toFloat()
-                        true
+                        value.toFloatOrNull()?.let {
+                            speed = it
+                            true
+                        } ?: false
                     }
                     else -> false
                 }

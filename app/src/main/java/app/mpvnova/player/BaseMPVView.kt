@@ -98,8 +98,9 @@ abstract class BaseMPVView(
         // This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
         mpvSetOptionString("force-window", "yes")
 
-        if (filePath != null) {
-            mpvCommand(arrayOf("loadfile", filePath as String))
+        val pendingFilePath = filePath
+        if (pendingFilePath != null) {
+            mpvCommand(arrayOf("loadfile", pendingFilePath))
             filePath = null
         } else {
             // We disable video output when the context disappears, enable it back

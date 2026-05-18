@@ -80,7 +80,7 @@ internal class SubTrackDialog(private val player: MPVView) {
             binding.divider.visibility = View.GONE
         }
 
-        binding.list.adapter!!.notifyRangeRefresh(oldCount, tracks.size)
+        binding.list.adapter?.notifyRangeRefresh(oldCount, tracks.size)
         val index = tracks.indexOfFirst { it.mpvId == if (secondary) selectedMpvId2 else selectedMpvId }
         if (index >= 0)
             binding.list.scrollToPosition(index)
@@ -106,7 +106,9 @@ internal class SubTrackDialog(private val player: MPVView) {
             init {
                 textView = ViewCompat.requireViewById(view, android.R.id.text1)
                 view.setOnClickListener {
-                    parent.clickItem(bindingAdapterPosition)
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION)
+                        parent.clickItem(position)
                 }
             }
 

@@ -55,7 +55,7 @@ internal class PlaylistDialog(private val player: MPVView) {
         val oldCount = playlist.size
         playlist = player.loadPlaylist()
         Log.v(TAG, "PlaylistDialog: loaded ${playlist.size} items")
-        binding.list.adapter!!.notifyRangeRefresh(oldCount, playlist.size)
+        binding.list.adapter?.notifyRangeRefresh(oldCount, playlist.size)
         binding.list.scrollToPosition(playlist.indexOfFirst { it.index == selectedIndex })
 
         /*
@@ -109,7 +109,9 @@ internal class PlaylistDialog(private val player: MPVView) {
                 textView = view.findViewById(android.R.id.text1)
                 subtitleView = view.findViewById(R.id.subtitleText)
                 view.setOnClickListener {
-                    parent.clickItem(bindingAdapterPosition)
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION)
+                        parent.clickItem(position)
                 }
             }
 

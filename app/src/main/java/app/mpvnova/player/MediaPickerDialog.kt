@@ -354,7 +354,11 @@ internal class MediaPickerDialog {
             RecyclerView.ViewHolder(view) {
             private val textView: CheckedTextView = ViewCompat.requireViewById(view, android.R.id.text1)
             init {
-                view.setOnClickListener { parent.clickItem(bindingAdapterPosition) }
+                view.setOnClickListener {
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION)
+                        parent.clickItem(position)
+                }
             }
             fun bind(item: Item) {
                 textView.text = item.label

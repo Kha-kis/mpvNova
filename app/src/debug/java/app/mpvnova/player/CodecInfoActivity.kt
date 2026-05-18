@@ -36,10 +36,7 @@ class CodecInfoActivity : AppCompatActivity() {
                     key = key.replaceFirst("OMX.", "c2.")
                 grouped[key] = codec
             }
-            if (otherNames.containsKey(key))
-                otherNames[key]!!.add(codec.name)
-            else
-                otherNames[key] = mutableListOf(codec.name)
+            otherNames.getOrPut(key) { mutableListOf() }.add(codec.name)
         }
 
         val out = mutableListOf<String>()
@@ -70,10 +67,7 @@ class CodecInfoActivity : AppCompatActivity() {
                     ""
                 else
                     levels.map { it.profile }.sorted().distinct().joinToString()
-                if (groupedProfiles.containsKey(s))
-                    groupedProfiles[s]!!.add(type)
-                else
-                    groupedProfiles[s] = mutableListOf(type)
+                groupedProfiles.getOrPut(s) { mutableListOf() }.add(type)
             }
 
             for ((levels, mimeTypes) in groupedProfiles) {

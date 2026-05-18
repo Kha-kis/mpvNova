@@ -244,7 +244,7 @@ internal fun MPVActivity.openPlaylistMenu(restore: StateRestoreCallback) {
         private fun openFilePicker(skip: Int) {
             openFilePickerFor("", skip) { result, data ->
                 if (result == RESULT_OK) {
-                    val path = data!!.getStringExtra("path")!!
+                    val path = data?.getStringExtra("path") ?: return@openFilePickerFor
                     mpvCommand(arrayOf("loadfile", path, "append"))
                     impl.refresh()
                 }

@@ -15,6 +15,7 @@ internal class SpeedPickerDialog : PickerDialog {
         // Scale factor for >=1.0 range (in progress units)
         private const val SCALE_FACTOR = 20.0
         private const val SEEK_BAR_MAX = 200
+        private const val DEFAULT_SPEED = 1.0
     }
 
     private lateinit var binding: DialogSliderBinding
@@ -58,6 +59,6 @@ internal class SpeedPickerDialog : PickerDialog {
     override fun isInteger(): Boolean = false
 
     override var number: Double?
-        set(v) { binding.seekBar.progress = fromSpeed(v!!) }
+        set(v) { binding.seekBar.progress = fromSpeed(v ?: DEFAULT_SPEED) }
         get() = toSpeed(binding.seekBar.progress)
 }

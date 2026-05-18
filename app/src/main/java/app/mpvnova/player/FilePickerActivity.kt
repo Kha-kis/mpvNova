@@ -95,26 +95,8 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
             insets
         }
 
-        val openedDirectly = when (intent.getIntExtra("skip", -1)) {
-            URL_DIALOG -> { showUrlDialog(); true }
-            FILE_PICKER -> { initFilePicker(); true }
-            DOC_PICKER -> {
-                initDocPicker(Uri.parse(intent.getStringExtra("root")!!))
-                true
-            }
-            else -> false
-        }
-        if (!openedDirectly) {
-            binding.toolbar.visibility = View.INVISIBLE
-            val args = Bundle().apply {
-                putString("title", intent.getStringExtra("title"))
-                putBoolean("allow_document", intent.getBooleanExtra("allow_document", false))
-            }
-            supportFragmentManager.beginTransaction()
-                .setReorderingAllowed(true)
-                .add(R.id.fragment_container_view, ChoiceFragment::class.java, args, null)
-                .commit()
-        }
+        if (!FilePickerStartup.openInitialDestination(this))
+            FilePickerStartup.showChoiceFragment(this)
     }
 
     override fun onRequestPermissionsResult(
@@ -148,41 +130,11 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
                 true
             }
             R.id.action_external_storage -> {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                    val path = Environment.getExternalStorageDirectory()
-                    fragment!!.goToDir(path) // attempt to do something useful
-                } else {
-                    val vols = Utils.getStorageVolumes(this)
-
-                    with (AlertDialog.Builder(this)) {
-                        setItems(vols.map { it.description }.toTypedArray()) { dialog, item ->
-                            val vol = vols[item]
-                            with (fragment!!) {
-                                root = vol.path
-                                goToDir(vol.path)
-                            }
-                            dialog.dismiss()
-                        }
-                        show()
-                    }
-                }
+                FilePickerMenuActions.openExternalStorage(this)
                 true
             }
             R.id.action_file_filter -> {
-                var old = false
-                fragment?.apply {
-                    old = filterPredicate != null
-                    filterPredicate = if (!old) MEDIA_FILE_FILTER else null
-                }
-                fragment2?.apply {
-                    old = filterPredicate != null
-                    filterPredicate = if (!old) MEDIA_DOC_FILTER else null
-                }
-                with (Toast.makeText(this, "", Toast.LENGTH_SHORT)) {
-                    setText(if (!old) R.string.notice_show_media_files else R.string.notice_show_all_files)
-                    show()
-                }
-                saveFilterState(!old)
+                FilePickerMenuActions.toggleFileFilter(this)
                 true
             }
             else -> false
@@ -224,9 +176,8 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
     override fun onDirPicked(dir: File) = finishWithResult(RESULT_OK, dir.absolutePath)
 
     override fun onDocumentPicked(uri: Uri, isDir: Boolean) {
-        assert(fragment2 != null)
         if (!isDir)
-            finishWithResult(RESULT_OK, fragment2!!.pathToString(uri))
+            fragment2?.pathToString(uri)?.let { finishWithResult(RESULT_OK, it) }
     }
 
     override fun onCancelled() = finishWithResult(RESULT_CANCELED)
@@ -256,6 +207,97 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         const val URL_DIALOG = 0
         const val FILE_PICKER = 1
         const val DOC_PICKER = 2
+    }
+}
+
+private object FilePickerStartup {
+    fun openInitialDestination(activity: FilePickerActivity): Boolean {
+        return when (activity.intent.getIntExtra("skip", -1)) {
+            FilePickerActivity.URL_DIALOG -> {
+                activity.showUrlDialog()
+                true
+            }
+            FilePickerActivity.FILE_PICKER -> {
+                activity.initFilePicker()
+                true
+            }
+            FilePickerActivity.DOC_PICKER -> {
+                openInitialDocumentPicker(activity)
+                true
+            }
+            else -> false
+        }
+    }
+
+    fun showChoiceFragment(activity: FilePickerActivity) {
+        activity.binding.toolbar.visibility = View.INVISIBLE
+        val args = Bundle().apply {
+            putString("title", activity.intent.getStringExtra("title"))
+            putBoolean("allow_document", activity.intent.getBooleanExtra("allow_document", false))
+        }
+        activity.supportFragmentManager.beginTransaction()
+            .setReorderingAllowed(true)
+            .add(R.id.fragment_container_view, ChoiceFragment::class.java, args, null)
+            .commit()
+    }
+
+    private fun openInitialDocumentPicker(activity: FilePickerActivity) {
+        val root = activity.intent.getStringExtra("root")
+        if (root == null) {
+            activity.finishWithResult(Activity.RESULT_CANCELED)
+        } else {
+            activity.initDocPicker(Uri.parse(root))
+        }
+    }
+}
+
+private object FilePickerMenuActions {
+    fun openExternalStorage(activity: FilePickerActivity) {
+        val currentFragment = activity.fragment ?: return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            currentFragment.goToDir(Environment.getExternalStorageDirectory())
+        } else {
+            showExternalStoragePicker(activity, currentFragment)
+        }
+    }
+
+    fun toggleFileFilter(activity: FilePickerActivity) {
+        val showMediaFiles = updateFilterPredicates(activity)
+        with(Toast.makeText(activity, "", Toast.LENGTH_SHORT)) {
+            setText(if (showMediaFiles) R.string.notice_show_media_files else R.string.notice_show_all_files)
+            show()
+        }
+        activity.saveFilterState(showMediaFiles)
+    }
+
+    private fun showExternalStoragePicker(
+        activity: FilePickerActivity,
+        currentFragment: MPVFilePickerFragment,
+    ) {
+        val volumes = Utils.getStorageVolumes(activity)
+        AlertDialog.Builder(activity)
+            .setItems(volumes.map { it.description }.toTypedArray()) { dialog, item ->
+                val volume = volumes[item]
+                with(currentFragment) {
+                    root = volume.path
+                    goToDir(volume.path)
+                }
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun updateFilterPredicates(activity: FilePickerActivity): Boolean {
+        var hasActiveFilter = false
+        activity.fragment?.apply {
+            hasActiveFilter = filterPredicate != null
+            filterPredicate = if (!hasActiveFilter) FilePickerActivity.MEDIA_FILE_FILTER else null
+        }
+        activity.fragment2?.apply {
+            hasActiveFilter = filterPredicate != null
+            filterPredicate = if (!hasActiveFilter) FilePickerActivity.MEDIA_DOC_FILTER else null
+        }
+        return !hasActiveFilter
     }
 }
 
@@ -311,11 +353,11 @@ private fun FilePickerActivity.focusToolbarNavigation(): Boolean {
 }
 
 private fun FilePickerActivity.initFilePicker() {
-    if (fragment == null) {
-        fragment = MPVFilePickerFragment()
+    val activeFragment = fragment ?: MPVFilePickerFragment().also { newFragment ->
+        fragment = newFragment
         with(supportFragmentManager.beginTransaction()) {
             setReorderingAllowed(true)
-            add(R.id.fragment_container_view, fragment!!, null)
+            add(R.id.fragment_container_view, newFragment, null)
             runOnCommit { doUiTweaks() }
             commit()
         }
@@ -331,7 +373,7 @@ private fun FilePickerActivity.initFilePicker() {
     val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
 
     if (getFilterState())
-        fragment!!.filterPredicate = FilePickerActivity.MEDIA_FILE_FILTER
+        activeFragment.filterPredicate = FilePickerActivity.MEDIA_FILE_FILTER
 
     var defaultPathStr = intent.getStringExtra("default_path")
     if (defaultPathStr.isNullOrEmpty()) {
@@ -340,7 +382,7 @@ private fun FilePickerActivity.initFilePicker() {
             Environment.getExternalStorageDirectory().path
         )
     }
-    val defaultPath = File(defaultPathStr!!)
+    val defaultPath = File(defaultPathStr ?: Environment.getExternalStorageDirectory().path)
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         // check that the preferred path is inside a storage volume
@@ -353,36 +395,37 @@ private fun FilePickerActivity.initFilePicker() {
         if (targetVolume == null) {
             Log.e(FilePickerActivity.TAG, "can't find any volumes at all!")
         } else {
-            with(fragment!!) {
+            with(activeFragment) {
                 root = targetVolume.path
                 goToDir(if (preferredVolume == null) targetVolume.path else defaultPath)
             }
         }
     } else {
         // Old device: go to preferred path but don't restrict root
-        fragment!!.goToDir(defaultPath)
+        activeFragment.goToDir(defaultPath)
     }
 }
 
 private fun FilePickerActivity.initDocPicker(root: Uri) {
     Log.v(FilePickerActivity.TAG, "FilePickerActivity: showing document picker at \"$root\"")
     assert(fragment2 == null)
-    fragment2 = MPVDocumentPickerFragment(root)
+    val activeFragment = MPVDocumentPickerFragment(root)
+    fragment2 = activeFragment
     supportActionBar?.show()
 
     val defaultPathStr = intent.getStringExtra("default_path")
     if (!defaultPathStr.isNullOrEmpty()) {
-        fragment2!!.apply {
+        activeFragment.apply {
             goToDir(pathFromString(defaultPathStr))
         }
     }
 
     if (getFilterState())
-        fragment2!!.filterPredicate = FilePickerActivity.MEDIA_DOC_FILTER
+        activeFragment.filterPredicate = FilePickerActivity.MEDIA_DOC_FILTER
 
     with(supportFragmentManager.beginTransaction()) {
         setReorderingAllowed(true)
-        add(R.id.fragment_container_view, fragment2!!, null)
+        add(R.id.fragment_container_view, activeFragment, null)
         runOnCommit { doUiTweaks() }
         commit()
     }

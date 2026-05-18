@@ -111,6 +111,8 @@ class MPVActivity : AppCompatActivity() {
     internal var lastDisplayedPlaybackSecond = Int.MIN_VALUE
     internal var lastSeekbarProgress = Int.MIN_VALUE
     internal var lastSeekbarUiUpdateMs = 0L
+    internal var lastDpadSeekApplyMs = 0L
+    internal var lastAppliedSeekMs = Long.MIN_VALUE
     internal var lastClockInfoTick = Long.MIN_VALUE
     @DrawableRes
     internal var lastPlayButtonIconRes = 0
@@ -216,6 +218,7 @@ class MPVActivity : AppCompatActivity() {
     internal var showMediaTitle = false
     internal var controlsDisplayTimeoutMs = DEFAULT_CONTROLS_DISPLAY_TIMEOUT
     internal var keepControlsVisibleWhilePaused = false
+    internal var remoteNextChapterKeyCode: Int? = null
     internal var playerScreenBrightnessActive = false
     internal var rememberPlayerScreenBrightness = false
     internal var playerScreenBrightnessPercent = DEFAULT_PLAYER_SCREEN_BRIGHTNESS_PERCENT
@@ -332,8 +335,9 @@ class MPVActivity : AppCompatActivity() {
         updateMediaSession()
         BackgroundPlaybackService.mediaToken = mediaSession?.sessionToken
 
-        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val audioSessionId = audioManager!!.generateAudioSessionId()
+        val manager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager = manager
+        val audioSessionId = manager.generateAudioSessionId()
         if (audioSessionId != AudioManager.ERROR)
             player.setAudioSessionId(audioSessionId)
         else
@@ -364,8 +368,10 @@ class MPVActivity : AppCompatActivity() {
         }
         mediaSession = null
 
-        audioFocusRequest?.let {
-            AudioManagerCompat.abandonAudioFocusRequest(audioManager!!, it)
+        audioFocusRequest?.let { request ->
+            audioManager?.let { manager ->
+                AudioManagerCompat.abandonAudioFocusRequest(manager, request)
+            }
         }
         audioFocusRequest = null
 
@@ -553,6 +559,7 @@ class MPVActivity : AppCompatActivity() {
 
     /** dpad navigation */
     internal var btnSelected = -1
+    internal val dpadControlsScratch = ArrayList<View>(DPAD_CONTROLS_SCRATCH_CAPACITY)
     internal var pendingDpadLongClickView: View? = null
     internal var pendingDpadLongClickRunnable: Runnable? = null
     internal var dpadLongClickPerformed = false
@@ -585,6 +592,7 @@ class MPVActivity : AppCompatActivity() {
     override fun dispatchKeyEvent(ev: KeyEvent): Boolean {
         // try built-in event handler first, forward all other events to libmpv
         val handled = interceptDpad(ev) ||
+            interceptRemoteNextChapterButton(ev) ||
             (ev.action == KeyEvent.ACTION_DOWN && interceptKeyDown(ev)) ||
             player.onKey(ev)
         return handled || super.dispatchKeyEvent(ev)

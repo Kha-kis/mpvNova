@@ -72,7 +72,9 @@ internal class ChapterPickerDialog(
         ) : RecyclerView.ViewHolder(binding.root) {
             init {
                 binding.root.setOnClickListener {
-                    parent.clickItem(bindingAdapterPosition)
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION)
+                        parent.clickItem(position)
                 }
             }
 

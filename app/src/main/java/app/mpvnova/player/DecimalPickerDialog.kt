@@ -37,7 +37,7 @@ internal class DecimalPickerDialog(
     override fun isInteger(): Boolean = false
 
     override var number: Double?
-        set(v) = binding.editText.setText(v!!.toString())
+        set(v) = binding.editText.setText(v?.toString().orEmpty())
         get() = binding.editText.text.toString().toDoubleOrNull()
 
     companion object {

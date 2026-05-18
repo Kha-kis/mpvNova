@@ -37,6 +37,7 @@ import android.view.Gravity
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
 import android.widget.Button
@@ -73,22 +74,26 @@ import kotlin.math.roundToLong
 
 internal fun MPVActivity.dpadButtons(): List<View> {
     if (binding.controls.visibility != View.VISIBLE || binding.topControls.visibility != View.VISIBLE) {
+        dpadControlsScratch.clear()
         return emptyList()
     }
-    val views = mutableListOf<View>()
+    val views = dpadControlsScratch
+    views.clear()
     if (binding.playbackSeekbar.isEnabled) {
         views += binding.playbackSeekbar
     }
-    val groups = arrayOf(binding.controlsButtonGroup, binding.topControls)
-    for (g in groups) {
-        for (i in 0 until g.childCount) {
-            val view = g.getChildAt(i)
-            if (view.isEnabled && view.isVisible && view.isFocusable) {
-                views += view
-            }
+    views.addFocusableChildren(binding.controlsButtonGroup)
+    views.addFocusableChildren(binding.topControls)
+    return views
+}
+
+private fun MutableList<View>.addFocusableChildren(group: ViewGroup) {
+    for (i in 0 until group.childCount) {
+        val view = group.getChildAt(i)
+        if (view.isEnabled && view.isVisible && view.isFocusable) {
+            this += view
         }
     }
-    return views
 }
 
 internal fun MPVActivity.firstControlButtonIndex(controls: List<View>): Int {
@@ -97,13 +102,15 @@ internal fun MPVActivity.firstControlButtonIndex(controls: List<View>): Int {
 }
 
 internal fun MPVActivity.firstControlButtonView(): View? {
-    val groups = arrayOf(binding.controlsButtonGroup, binding.topControls)
-    for (group in groups) {
-        for (i in 0 until group.childCount) {
-            val child = group.getChildAt(i)
-            if (child.isEnabled && child.isVisible && child.isFocusable) {
-                return child
-            }
+    findFirstFocusableChild(binding.controlsButtonGroup)?.let { return it }
+    return findFirstFocusableChild(binding.topControls)
+}
+
+private fun findFirstFocusableChild(group: ViewGroup): View? {
+    for (i in 0 until group.childCount) {
+        val child = group.getChildAt(i)
+        if (child.isEnabled && child.isVisible && child.isFocusable) {
+            return child
         }
     }
     return null

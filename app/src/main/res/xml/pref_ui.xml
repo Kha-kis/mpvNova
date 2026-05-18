@@ -31,6 +31,12 @@
         android:summary="@string/pref_keep_controls_visible_paused_summary"
         android:title="@string/pref_keep_controls_visible_paused_title" />
 
+    <app.mpvnova.player.preferences.RemoteButtonPreference
+        app:iconSpaceReserved="false"
+        android:defaultValue="@string/pref_remote_button_unassigned_value"
+        android:key="remote_next_chapter_button"
+        android:title="@string/pref_remote_next_chapter_button_title" />
+
     <ListPreference
         android:defaultValue="@string/pref_no_ui_pause_default"
         app:iconSpaceReserved="false"

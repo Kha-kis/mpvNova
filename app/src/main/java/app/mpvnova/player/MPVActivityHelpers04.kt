@@ -186,7 +186,8 @@ internal fun MPVActivity.pauseForDialog(): StateRestoreCallback {
 internal fun MPVActivity.updateStats() {
     if (!statsFPS)
         return
-    val statsText = getString(R.string.ui_fps, player.estimatedVfFps)
+    val fps = player.estimatedVfFps ?: return
+    val statsText = getString(R.string.ui_fps, fps)
     if (binding.statsTextView.text.toString() != statsText)
         binding.statsTextView.text = statsText
 }
@@ -204,7 +205,8 @@ internal fun MPVActivity.updateClockInfo(force: Boolean = false) {
         clockFormatter = SimpleDateFormat(pattern, Locale.getDefault())
         clockFormatterIs24 = is24Hour
     }
-    val clockText = clockFormatter!!.format(Date(now))
+    val formatter = clockFormatter ?: return
+    val clockText = formatter.format(Date(now))
     if (binding.clockTextView.text.toString() != clockText)
         binding.clockTextView.text = clockText
 
@@ -213,7 +215,7 @@ internal fun MPVActivity.updateClockInfo(force: Boolean = false) {
         val endTimeMillis = now + (remainingSeconds * MILLIS_PER_SECOND_LONG)
         val endsAtText = getString(
             R.string.player_ends_at,
-            clockFormatter!!.format(Date(endTimeMillis))
+            formatter.format(Date(endTimeMillis))
         )
         binding.endsAtTextView.visibility = View.VISIBLE
         if (binding.endsAtTextView.text.toString() != endsAtText)

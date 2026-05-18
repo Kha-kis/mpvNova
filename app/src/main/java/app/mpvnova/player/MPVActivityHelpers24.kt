@@ -90,7 +90,7 @@ internal fun MPVActivity.updatePlaylistButtons() {
     binding.nextBtn.setImageTintColorIfChanged(if (plPos == plCount-1) g else w)
 }
 
-internal fun MPVActivity.seekChapterRelative(direction: Int) {
+internal fun MPVActivity.seekChapterRelative(direction: Int, showFeedback: Boolean = false) {
     val chapters = cachedChapters.ifEmpty {
         player.loadChapters().also { cachedChapters = it }
     }
@@ -123,6 +123,23 @@ internal fun MPVActivity.seekChapterRelative(direction: Int) {
     val targetMs = (target.time * MPV_MILLIS_PER_SECOND_DOUBLE).roundToLong().coerceAtLeast(0L)
     setPlaybackSeekbarProgress(seekbarProgressFromMillis(targetMs))
     updatePlaybackTimeline(targetMs, forceTextUpdate = true)
+    if (showFeedback) {
+        showChapterSkipToast(target, targetMs)
+    }
+}
+
+private fun MPVActivity.showChapterSkipToast(chapter: MPVView.Chapter, targetMs: Long) {
+    val chapterTitle = chapter.title?.takeIf { it.isNotBlank() }
+        ?: "${getString(R.string.chapter_button)} ${chapter.index + 1}"
+    showToast(
+        getString(R.string.btn_next_chapter),
+        getString(
+            R.string.toast_next_chapter_detail,
+            Utils.prettyTime((targetMs / MILLIS_PER_SECOND_LONG).toInt()),
+            chapterTitle
+        ),
+        cancel = false
+    )
 }
 
 internal fun MPVActivity.updateChapterMarkers() {

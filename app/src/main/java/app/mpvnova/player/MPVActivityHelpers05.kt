@@ -138,6 +138,26 @@ internal fun MPVActivity.showControls() {
         fadeHandler.postDelayed(fadeRunnable, controlsDisplayTimeoutMs)
 }
 
+internal fun MPVActivity.refreshVisibleControlsTimeout() {
+    fadeHandler.removeCallbacks(fadeRunnable)
+    if (shouldAutoHideControls())
+        fadeHandler.postDelayed(fadeRunnable, controlsDisplayTimeoutMs)
+}
+
+internal fun MPVActivity.keepVisibleControlsFresh() {
+    val controlsAreVisible = binding.controls.visibility == View.VISIBLE
+    val controlsAreOpaque =
+        binding.controls.alpha >= 1f &&
+        binding.topControls.alpha >= 1f &&
+        binding.playerTitleOverlay.alpha >= 1f &&
+        binding.controlsScrim.alpha >= 1f
+    if (controlsAreVisible && controlsAreOpaque && !fadeRunnable.hasStarted) {
+        refreshVisibleControlsTimeout()
+    } else {
+        showControls()
+    }
+}
+
 internal fun MPVActivity.hideControls() {
     if (controlsShouldBeVisible())
         return

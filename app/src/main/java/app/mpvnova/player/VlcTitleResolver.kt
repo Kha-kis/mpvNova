@@ -109,8 +109,8 @@ object VlcTitleResolver {
 
     private fun normalizeReleaseTitle(value: String): String? {
         return value
-            .replace(Regex("[._]+"), " ")
-            .replace(Regex("\\s+"), " ")
+            .replace(RELEASE_SEPARATOR_PATTERN, " ")
+            .replace(RELEASE_WHITESPACE_PATTERN, " ")
             .trim(' ', '.', '_', '-')
             .takeIf { it.isNotBlank() }
     }
@@ -152,6 +152,9 @@ object VlcTitleResolver {
 
     private val SEASON_EPISODE_PATTERN =
         Regex("""(?i)(?:^|[ ._\-\[(])S\d{1,2}E\d{1,3}(?:E\d{1,3})?(?=$|[ ._\-\])])""")
+
+    private val RELEASE_SEPARATOR_PATTERN = Regex("[._]+")
+    private val RELEASE_WHITESPACE_PATTERN = Regex("\\s+")
 
     private val RELEASE_TAG_PATTERN = Regex(
         "(?i)(?:^|[ ._\\-\\[(])(?:" +

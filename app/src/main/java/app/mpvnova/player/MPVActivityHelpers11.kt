@@ -72,8 +72,9 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 internal fun TextView.setTextIfChanged(newText: CharSequence?) {
-    if (text.toString() != newText.toString())
-        text = newText
+    val resolvedText = newText ?: ""
+    if (text.toString() != resolvedText.toString())
+        text = resolvedText
 }
 
 internal fun ImageButton.setImageTintColorIfChanged(color: Int) {

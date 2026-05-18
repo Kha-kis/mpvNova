@@ -9,7 +9,11 @@ internal fun MPVActivity.readPlaybackSettings(
 ) {
     val statsMode = prefs.getString("stats_mode", "") ?: ""
     statsFPS = statsMode == "native_fps"
-    statsLuaMode = if (statsMode.startsWith("lua")) statsMode.removePrefix("lua").toInt() else 0
+    statsLuaMode = if (statsMode.startsWith("lua")) {
+        statsMode.removePrefix("lua").toIntOrNull() ?: 0
+    } else {
+        0
+    }
     backgroundPlayMode = getString("background_play", R.string.pref_background_play_default)
     noUIPauseMode = getString("no_ui_pause", R.string.pref_no_ui_pause_default)
     shouldSavePosition = prefs.getBoolean("save_position", true)
@@ -19,6 +23,10 @@ internal fun MPVActivity.readPlaybackSettings(
         prefs.getString("player_controls_timeout", DEFAULT_CONTROLS_DISPLAY_TIMEOUT.toString())
     )
     keepControlsVisibleWhilePaused = prefs.getBoolean("keep_controls_visible_paused", false)
+    remoteNextChapterKeyCode = remoteButtonKeyCode(prefs.getString(
+        PREF_REMOTE_NEXT_CHAPTER_BUTTON,
+        REMOTE_BUTTON_DISABLED
+    ))
     rememberPlayerScreenBrightness = prefs.getBoolean("remember_player_screen_brightness", false)
     playerScreenBrightnessActive = rememberPlayerScreenBrightness
     playerScreenBrightnessPercent = prefs.getInt(
