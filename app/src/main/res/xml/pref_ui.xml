@@ -31,6 +31,20 @@
         android:summary="@string/pref_keep_controls_visible_paused_summary"
         android:title="@string/pref_keep_controls_visible_paused_title" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
+        android:key="autopause_controls_overlay"
+        android:summary="@string/pref_autopause_controls_overlay_summary"
+        android:title="@string/pref_autopause_controls_overlay_title" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        app:iconSpaceReserved="false"
+        android:key="autopause_shield_hi10p"
+        android:summary="@string/pref_autopause_shield_hi10p_summary"
+        android:title="@string/pref_autopause_shield_hi10p_title" />
+
     <app.mpvnova.player.preferences.RemoteButtonPreference
         app:iconSpaceReserved="false"
         android:defaultValue="@string/pref_remote_button_unassigned_value"

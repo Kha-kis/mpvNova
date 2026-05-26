@@ -4,7 +4,6 @@ import android.app.Activity
 import android.os.Build
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceManager
-import app.mpvnova.player.BuildConfig
 import app.mpvnova.player.R
 import java.io.File
 

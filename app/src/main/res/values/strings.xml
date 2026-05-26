@@ -43,6 +43,9 @@
     <string name="btn_next_chapter">Next chapter</string>
     <string name="dialog_title_chapter">Go to chapter</string>
     <string name="toast_next_chapter_detail">Skipped to %1$s - %2$s</string>
+    <string name="toast_no_next_chapter">No next chapter</string>
+    <string name="toast_no_previous_chapter">No previous chapter</string>
+    <string name="toast_no_chapters_in_file">No chapter markers in this file</string>
     <string name="toast_audio_norm_surround_hint">Surround track is heavy to process. Try Channel Downmix for smoother playback.</string>
     <string name="player_ends_at">Ends at %1$s</string>
     <string name="player_loading_stream">Opening stream...</string>
@@ -86,8 +89,6 @@
     <string name="pref_preferred_decoder_mode_summary_format">Current: %1$s\n%2$s</string>
     <string name="ui_fps">%.3f FPS</string>
     <string name="ui_speed">%.2fx</string>
-    <string name="ui_chapter_fallback">Chapter %1$d (%2$s)</string>
-    <string name="ui_chapter">%1$s (%2$s)</string>
     <string name="ui_track">#%d</string>
     <string name="ui_track_text">#%1$d: %2$s</string>
     <string name="ui_track_title_lang">#%1$d: %2$s (%3$s)</string>
@@ -283,7 +284,11 @@
     <string name="pref_shield_decoder_mode_title">Shield decoder mode</string>
     <string name="pref_shield_decoder_mode_summary">Use a Shield-specific fallback for Hi10P H.264. Turn off to keep the normal decoder modes only.</string>
     <string name="pref_shield_decoder_fallback_title">Shield Hi10P fallback</string>
-    <string name="pref_shield_decoder_fallback_summary">Choose the path Shield decoder mode uses for Hi10P H.264 videos.</string>
+    <string name="pref_shield_decoder_fallback_summary">Choose the path Shield decoder mode uses for Hi10P H.264 videos. Copy = MediaCodec-copy with default tuning (smoother on most Shields). SW = pure software with aggressive frame-dropping (use if Copy can\'t keep up).</string>
+    <string name="pref_autopause_controls_overlay_title">Pause when controls show</string>
+    <string name="pref_autopause_controls_overlay_summary">Automatically pause playback while the controls overlay is visible, so navigating doesn\'t fight the decoder for CPU. Applies to every file.</string>
+    <string name="pref_autopause_shield_hi10p_title">Pause Hi10P on Shield</string>
+    <string name="pref_autopause_shield_hi10p_summary">On Shield devices, automatically pause playback while the controls overlay is visible during Hi10P H.264 files (where the SW decoder is too tight to share CPU with the UI). Independent of the general option above — turn off if you\'d rather accept some A/V drift to keep video running.</string>
     <string name="pref_preferred_decoder_mode_title">Preferred decoder mode</string>
     <string name="pref_preferred_decoder_mode_summary">Choose the decoder mode to use by default when automatic decoder fallback is off.</string>
 

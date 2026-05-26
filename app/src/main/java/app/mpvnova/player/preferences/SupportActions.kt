@@ -14,6 +14,7 @@ import androidx.core.content.FileProvider
 import androidx.preference.PreferenceManager
 import app.mpvnova.player.BuildConfig
 import app.mpvnova.player.MPVView
+import app.mpvnova.player.MpvLogRingBuffer
 import app.mpvnova.player.NativeLibraryVersion
 import app.mpvnova.player.R
 import app.mpvnova.player.toShieldDecoderFallback
@@ -30,6 +31,8 @@ object SupportActions {
         "bottom_controls",
         "player_controls_timeout",
         "keep_controls_visible_paused",
+        "autopause_controls_overlay",
+        "autopause_shield_hi10p",
         "remote_next_chapter_button",
         "remember_player_screen_brightness",
         "player_screen_brightness_percent",
@@ -65,11 +68,8 @@ object SupportActions {
             zip.textEntry("settings-summary.txt", buildSettingsSummary(activity))
             zip.configEntry(activity, "mpv.conf")
             zip.configEntry(activity, "input.conf")
-            zip.textEntry(
-                "logs.txt",
-                "mpvNova does not keep a persistent log file yet.\n" +
-                    "For runtime playback logs, capture logcat while reproducing the issue.\n"
-            )
+            zip.textEntry("logs.txt", buildMpvLogDump())
+            zip.crashEntries(activity)
         }
 
         val uri = FileProvider.getUriForFile(
@@ -113,7 +113,7 @@ object SupportActions {
         val shieldDecoder = prefs.getBoolean("shield_decoder_mode", true)
         val shieldDecoderFallback = prefs.getString(
             "shield_decoder_fallback",
-            MPVView.SHIELD_DECODER_FALLBACK_COPY
+            MPVView.SHIELD_DECODER_FALLBACK_COPY,
         ).toShieldDecoderFallback()
         val preferredDecoder = prefs.getString("preferred_decoder_mode", null)
             ?.takeIf { it.isNotBlank() }
@@ -172,6 +172,35 @@ object SupportActions {
         putNextEntry(ZipEntry(name))
         write(content.toByteArray(Charsets.UTF_8))
         closeEntry()
+    }
+
+    /**
+     * Emit every crash file the [CrashReporter] has written into the bundle
+     * under a `crashes/` subdirectory. Silently no-op when there have been
+     * no crashes — which is the common case.
+     */
+    private fun ZipOutputStream.crashEntries(context: Context) {
+        val dir = File(context.cacheDir, "crashes")
+        val files = dir.listFiles()?.filter { it.isFile && it.name.startsWith("crash-") }
+            ?: return
+        if (files.isEmpty()) return
+        for (file in files.sortedBy { it.lastModified() }) {
+            textEntry("crashes/${file.name}", file.readText())
+        }
+    }
+
+    private fun buildMpvLogDump(): String {
+        val lines = MpvLogRingBuffer.snapshot()
+        if (lines.isEmpty()) {
+            return "No mpv log lines captured yet in this process.\n"
+        }
+        return buildString {
+            appendLine("Last ${lines.size} mpv log lines captured by mpvNova in this session.")
+            appendLine()
+            for (line in lines) {
+                appendLine(line)
+            }
+        }
     }
 
     private fun nativeVersion(context: Context, libraryName: String, marker: String): String {

@@ -19,7 +19,6 @@
     <string name="track_secondary">Дополнительный</string>
     <string name="btn_play">Воспроизведение</string>
     <string name="btn_pause">Пауза</string>
-    <string name="ui_chapter_fallback">Глава %1$d (%2$s)</string>
 
     <!-- Less simple strings -->
     <string name="title_speed_dialog">Скорость воспроизведения</string>

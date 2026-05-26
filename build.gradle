@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:9.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'io.gitlab.arturbosch.detekt:io.gitlab.arturbosch.detekt.gradle.plugin:1.23.8'
+        classpath 'dev.detekt:dev.detekt.gradle.plugin:2.0.0-alpha.3'
     }
 }
 
@@ -23,7 +23,7 @@ allprojects {
 // Use `./gradlew wrapper` to re-generate it
 tasks {
     wrapper {
-        gradleVersion = "9.5.0"
+        gradleVersion = "9.5.1"
         distributionType = Wrapper.DistributionType.BIN
     }
 }

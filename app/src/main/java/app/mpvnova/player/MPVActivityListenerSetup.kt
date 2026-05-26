@@ -1,6 +1,5 @@
 package app.mpvnova.player
 
-import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.addCallback
 import androidx.core.view.ViewCompat
@@ -12,7 +11,13 @@ internal fun MPVActivity.bindClickListeners() = with(binding) {
     nextBtn.setOnClickListener { playlistNext() }
     cycleAudioBtn.setOnClickListener { pickAudio() }
     cycleSubsBtn.setOnClickListener { pickSub() }
-    playBtn.setOnClickListener { player.cyclePause() }
+    playBtn.setOnClickListener {
+        // The user explicitly cycling pause means whatever pause state
+        // they end up in is their choice — not our auto-pause overlay
+        // logic. Clear the flag so the overlay close doesn't fight them.
+        controlsOverlayAutoPaused = false
+        player.cyclePause()
+    }
     cycleDecoderBtn.setOnClickListener { pickDecoder() }
     statsToggleBtn.setOnClickListener { toggleStatsOverlay() }
     cycleSpeedBtn.setOnClickListener { cycleSpeed() }
@@ -51,11 +56,20 @@ internal fun MPVActivity.bindTouchAndInsetsListeners() {
         val insets = windowInsets.getInsets(
             WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
         )
-        view.updateLayoutParams<MarginLayoutParams> {
-            leftMargin = insets.left
-            topMargin = insets.top
-            bottomMargin = insets.bottom
-            rightMargin = insets.right
+        val lp = view.layoutParams as MarginLayoutParams
+        // Skip the requestLayout cascade when nothing actually changed.
+        // setOnApplyWindowInsetsListener gets invoked on every system-bar
+        // dispatch (controller hide/show, rotation, focus, …) and each
+        // updateLayoutParams call triggers a layout pass for the whole
+        // outside subtree.
+        val horizMarginsChanged = lp.leftMargin != insets.left || lp.rightMargin != insets.right
+        val vertMarginsChanged = lp.topMargin != insets.top || lp.bottomMargin != insets.bottom
+        if (horizMarginsChanged || vertMarginsChanged) {
+            lp.leftMargin = insets.left
+            lp.topMargin = insets.top
+            lp.rightMargin = insets.right
+            lp.bottomMargin = insets.bottom
+            view.layoutParams = lp
         }
         WindowInsetsCompat.CONSUMED
     }

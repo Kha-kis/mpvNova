@@ -1,76 +1,10 @@
 package app.mpvnova.player
 
-import app.mpvnova.player.databinding.PlayerBinding
-import app.mpvnova.player.MpvEvent
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.annotation.SuppressLint
-import android.app.ForegroundServiceStartNotAllowedException
 import androidx.appcompat.app.AlertDialog
-import android.app.PictureInPictureParams
-import android.app.RemoteAction
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.content.res.ColorStateList
-import android.content.res.Configuration
-import android.graphics.drawable.Icon
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.util.Log
-import android.media.AudioManager
-import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import android.util.DisplayMetrics
-import android.util.Rational
-import androidx.core.content.ContextCompat
-import android.view.Gravity
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.SeekBar
-import android.widget.TextView
-import androidx.activity.addCallback
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
-import androidx.annotation.IdRes
-import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.IntentCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
-import androidx.media.AudioAttributesCompat
-import androidx.media.AudioFocusRequestCompat
-import androidx.media.AudioManagerCompat
-import androidx.preference.PreferenceManager.getDefaultSharedPreferences
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.io.File
-import java.io.FileNotFoundException
-import java.lang.IllegalArgumentException
-import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 
 internal fun MPVActivity.dpadButtons(): List<View> {
     if (binding.controls.visibility != View.VISIBLE || binding.topControls.visibility != View.VISIBLE) {
@@ -127,6 +61,17 @@ internal fun MPVActivity.interceptDpad(ev: KeyEvent): Boolean {
 }
 
 internal fun MPVActivity.updateSelectedDpadButton() {
+    // The dpad selection model lives entirely on `btnSelected`, not on
+    // framework focus — interceptDpad runs at Activity.dispatchKeyEvent
+    // before any focus dispatch, and DPAD_CENTER calls performClick()
+    // directly. The button backgrounds light up via `state_selected` in
+    // their drawable selectors, so isSelected alone is all we need for the
+    // visual feedback. We deliberately do NOT call requestFocus() here:
+    // every focus change fires AccessibilityManager.sendAccessibilityEvent
+    // AND triggers ViewRootImpl.scheduleTraversals() — a full window
+    // layout/measure/draw pass on the next frame. At ~10 button presses/sec
+    // while scrolling, that's the spike that lets the SW Hi10p decoder
+    // fall behind real-time and accumulates the A-V drift the user sees.
     val controls = dpadButtons()
     controls.forEachIndexed { i, child ->
         val selected = i == btnSelected
@@ -135,17 +80,6 @@ internal fun MPVActivity.updateSelectedDpadButton() {
         }
         if (child is ChapterSeekBar) {
             child.setDpadSelected(selected)
-        }
-        if (!selected && child.isFocused) {
-            child.clearFocus()
-        }
-    }
-    controls.getOrNull(btnSelected)?.let { selectedChild ->
-        if (selectedChild !== binding.playbackSeekbar && binding.playbackSeekbar.isFocused) {
-            binding.playbackSeekbar.clearFocus()
-        }
-        if (selectedChild.isFocusable && !selectedChild.isFocused) {
-            selectedChild.requestFocus()
         }
     }
 }

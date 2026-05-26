@@ -2,7 +2,6 @@ package app.mpvnova.player
 
 import android.view.KeyEvent
 import android.view.View
-import androidx.core.view.isVisible
 
 internal fun MPVActivity.interceptDpadWithoutControls(ev: KeyEvent): Boolean {
     return when (ev.keyCode) {
@@ -12,7 +11,7 @@ internal fun MPVActivity.interceptDpadWithoutControls(ev: KeyEvent): Boolean {
                 val controls = dpadButtons()
                 if (controls.isNotEmpty()) {
                     activateDpadSelection(ev, controls)
-                    requestFirstControlFocusIfNeeded(ev)
+                    requestFirstControlFocusIfNeeded()
                 }
             }
             true
@@ -22,8 +21,12 @@ internal fun MPVActivity.interceptDpadWithoutControls(ev: KeyEvent): Boolean {
                 KeyEvent.ACTION_DOWN -> {
                     showControls()
                     btnSelected = 0
+                    // updateSelectedDpadButton highlights the seekbar via
+                    // ChapterSeekBar.setDpadSelected — no framework
+                    // requestFocus needed (which would trigger a full window
+                    // traversal that starves the SW decoder during dpad
+                    // seeking on Hi10p).
                     updateSelectedDpadButton()
-                    binding.playbackSeekbar.requestFocus()
                     seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
                 }
                 KeyEvent.ACTION_UP -> commitPendingSeekbarSeek()
@@ -39,14 +42,19 @@ internal fun MPVActivity.activateDpadSelection(ev: KeyEvent, controls: List<View
     updateSelectedDpadButton()
 }
 
-internal fun MPVActivity.requestFirstControlFocusIfNeeded(ev: KeyEvent) {
-    if (ev.keyCode == KeyEvent.KEYCODE_DPAD_DOWN)
-        firstControlButtonView()?.requestFocus()
+internal fun MPVActivity.requestFirstControlFocusIfNeeded() {
+    // Was: requestFocus on the first control button when controls open via
+    // DPAD_DOWN. Now: the visual "selected" state is driven entirely by
+    // updateSelectedDpadButton → isSelected → state_selected in the
+    // button drawable. The framework focus pointer can stay wherever it
+    // was; we never need to move it during player UI navigation, and
+    // skipping these requestFocus calls eliminates a window-wide layout
+    // traversal at every controls-open. We still post a deferred selection
+    // refresh so the highlight settles after the layout pass that the
+    // visibility change triggers.
     binding.controls.post {
         if (btnSelected != -1 && binding.controls.visibility == View.VISIBLE) {
             updateSelectedDpadButton()
-            if (ev.keyCode == KeyEvent.KEYCODE_DPAD_DOWN)
-                firstControlButtonView()?.requestFocus()
         }
     }
 }
@@ -56,7 +64,7 @@ internal fun MPVActivity.interceptDpadActivation(ev: KeyEvent, controls: List<Vi
         return false
     if (ev.action == KeyEvent.ACTION_DOWN) {
         activateDpadSelection(ev, controls)
-        requestFirstControlFocusIfNeeded(ev)
+        requestFirstControlFocusIfNeeded()
         showControls()
     }
     return true
@@ -110,7 +118,16 @@ internal fun MPVActivity.handleHorizontalDpad(
                 val count = controls.size
                 btnSelected = (count + btnSelected + direction) % count
                 updateSelectedDpadButton()
-                showControls()
+                // Controls are already visible here (we're navigating their
+                // buttons), so showControls() would only refresh the auto-hide
+                // timer. Skip the rest of the function and just bump the
+                // timer directly — this avoids re-running the alpha checks,
+                // updateClockInfo, and the deferred binding.controls.post for
+                // dpad selection that each showControls() call schedules.
+                // At ~10 presses/sec while scrolling buttons, that work
+                // adds up to enough UI-thread CPU to chronically starve
+                // the SW Hi10p decoder.
+                refreshVisibleControlsTimeout()
             }
         }
         KeyEvent.ACTION_UP -> {
@@ -118,9 +135,11 @@ internal fun MPVActivity.handleHorizontalDpad(
                 commitPendingSeekbarSeek()
                 keepVisibleControlsFresh()
             } else {
-                showControls()
+                // ACTION_UP follows the matching ACTION_DOWN with no state
+                // change in between — the selection and visibility are
+                // already correct, just refresh the auto-hide timer.
+                refreshVisibleControlsTimeout()
             }
-            updateSelectedDpadButton()
         }
     }
     return true

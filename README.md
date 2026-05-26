@@ -109,7 +109,8 @@ mpvNova inherits mpv-android's playback foundation: hardware/software decoding, 
 - Audio panel with Voice Boost, Volume Boost, DRC, Audio Normalization, Channel Downmix, surround-state feedback, and filter persistence
 - In-player decoder picker with `HW+`, `HW`, `SW`, `G-NEXT`, and optional `Shield Anime (Hi10P)` modes
 - Advanced decoder settings for hardware decoding, automatic fallback, and Shield Hi10P fallback behavior
-- Shield Hi10P fallback can use the default `G-NEXT + MediaCodec copy` path or the older tuned `G-NEXT + software decode` path
+- Shield Hi10P fallback can use the default `G-NEXT + MediaCodec copy` path (smoother on most Shields, loop-filter skip on non-reference frames + 1 s audio buffer) or the tuned `G-NEXT + software decode` path (aggressive frame-dropping for bulletproof A/V sync)
+- Player UI autopause options: a general "Pause when controls show" toggle, plus a Shield-specific "Pause Hi10P on Shield" toggle (on by default) that pauses playback while the controls overlay is visible so the SW decoder is not competing with the UI for CPU on Hi10P files
 - Player-side video adjustment panels for brightness, contrast, gamma, and saturation, with optional remembered values
 - Live `G-NEXT` path display for direct, copy, or software-backed playback paths, plus automatic decoder fallback for known trouble cases
 - Appearance themes for White, Crimson, Ocean, Violet, Emerald, Amber, and Rose, plus AMOLED mode and pure black surfaces

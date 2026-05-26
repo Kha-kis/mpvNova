@@ -1,0 +1,84 @@
+package app.mpvnova.player
+
+import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
+
+/**
+ * Player-overlay toast: a single floating chip view ([PlayerBinding.playerToast])
+ * that fades in, holds for a duration scaled to the content length, then
+ * fades back out. Driven by a Handler-scheduled hide runnable on the
+ * fadeHandler so the toast lifecycle integrates with the controls fade.
+ */
+
+internal fun MPVActivity.showToast(msg: String, cancel: Boolean = false, durationMs: Long = TOAST_UNTITLED_BASE_MS) {
+    showToastInternal(null, msg, cancel, durationMs)
+}
+
+internal fun MPVActivity.showToast(
+    title: String,
+    detail: String,
+    cancel: Boolean = true,
+    durationMs: Long = TOAST_UNTITLED_BASE_MS
+) {
+    showToastInternal(title, detail, cancel, durationMs)
+}
+
+internal fun MPVActivity.showToastInternal(
+    title: String?,
+    detail: String,
+    cancel: Boolean,
+    durationMs: Long
+) {
+    val effectiveDurationMs = resolvedToastDuration(title, detail, durationMs)
+    fadeHandler.removeCallbacks(playerToastHideRunnable)
+    binding.playerToast.animate().cancel()
+    if (cancel) {
+        binding.playerToast.alpha = 1f
+    }
+
+    binding.playerToastTitle.isVisible = !title.isNullOrBlank()
+    binding.playerToastTitle.text = title
+    binding.playerToastMessage.text = detail
+    updatePlayerToastPlacement()
+    binding.playerToast.visibility = View.VISIBLE
+
+    if (binding.playerToast.alpha < 1f) {
+        binding.playerToast.alpha = 0f
+        binding.playerToast.animate().alpha(1f).setDuration(PLAYER_TOAST_FADE_IN_MS).withLayer()
+    } else {
+        binding.playerToast.alpha = 1f
+    }
+
+    fadeHandler.postDelayed(playerToastHideRunnable, effectiveDurationMs)
+}
+
+internal fun MPVActivity.resolvedToastDuration(
+    title: String?,
+    detail: String,
+    requestedDurationMs: Long
+): Long {
+    val textLength = (title?.length ?: 0) + detail.length
+    return if (!title.isNullOrBlank()) {
+        val adaptiveDuration = TOAST_TITLED_BASE_MS +
+            (textLength.coerceAtMost(TOAST_TITLED_MAX_CHARS) * TOAST_TITLED_PER_CHAR_MS)
+        maxOf(requestedDurationMs, adaptiveDuration.coerceAtMost(TOAST_TITLED_MAX_MS))
+    } else {
+        val adaptiveDuration = TOAST_UNTITLED_BASE_MS +
+            (textLength.coerceAtMost(TOAST_UNTITLED_MAX_CHARS) * TOAST_UNTITLED_PER_CHAR_MS)
+        maxOf(requestedDurationMs, adaptiveDuration.coerceAtMost(TOAST_UNTITLED_MAX_MS))
+    }
+}
+
+internal fun MPVActivity.updatePlayerToastPlacement() {
+    val topMarginDp = if (binding.playerTitleOverlay.isVisible) {
+        TOAST_TOP_WITH_TITLE_DP
+    } else {
+        TOAST_TOP_NO_TITLE_DP
+    }
+    val topMarginPx = Utils.convertDp(activityContext, topMarginDp)
+    if ((binding.playerToast.layoutParams as? MarginLayoutParams)?.topMargin == topMarginPx)
+        return
+    binding.playerToast.updateLayoutParams<MarginLayoutParams> { topMargin = topMarginPx }
+}

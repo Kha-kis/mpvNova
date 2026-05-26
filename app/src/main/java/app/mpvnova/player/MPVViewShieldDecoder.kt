@@ -3,6 +3,22 @@ package app.mpvnova.player
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 
+// Shield's MediaCodec can't decode 10-bit H.264, so the Hi10p auto-fallback
+// reconfigures playback to one of two known-working paths. Users can pick
+// which path they prefer in Advanced settings.
+//
+// COPY (default, `g_next_copy`): vo=gpu-next + hwdec=mediacodec-copy. mpv
+//   silently SW-decodes the file (MediaCodec init fails for 10-bit) but with
+//   the *default* decoder tuning, so no aggressive frame-dropping. Steady-
+//   state playback feels smooth on Tegra. Tuned on top with:
+//     skiploopfilter=nonref → ~25% faster decode, visually invisible
+//     audio-buffer=1.0       → 1s output headroom so brief decode lag never
+//                              underruns the audio device
+//
+// SW (`g_next_sw`): explicit hwdec=no + aggressive SW tuning (6 threads,
+//   framedrop=vo, display-resample, small cache). Bulletproof A/V sync at
+//   the cost of visible frame drops during heavy scenes. Available for
+//   devices / sources where the COPY path doesn't keep up.
 internal fun MPVView.applyShieldHi10pFallback(fallback: String) {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     applyShieldHi10pFallback(sharedPreferences, fallback)
@@ -21,18 +37,21 @@ internal fun MPVView.applyShieldHi10pFallback(sharedPreferences: SharedPreferenc
 private fun MPVView.applyShieldHi10pFallback(sharedPreferences: SharedPreferences, fallback: String) {
     when (fallback.toShieldDecoderFallback()) {
         MPVView.SHIELD_DECODER_FALLBACK_SW -> applyShieldHi10pSoftwareFallback()
-        else -> {
-            applyStandardDecoderTuning(sharedPreferences, "gpu-next")
-            setRuntimeOption("hwdec", "mediacodec-copy")
-        }
+        else -> applyShieldHi10pCopyFallback(sharedPreferences)
     }
+}
+
+private fun MPVView.applyShieldHi10pCopyFallback(sharedPreferences: SharedPreferences) {
+    applyStandardDecoderTuning(sharedPreferences, "gpu-next")
+    setRuntimeOption("hwdec", "mediacodec-copy")
+    setRuntimeOption("vd-lavc-skiploopfilter", "nonref")
+    setRuntimeOption("audio-buffer", "1.0")
 }
 
 private fun MPVView.applyShieldHi10pSoftwareFallback() {
     setRuntimeVo("gpu-next")
     setRuntimeOption("hwdec", "no")
     setRuntimeOption("vd-lavc-threads", "6")
-    setRuntimeOption("vd-lavc-fast", "yes")
     setRuntimeOption("vd-lavc-skiploopfilter", "nonref")
     setRuntimeOption("framedrop", "vo")
     setRuntimeOption("gpu-api", "opengl")
@@ -44,7 +63,6 @@ private fun MPVView.applyShieldHi10pSoftwareFallback() {
 
 internal fun MPVView.isShieldH10pSoftwareModeActive(): Boolean {
     return matchesShieldOption("vd-lavc-threads", "6") &&
-        matchesShieldOption("vd-lavc-fast", "yes") &&
         matchesShieldOption("vd-lavc-skiploopfilter", "nonref") &&
         matchesShieldOption("framedrop", "vo") &&
         matchesShieldOption("gpu-api", "opengl") &&

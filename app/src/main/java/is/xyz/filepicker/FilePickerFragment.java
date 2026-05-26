@@ -26,7 +26,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.core.content.ContextCompat;
 import androidx.loader.content.Loader;
@@ -45,12 +44,6 @@ import java.util.Map;
 public class FilePickerFragment extends AbstractFilePickerFragment<File> {
 
     protected static final String PERMISSION_PRE33 = Manifest.permission.READ_EXTERNAL_STORAGE;
-    @RequiresApi(33)
-    protected static final String[] PERMISSIONS_POST33 = {
-            Manifest.permission.READ_MEDIA_AUDIO,
-            Manifest.permission.READ_MEDIA_IMAGES,
-            Manifest.permission.READ_MEDIA_VIDEO,
-    };
     protected boolean showHiddenItems = false;
     protected FileFilter filterPredicate = null;
     private File mRequestedPath = null;
@@ -109,19 +102,8 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return Environment.isExternalStorageManager();
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // user can choose to grant at least one
-            for (String permission : PERMISSIONS_POST33) {
-                if (PackageManager.PERMISSION_GRANTED ==
-                        ContextCompat.checkSelfPermission(context, permission)) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            return PackageManager.PERMISSION_GRANTED ==
-                    ContextCompat.checkSelfPermission(context, PERMISSION_PRE33);
-        }
+        return PackageManager.PERMISSION_GRANTED ==
+                ContextCompat.checkSelfPermission(context, PERMISSION_PRE33);
     }
 
     @Override
@@ -137,13 +119,12 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
         mRequestedPath = path;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             launchAllFilesAccessSettings();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionLauncher.launch(PERMISSIONS_POST33);
         } else {
             permissionLauncher.launch(new String[]{PERMISSION_PRE33});
         }
     }
 
+    @SuppressLint("InlinedApi")
     private void launchAllFilesAccessSettings() {
         Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
         intent.setData(Uri.parse("package:" + requireContext().getPackageName()));

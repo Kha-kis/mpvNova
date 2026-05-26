@@ -1,75 +1,7 @@
 package app.mpvnova.player
 
-import app.mpvnova.player.databinding.PlayerBinding
-import app.mpvnova.player.MpvEvent
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.annotation.SuppressLint
-import android.app.ForegroundServiceStartNotAllowedException
-import androidx.appcompat.app.AlertDialog
-import android.app.PictureInPictureParams
-import android.app.RemoteAction
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.content.res.ColorStateList
-import android.content.res.Configuration
-import android.graphics.drawable.Icon
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.util.Log
 import android.media.AudioManager
-import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import android.util.DisplayMetrics
-import android.util.Rational
-import androidx.core.content.ContextCompat
-import android.view.Gravity
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.SeekBar
-import android.widget.TextView
-import androidx.activity.addCallback
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
-import androidx.annotation.IdRes
-import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.IntentCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
-import androidx.media.AudioAttributesCompat
-import androidx.media.AudioFocusRequestCompat
-import androidx.media.AudioManagerCompat
-import androidx.preference.PreferenceManager.getDefaultSharedPreferences
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.io.File
-import java.io.FileNotFoundException
-import java.lang.IllegalArgumentException
-import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 
 internal const val MPV_ACTIVITY_TAG = "mpv"
 internal const val RESULT_OK = android.app.Activity.RESULT_OK
@@ -102,6 +34,11 @@ internal const val MPV_MILLIS_PER_SECOND_FLOAT = 1_000f
 internal const val MPV_MILLIS_PER_SECOND_DOUBLE = 1_000.0
 internal const val SEEK_BAR_PRECISION = 1000L
 internal const val PLAYER_SEEKBAR_UI_INTERVAL_MS = 125L
+// Delay between mpv firing time-pos and us actually waking the UI thread.
+// Naturally batches the per-frame event burst into a handful of UI updates
+// per second so the SW decoder threads don't get preempted ~60×/sec when
+// the user has the controls overlay open.
+internal const val TIME_POS_UI_COALESCE_DELAY_MS = 200L
 internal const val SEEKBAR_SEEK_DEBOUNCE_MS = 90L
 internal const val DPAD_SEEK_DEBOUNCE_MS = 140L
 internal const val DPAD_SEEK_APPLY_INTERVAL_MS = 250L
@@ -136,6 +73,11 @@ internal const val SURROUND_7_1_CHANNEL_COUNT = 8
 internal const val MIN_SURROUND_CHANNELS = 6
 internal const val TRACK_MEMORY_MIN_SCORE = 0.5
 internal const val GPU_NEXT_FALLBACK_TOAST_MS = 5_200L
+// How long after applying the Shield Hi10p fallback to issue the resync
+// seek. Needs to be long enough that the decoder + VO settled (mediacodec
+// open + gpu-next swapchain rebuild) but short enough that the user hasn't
+// already started scrubbing themselves.
+internal const val SHIELD_FALLBACK_RESYNC_DELAY_MS = 900L
 internal const val DEFAULT_AUDIO_SAMPLE_RATE = 48_000
 internal const val DB_TO_LINEAR_BASE = 10.0
 internal const val DB_POWER_DIVISOR = 20.0

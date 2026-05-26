@@ -11,9 +11,21 @@ internal fun MPVActivity.handleMpvEvent(eventId: Int) {
         )
         MpvEvent.MPV_EVENT_START_FILE -> handleMpvStartFile()
         MpvEvent.MPV_EVENT_FILE_LOADED -> handleMpvFileLoaded()
+        MpvEvent.MPV_EVENT_PLAYBACK_RESTART -> handleMpvPlaybackRestart()
     }
     if (eventId in STREAM_LOADING_DONE_EVENTS)
         clearStreamLoading()
+}
+
+private fun MPVActivity.handleMpvPlaybackRestart() {
+    // After the Shield Hi10p fallback rebuilt the decoder, playback-restart
+    // is the signal that the new decoder is actually producing frames. Drain
+    // the pending resync now: tiny exact seek to flush A/V/subs back into
+    // alignment, then unpause.
+    if (pendingShieldFallbackResync) {
+        pendingShieldFallbackResync = false
+        eventUiHandler.post(shieldFallbackResyncRunnable)
+    }
 }
 
 private fun MPVActivity.handleMpvEndFile() {
@@ -29,6 +41,9 @@ private fun MPVActivity.handleMpvStartFile() {
     gpuNextRenderFallbackStage = 0
     gpuNextCopyRetryConfirmed = false
     gpuNextCopyRetryDisplayedFrame = false
+    pendingShieldFallbackResync = false
+    shieldFallbackResumeAfter = false
+    controlsOverlayAutoPaused = false
     cachedChapters = emptyList()
     pendingChapterSeekTime = null
     currentItemTitle = pendingItemTitle

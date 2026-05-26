@@ -34,6 +34,4 @@
 
     <color name="tint_normal">@color/tv_text</color>
     <color name="tint_disabled">#FF47505D</color>
-
-    <color name="alpha_disabled">#80000000</color>
 </resources>

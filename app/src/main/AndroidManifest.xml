@@ -29,6 +29,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
+        android:name=".MpvNovaApplication"
         android:allowBackup="true"
         android:resizeableActivity="true"
         android:requestLegacyExternalStorage="true"
@@ -225,7 +226,6 @@
             android:icon="@mipmap/mpv_launcher_icon"
             android:roundIcon="@mipmap/mpv_launcher_icon"
             android:banner="@mipmap/ic_banner"
-            android:label="@string/mpv_activity"
             android:theme="@style/AppTheme.Launcher"
             android:exported="true">
             <intent-filter>

@@ -158,33 +158,24 @@
 
             </LinearLayout>
 
-            <!-- Seekbar row: thin progress line, no inline time -->
-            <LinearLayout
-                android:id="@+id/controls_seekbar_group"
+            <!-- Seekbar: thin progress line, no inline time.
+                 Flat: was wrapped in a weighted LinearLayout with a single
+                 child; the wrapper added a layout pass and the weight
+                 forced a two-pass measure for no functional reason. -->
+            <app.mpvnova.player.ChapterSeekBar
+                android:id="@+id/playbackSeekbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layoutDirection="ltr"
-                android:orientation="horizontal"
-                android:weightSum="100">
-
-                <app.mpvnova.player.ChapterSeekBar
-                    android:id="@+id/playbackSeekbar"
-                    android:layout_width="0dp"
-                    android:layout_height="42dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="100"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:focusable="true"
-                    android:focusableInTouchMode="false"
-                    android:maxHeight="8dp"
-                    android:minHeight="8dp"
-                    android:progressDrawable="@drawable/seekbar_progress_tv"
-                    android:splitTrack="false"
-                    android:thumb="@drawable/seekbar_thumb_tv"
-                    android:thumbOffset="12dp" />
-            </LinearLayout>
+                android:layout_height="42dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:maxHeight="8dp"
+                android:minHeight="8dp"
+                android:progressDrawable="@drawable/seekbar_progress_tv"
+                android:splitTrack="false"
+                android:thumb="@drawable/seekbar_thumb_tv"
+                android:thumbOffset="12dp" />
 
             <!-- Button row wrapper: reorderable icons on LEFT, time on RIGHT -->
             <LinearLayout
@@ -395,7 +386,8 @@
             android:paddingStart="16dp"
             android:paddingTop="12dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="12dp">
+            android:paddingBottom="12dp"
+            tools:ignore="RelativeOverlap">
 
             <TextView
                 android:id="@+id/clockTextView"

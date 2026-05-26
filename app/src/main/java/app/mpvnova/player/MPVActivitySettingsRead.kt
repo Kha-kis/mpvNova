@@ -45,9 +45,11 @@ internal fun MPVActivity.readPlaybackSettings(
     shieldDecoderModeEnabled = prefs.getBoolean("shield_decoder_mode", true)
     shieldDecoderFallback = prefs.getString(
         "shield_decoder_fallback",
-        MPVView.SHIELD_DECODER_FALLBACK_COPY
+        MPVView.SHIELD_DECODER_FALLBACK_COPY,
     ).toShieldDecoderFallback()
     preferredDecoderMode = prefs.getString("preferred_decoder_mode", "") ?: ""
+    autoPauseControlsOverlayEnabled = prefs.getBoolean("autopause_controls_overlay", false)
+    autoPauseShieldHi10pEnabled = prefs.getBoolean("autopause_shield_hi10p", true)
 }
 
 internal fun MPVActivity.readAudioFilterSettings(prefs: SharedPreferences) {

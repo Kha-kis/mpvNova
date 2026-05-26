@@ -9,7 +9,7 @@ interface MpvEventObserver {
     fun event(eventId: Int)
 }
 
-interface MpvLogObserver {
+fun interface MpvLogObserver {
     fun logMessage(prefix: String, level: Int, text: String)
 }
 

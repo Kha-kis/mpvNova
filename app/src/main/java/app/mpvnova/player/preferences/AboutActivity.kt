@@ -11,7 +11,6 @@ import app.mpvnova.player.AppearanceTheme
 import app.mpvnova.player.BuildConfig
 import app.mpvnova.player.MpvLogLevel
 import app.mpvnova.player.MpvLogObserver
-import app.mpvnova.player.R
 import app.mpvnova.player.addMpvLogObserver
 import app.mpvnova.player.databinding.ActivityAboutBinding
 import app.mpvnova.player.mpvCreate

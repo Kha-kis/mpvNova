@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.AssetManager
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
