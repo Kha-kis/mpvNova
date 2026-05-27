@@ -16,7 +16,7 @@ The goal is simple: keep mpv powerful, but make it feel natural on a TV from the
 
 - TV-first home screen and launcher integration
 - Remote-friendly player HUD with strong D-pad focus behavior
-- Custom subtitle, audio, chapter, decoder, video-adjustment, and settings panels
+- Custom subtitle, audio, chapter, decoder, video-adjustment, advanced playback, and settings panels
 - Smart subtitle matching for binge-watching, tied to persisted subtitle settings
 - Multiple built-in color themes, AMOLED mode, and pure black surfaces
 - Dialogue-focused audio tools for stereo and surround playback
@@ -60,6 +60,10 @@ For mobile-focused Android mpv options, use projects such as [mpvEx](https://git
 
 <div align="center">
   <img src="docs/screenshots/player-subtitles.png" alt="Subtitle panel" width="96%" />
+</div>
+
+<div align="center">
+  <img src="docs/screenshots/player-custom-advanced-panel.png" alt="Custom advanced panel" width="96%" />
 </div>
 
 <div align="center">
