@@ -122,6 +122,12 @@ object AppearanceTheme {
             R.style.FilePickerTheme_Ocean,
             R.style.FilePickerThemeSpecial_Ocean
         ),
+        "cyan" to StyleSet(
+            R.style.AppTheme_Cyan,
+            R.style.AppTheme_Preference_Cyan,
+            R.style.FilePickerTheme_Cyan,
+            R.style.FilePickerThemeSpecial_Cyan
+        ),
         "crimson" to StyleSet(
             R.style.AppTheme_Crimson,
             R.style.AppTheme_Preference_Crimson,
@@ -140,17 +146,65 @@ object AppearanceTheme {
             R.style.FilePickerTheme_Emerald,
             R.style.FilePickerThemeSpecial_Emerald
         ),
+        "lime" to StyleSet(
+            R.style.AppTheme_Lime,
+            R.style.AppTheme_Preference_Lime,
+            R.style.FilePickerTheme_Lime,
+            R.style.FilePickerThemeSpecial_Lime
+        ),
+        "gold" to StyleSet(
+            R.style.AppTheme_Gold,
+            R.style.AppTheme_Preference_Gold,
+            R.style.FilePickerTheme_Gold,
+            R.style.FilePickerThemeSpecial_Gold
+        ),
         "amber" to StyleSet(
             R.style.AppTheme_Amber,
             R.style.AppTheme_Preference_Amber,
             R.style.FilePickerTheme_Amber,
             R.style.FilePickerThemeSpecial_Amber
         ),
+        "copper" to StyleSet(
+            R.style.AppTheme_Copper,
+            R.style.AppTheme_Preference_Copper,
+            R.style.FilePickerTheme_Copper,
+            R.style.FilePickerThemeSpecial_Copper
+        ),
+        "indigo" to StyleSet(
+            R.style.AppTheme_Indigo,
+            R.style.AppTheme_Preference_Indigo,
+            R.style.FilePickerTheme_Indigo,
+            R.style.FilePickerThemeSpecial_Indigo
+        ),
         "rose" to StyleSet(
             R.style.AppTheme_Rose,
             R.style.AppTheme_Preference_Rose,
             R.style.FilePickerTheme_Rose,
             R.style.FilePickerThemeSpecial_Rose
+        ),
+        "slate" to StyleSet(
+            R.style.AppTheme_Slate,
+            R.style.AppTheme_Preference_Slate,
+            R.style.FilePickerTheme_Slate,
+            R.style.FilePickerThemeSpecial_Slate
+        ),
+        "chrome" to StyleSet(
+            R.style.AppTheme_Chrome,
+            R.style.AppTheme_Preference_Chrome,
+            R.style.FilePickerTheme_Chrome,
+            R.style.FilePickerThemeSpecial_Chrome
+        ),
+        "oyster" to StyleSet(
+            R.style.AppTheme_Oyster,
+            R.style.AppTheme_Preference_Oyster,
+            R.style.FilePickerTheme_Oyster,
+            R.style.FilePickerThemeSpecial_Oyster
+        ),
+        "ivory" to StyleSet(
+            R.style.AppTheme_Ivory,
+            R.style.AppTheme_Preference_Ivory,
+            R.style.FilePickerTheme_Ivory,
+            R.style.FilePickerThemeSpecial_Ivory
         )
     )
 }

@@ -57,7 +57,6 @@
     <string name="dialog_picker_subtitle_subs">Pick the subtitle track you want on screen.</string>
     <string name="dialog_picker_subtitle_audio">Choose an audio track and shape the sound for your room.</string>
     <string name="dialog_picker_subtitle_decoder">Select the decoder path that fits this device.</string>
-    <string name="dialog_picker_list_summary">The current choice stays visible while you move through the full list.</string>
     <string name="dialog_section_tracks">Available tracks</string>
     <string name="dialog_section_modes">Available modes</string>
     <string name="dialog_section_timing_summary">Adjust subtitle sync without leaving playback.</string>
@@ -176,15 +175,14 @@
 
     <!-- App chrome -->
     <string name="tv_brand">mpvNova</string>
-    <string name="tv_launcher_tagline">Fast, focused playback</string>
-    <string name="home_hero_body">Open local media, paste a stream, or jump straight into the controls that make playback yours.</string>
-    <string name="home_remember_hint">Launch the same source automatically next time so you can jump back in faster.</string>
-    <string name="launcher_footer">Built for dark rooms, long sessions, and quick navigation.</string>
+    <string name="tv_launcher_tagline">Android TV playback</string>
+    <string name="home_hero_body">Open local files, document folders, or stream URLs.</string>
+    <string name="home_remember_hint">Open this source automatically next time.</string>
     <string name="file_picker_title">Media library</string>
-    <string name="file_picker_subtitle">Browse folders, pick files, or switch to document access without leaving the dark theme.</string>
-    <string name="file_picker_choice_subtitle">Choose the source that fits this file. Everything here keeps the same playback features and flow.</string>
-    <string name="settings_hero_title">Tune playback your way</string>
-    <string name="settings_root_subtitle">Adjust playback defaults, video rendering, interface behavior, and advanced playback controls.</string>
+    <string name="file_picker_subtitle">Browse folders, pick media, or switch to document access.</string>
+    <string name="file_picker_choice_subtitle">Choose a file source.</string>
+    <string name="settings_hero_title">Settings</string>
+    <string name="settings_root_subtitle">Playback, video, interface, and advanced options.</string>
     <string name="about_hero_title">Version and capability info</string>
     <string name="about_hero_subtitle">Inspect the bundled playback core, enabled features, and runtime details.</string>
     <string name="tv_tile_open_folder">Open Folder</string>
@@ -259,10 +257,19 @@
     <string name="appearance_theme_white">White</string>
     <string name="appearance_theme_crimson">Crimson</string>
     <string name="appearance_theme_ocean">Ocean</string>
+    <string name="appearance_theme_cyan">Cyan</string>
     <string name="appearance_theme_violet">Violet</string>
     <string name="appearance_theme_emerald">Emerald</string>
+    <string name="appearance_theme_lime">Lime</string>
     <string name="appearance_theme_amber">Amber</string>
+    <string name="appearance_theme_gold">Gold</string>
+    <string name="appearance_theme_copper">Copper</string>
+    <string name="appearance_theme_indigo">Indigo</string>
     <string name="appearance_theme_rose">Rose</string>
+    <string name="appearance_theme_slate">Slate</string>
+    <string name="appearance_theme_chrome">Chrome</string>
+    <string name="appearance_theme_oyster">Oyster</string>
+    <string name="appearance_theme_ivory">Ivory</string>
     <string name="appearance_amoled_mode_title">AMOLED Mode</string>
     <string name="appearance_amoled_mode_summary">Use pure black for app backgrounds</string>
     <string name="appearance_pure_black_surfaces_title">Pure Black Surfaces</string>

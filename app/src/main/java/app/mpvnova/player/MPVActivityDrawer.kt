@@ -130,14 +130,14 @@ internal fun MPVActivity.selectDrawerTab(
         binding.tabBtnInterface,
     ).forEach { it.isSelected = (it === active) }
 
-    val (eyebrowRes, titleRes) = when (tab) {
-        DrawerTab.VIDEO -> R.string.drawer_tab_video to R.string.drawer_section_video
-        DrawerTab.AUDIO -> R.string.drawer_tab_audio to R.string.drawer_section_audio
-        DrawerTab.SUBTITLES -> R.string.drawer_tab_subtitles to R.string.drawer_section_subtitles
-        DrawerTab.PLAYBACK -> R.string.drawer_tab_playback to R.string.drawer_section_playback
-        DrawerTab.INTERFACE -> R.string.drawer_tab_interface to R.string.drawer_section_interface
+    val titleRes = when (tab) {
+        DrawerTab.VIDEO -> R.string.drawer_section_video
+        DrawerTab.AUDIO -> R.string.drawer_section_audio
+        DrawerTab.SUBTITLES -> R.string.drawer_section_subtitles
+        DrawerTab.PLAYBACK -> R.string.drawer_section_playback
+        DrawerTab.INTERFACE -> R.string.drawer_section_interface
     }
-    binding.drawerStaticHeader.drawerRowEyebrow.setText(eyebrowRes)
+    binding.drawerStaticHeader.drawerRowEyebrow.setText(R.string.mpv_activity)
     binding.drawerStaticHeader.drawerRowTitle.setText(titleRes)
 
     val adapter = binding.drawerContentList.adapter as? PlayerDrawerAdapter ?: return

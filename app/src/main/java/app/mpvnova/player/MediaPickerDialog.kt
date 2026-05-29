@@ -143,7 +143,6 @@ internal class MediaPickerDialog {
             }
         }
         binding.list.minimumHeight = if (hasFilters) 0 else listMinHeight
-        binding.listSectionSummary.isVisible = !hasFilters && !options.showDelay
         if (options.showDelay && !hasFilters) {
             binding.sidePanel.layoutParams = binding.sidePanel.layoutParams.apply {
                 width = Utils.convertDp(binding.root.context, DELAY_SIDE_PANEL_WIDTH_DP)

@@ -84,16 +84,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/dialog_section_tracks" />
-
-                <TextView
-                    android:id="@+id/listSectionSummary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:text="@string/dialog_picker_list_summary"
-                    android:textColor="@color/tv_text_mute"
-                    android:textSize="10sp" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -759,7 +749,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:background="@drawable/bg_tv_accent_tile"
+                        android:background="@drawable/bg_tv_track_row"
                         android:clickable="true"
                         android:focusable="true"
                         android:minHeight="76dp"
@@ -807,7 +797,7 @@
                                 android:maxLines="2"
                                 android:ellipsize="end"
                                 android:text="@string/dialog_section_timing_summary"
-                                android:textColor="#DDECF7FF"
+                                android:textColor="@color/tv_text_dim"
                                 android:textSize="10sp" />
                         </LinearLayout>
 

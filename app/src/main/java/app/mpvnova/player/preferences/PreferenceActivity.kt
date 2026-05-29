@@ -12,8 +12,10 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.MenuItem
+import android.view.ViewTreeObserver
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
@@ -69,6 +71,7 @@ private const val THEME_SWATCH_STROKE_DP = 1
 private const val THEME_SWATCH_SIZE_DP = 40
 private const val THEME_LABEL_TEXT_SIZE_SP = 12f
 private const val THEME_LABEL_TOP_MARGIN_DP = 8
+private const val THEME_SCROLLBAR_MIN_THUMB_DP = 48
 
 private const val CRIMSON_RED = 244
 private const val CRIMSON_GREEN = 67
@@ -76,15 +79,42 @@ private const val CRIMSON_BLUE = 54
 private const val OCEAN_RED = 33
 private const val OCEAN_GREEN = 150
 private const val OCEAN_BLUE = 243
+private const val CYAN_RED = 0
+private const val CYAN_GREEN = 172
+private const val CYAN_BLUE = 193
 private const val VIOLET_RED = 156
 private const val VIOLET_GREEN = 39
 private const val VIOLET_BLUE = 176
 private const val EMERALD_RED = 76
 private const val EMERALD_GREEN = 175
 private const val EMERALD_BLUE = 80
+private const val LIME_RED = 158
+private const val LIME_GREEN = 157
+private const val LIME_BLUE = 36
 private const val AMBER_RED = 255
 private const val AMBER_GREEN = 152
 private const val AMBER_BLUE = 0
+private const val GOLD_RED = 253
+private const val GOLD_GREEN = 216
+private const val GOLD_BLUE = 53
+private const val COPPER_RED = 184
+private const val COPPER_GREEN = 106
+private const val COPPER_BLUE = 44
+private const val INDIGO_RED = 57
+private const val INDIGO_GREEN = 73
+private const val INDIGO_BLUE = 171
+private const val SLATE_RED = 120
+private const val SLATE_GREEN = 144
+private const val SLATE_BLUE = 156
+private const val CHROME_RED = 184
+private const val CHROME_GREEN = 193
+private const val CHROME_BLUE = 204
+private const val OYSTER_RED = 200
+private const val OYSTER_GREEN = 182
+private const val OYSTER_BLUE = 166
+private const val IVORY_RED = 216
+private const val IVORY_GREEN = 198
+private const val IVORY_BLUE = 144
 private const val ROSE_RED = 216
 private const val ROSE_GREEN = 27
 private const val ROSE_BLUE = 96
@@ -326,14 +356,23 @@ class PreferenceActivity : AppCompatActivity(),
                 Color.rgb(CRIMSON_RED, CRIMSON_GREEN, CRIMSON_BLUE)
             ),
             ThemeChoice("ocean", R.string.appearance_theme_ocean, Color.rgb(OCEAN_RED, OCEAN_GREEN, OCEAN_BLUE)),
+            ThemeChoice("cyan", R.string.appearance_theme_cyan, Color.rgb(CYAN_RED, CYAN_GREEN, CYAN_BLUE)),
             ThemeChoice("violet", R.string.appearance_theme_violet, Color.rgb(VIOLET_RED, VIOLET_GREEN, VIOLET_BLUE)),
             ThemeChoice(
                 "emerald",
                 R.string.appearance_theme_emerald,
                 Color.rgb(EMERALD_RED, EMERALD_GREEN, EMERALD_BLUE)
             ),
+            ThemeChoice("lime", R.string.appearance_theme_lime, Color.rgb(LIME_RED, LIME_GREEN, LIME_BLUE)),
             ThemeChoice("amber", R.string.appearance_theme_amber, Color.rgb(AMBER_RED, AMBER_GREEN, AMBER_BLUE)),
+            ThemeChoice("gold", R.string.appearance_theme_gold, Color.rgb(GOLD_RED, GOLD_GREEN, GOLD_BLUE)),
+            ThemeChoice("copper", R.string.appearance_theme_copper, Color.rgb(COPPER_RED, COPPER_GREEN, COPPER_BLUE)),
+            ThemeChoice("indigo", R.string.appearance_theme_indigo, Color.rgb(INDIGO_RED, INDIGO_GREEN, INDIGO_BLUE)),
             ThemeChoice("rose", R.string.appearance_theme_rose, Color.rgb(ROSE_RED, ROSE_GREEN, ROSE_BLUE)),
+            ThemeChoice("slate", R.string.appearance_theme_slate, Color.rgb(SLATE_RED, SLATE_GREEN, SLATE_BLUE)),
+            ThemeChoice("chrome", R.string.appearance_theme_chrome, Color.rgb(CHROME_RED, CHROME_GREEN, CHROME_BLUE)),
+            ThemeChoice("oyster", R.string.appearance_theme_oyster, Color.rgb(OYSTER_RED, OYSTER_GREEN, OYSTER_BLUE)),
+            ThemeChoice("ivory", R.string.appearance_theme_ivory, Color.rgb(IVORY_RED, IVORY_GREEN, IVORY_BLUE)),
         )
 
         private lateinit var preferences: SharedPreferences
@@ -351,6 +390,7 @@ class PreferenceActivity : AppCompatActivity(),
             AppearanceTheme.migrateLegacyOled(requireContext())
             preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
             populateColorThemes(view.findViewById(R.id.colorThemeRow))
+            bindColorThemeScrollbar(view)
             bindSwitchRow(
                 view.findViewById(R.id.amoledRow),
                 view.findViewById(R.id.amoledSwitch),
@@ -361,6 +401,50 @@ class PreferenceActivity : AppCompatActivity(),
                 view.findViewById(R.id.pureBlackSwitch),
                 AppearanceTheme.PREF_PURE_BLACK_SURFACES
             )
+        }
+
+        private fun bindColorThemeScrollbar(view: View) {
+            val scroller = view.findViewById<HorizontalScrollView>(R.id.colorThemeScroller)
+            val track = view.findViewById<FrameLayout>(R.id.colorThemeScrollbarTrack)
+            val thumb = view.findViewById<View>(R.id.colorThemeScrollbarThumb)
+            fun update() {
+                val contentWidth = scroller.getChildAt(0)?.width ?: 0
+                val viewportWidth = scroller.width - scroller.paddingLeft - scroller.paddingRight
+                val scrollRange = contentWidth - viewportWidth
+                val trackWidth = track.width
+                val hasOverflow = scrollRange > 0 && viewportWidth > 0 && trackWidth > 0
+                track.visibility = if (hasOverflow) View.VISIBLE else View.INVISIBLE
+                if (!hasOverflow) return
+
+                val thumbWidth = ((viewportWidth.toFloat() / contentWidth) * trackWidth)
+                    .toInt()
+                    .coerceIn(dp(THEME_SCROLLBAR_MIN_THUMB_DP), trackWidth)
+                val maxTravel = trackWidth - thumbWidth
+                val scrollFraction = (scroller.scrollX.toFloat() / scrollRange).coerceIn(0f, 1f)
+                val leftMargin = (scrollFraction * maxTravel).toInt()
+                val params = thumb.layoutParams as FrameLayout.LayoutParams
+                if (params.width != thumbWidth || params.leftMargin != leftMargin) {
+                    params.width = thumbWidth
+                    params.leftMargin = leftMargin
+                    thumb.layoutParams = params
+                }
+            }
+
+            val scrollListener = ViewTreeObserver.OnScrollChangedListener { update() }
+            val layoutListener = ViewTreeObserver.OnGlobalLayoutListener { update() }
+            scroller.viewTreeObserver.addOnScrollChangedListener(scrollListener)
+            scroller.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+            scroller.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) = Unit
+
+                override fun onViewDetachedFromWindow(v: View) {
+                    if (scroller.viewTreeObserver.isAlive) {
+                        scroller.viewTreeObserver.removeOnScrollChangedListener(scrollListener)
+                        scroller.viewTreeObserver.removeOnGlobalLayoutListener(layoutListener)
+                    }
+                }
+            })
+            scroller.post { update() }
         }
 
         private fun populateColorThemes(row: LinearLayout) {
