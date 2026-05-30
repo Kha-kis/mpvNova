@@ -19,7 +19,7 @@ The goal is simple: keep mpv powerful, but make it feel natural on a TV from the
 - Remote-friendly player HUD with strong D-pad focus behavior
 - Custom subtitle, audio, chapter, decoder, video-adjustment, advanced playback, and settings panels
 - Smart subtitle matching for binge-watching, tied to persisted subtitle settings
-- Multiple built-in color themes, AMOLED mode, and pure black surfaces
+- 16 built-in color themes, AMOLED mode, and pure black surfaces
 - Dialogue-focused audio tools for stereo and surround playback
 - Device-aware decoder paths including gpu-next and optional Shield Hi10P fallback handling
 - In-app update checks backed by GitHub releases
@@ -48,7 +48,7 @@ For mobile-focused Android mpv options, use projects such as [mpvEx](https://git
 </div>
 
 <div align="center">
-  <img src="docs/screenshots/media-library.png" alt="Media library" width="96%" />
+  <img src="docs/screenshots/media-library.png" alt="Media library with external storage picker" width="96%" />
 </div>
 
 <div align="center">
@@ -68,7 +68,7 @@ For mobile-focused Android mpv options, use projects such as [mpvEx](https://git
 </div>
 
 <div align="center">
-  <img src="docs/screenshots/player-decoder-mode.png" alt="Decoder picker with live gpu-next path highlight" width="96%" />
+  <img src="docs/screenshots/player-decoder-mode.png" alt="Decoder picker with selected decoder mode" width="96%" />
 </div>
 
 <div align="center">
@@ -118,7 +118,8 @@ mpvNova inherits mpv-android's playback foundation: hardware/software decoding, 
 - Player UI autopause options: a general "Pause when controls show" toggle, plus a Shield-specific "Pause Hi10P on Shield" toggle (on by default) that pauses playback while the controls overlay is visible so the SW decoder is not competing with the UI for CPU on Hi10P files
 - Player-side video adjustment panels for brightness, contrast, gamma, and saturation, with optional remembered values
 - Live `G-NEXT` path display for direct, copy, or software-backed playback paths, plus automatic decoder fallback for known trouble cases
-- Appearance themes for White, Crimson, Ocean, Violet, Emerald, Amber, and Rose, plus AMOLED mode and pure black surfaces
+- Appearance themes for White, Crimson, Ocean, Cyan, Violet, Emerald, Lime, Amber, Gold, Copper, Indigo, Rose, Slate, Chrome, Oyster, and Ivory, plus AMOLED mode and pure black surfaces
+- Settings pages update the hero title to the active section, including Appearance, General, Video, Player UI, Advanced, and Support
 - Home-screen update prompt, manual update checks, APK handoff to Android's installer, and release-note history from Settings
 - Resume-position handling, media-title cleanup for launcher/stream sources, readable stats overlays, and support/debug export tools
 
