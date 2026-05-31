@@ -33,6 +33,7 @@ class ExternalPlayerActivity : Activity() {
             }
             source.categories?.forEach { addCategory(it) }
             copyAllowedExtras(source, this)
+            externalCallerPackage()?.let { putExtra(EXTRA_EXTERNAL_CALLER_PACKAGE, it) }
             if (containsContentUri(ALLOWED_EXTRA_KEYS))
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
@@ -96,10 +97,21 @@ class ExternalPlayerActivity : Activity() {
     }
 
     private fun buildResultIntent(source: Intent?): Intent {
-        return Intent(RESULT_INTENT).apply {
-            if (source != null)
-                copyResultExtras(source, this)
+        if (source == null)
+            return Intent(RESULT_INTENT)
+        return Intent(source.action ?: RESULT_INTENT).apply {
+            data = source.data
+            copyResultExtras(source, this)
         }
+    }
+
+    private fun externalCallerPackage(): String? {
+        val referrerPackage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            referrer?.takeIf { it.scheme == "android-app" }?.host
+        } else {
+            null
+        }
+        return callingPackage ?: callingActivity?.packageName ?: referrerPackage
     }
 
     private fun Intent.clearPermissionFlags() {
@@ -139,7 +151,9 @@ class ExternalPlayerActivity : Activity() {
             "item_location",
             "position",
             "return_result",
+            "resume_position",
             "secure_uri",
+            "startfrom",
             "subs",
             "subs.enable",
             "subs.filename",
@@ -154,6 +168,7 @@ class ExternalPlayerActivity : Activity() {
             "extra_position",
             "extra_uri",
             "position",
+            "url",
         )
         private const val RESULT_PERMISSION_FLAGS =
             Intent.FLAG_GRANT_READ_URI_PERMISSION or

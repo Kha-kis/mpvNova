@@ -17,31 +17,28 @@ internal fun MPVActivity.initListeners() {
 internal fun MPVActivity.finishWithResult(code: Int, includeTimePos: Boolean = false) {
     if (isFinishing) // only count first call
         return
-    val result = Intent(RESULT_INTENT)
-    result.data = if (intent.data?.scheme == "file") null else intent.data
-    if (includeTimePos) {
-        if (eofWasReached) {
-            result.putExtra("end_by", "playback_completion")
-        } else {
-            val safePosition = psc.position.coerceAtLeast(0L)
-            val safeDuration = psc.duration.coerceAtLeast(0L)
-            result.putExtra("position", safePosition.toInt())
-            result.putExtra("duration", safeDuration.toInt())
-            result.putExtra("extra_position", safePosition)
-            result.putExtra("extra_duration", safeDuration)
-            intent.data?.takeUnless { it.scheme == "file" }?.let {
-                result.putExtra("extra_uri", it.toString())
-            }
-            result.putExtra("end_by", "user")
+    val result = if (includeTimePos) {
+        if (resultPositionMs < 0L)
+            capturePlaybackResultSnapshot()
+        val endBy = if (playbackCompletionReached)
+            EXTERNAL_END_BY_PLAYBACK_COMPLETION
+        else
+            EXTERNAL_END_BY_USER
+        buildExternalPlaybackResultIntent(endBy)
+    } else {
+        Intent(RESULT_INTENT).apply {
+            data = if (intent.data?.scheme == "file") null else intent.data
         }
     }
-    setResult(code, result)
+    setResult(externalPlaybackResultCode(code, includeTimePos), result)
     finish()
 }
 
 internal fun MPVActivity.resetPlaybackResultState() {
     playbackHasStarted = false
-    eofWasReached = false
+    playbackCompletionReached = false
+    resultPositionMs = -1L
+    resultDurationMs = 0L
 }
 
 internal fun MPVActivity.isNetworkStreamPath(path: String?): Boolean {

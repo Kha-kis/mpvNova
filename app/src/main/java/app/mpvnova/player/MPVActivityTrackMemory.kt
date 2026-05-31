@@ -1,5 +1,6 @@
 package app.mpvnova.player
 
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import java.lang.IllegalArgumentException
@@ -37,11 +38,40 @@ internal fun MPVActivity.langPrefixMatch(a: String, b: String): Boolean =
     languagePrefixMatches(a, b)
 
 internal fun MPVActivity.saveUserTrackPick(type: String, mpvId: Int) {
-    if (mpvId == -1) return
-    val meta = listTrackMeta(type).firstOrNull { it.mpvId == mpvId } ?: return
     val prefs = getDefaultSharedPreferences(applicationContext)
     val (titleKey, langKey) = trackMemoryKeys(type)
+    when {
+        type == "sub" && mpvId == -1 -> {
+            prefs.edit().apply {
+                putBoolean(TRACK_MEMORY_SUB_OFF_KEY, true)
+                remove(titleKey)
+                remove(langKey)
+                apply()
+            }
+            Log.v(MPV_ACTIVITY_TAG, "track-memory: saved sub track off")
+        }
+        mpvId != -1 -> saveTrackMetaPick(type, mpvId, prefs, titleKey, langKey)
+    }
+}
+
+private fun MPVActivity.saveTrackMetaPick(
+    type: String,
+    mpvId: Int,
+    prefs: SharedPreferences,
+    titleKey: String,
+    langKey: String
+) {
+    val meta = listTrackMeta(type).firstOrNull { it.mpvId == mpvId }
+    if (meta == null) {
+        if (type == "sub") {
+            prefs.edit().remove(TRACK_MEMORY_SUB_OFF_KEY).apply()
+        }
+        return
+    }
     prefs.edit().apply {
+        if (type == "sub") {
+            remove(TRACK_MEMORY_SUB_OFF_KEY)
+        }
         putString(titleKey, meta.title)
         putString(langKey, meta.lang)
         apply()
@@ -54,6 +84,12 @@ internal fun MPVActivity.applyRememberedTrack(type: String) {
 
     val prefs = getDefaultSharedPreferences(applicationContext)
     val (titleKey, langKey) = trackMemoryKeys(type)
+    if (type == "sub" && prefs.getBoolean(TRACK_MEMORY_SUB_OFF_KEY, false)) {
+        player.sid = -1
+        Log.v(MPV_ACTIVITY_TAG, "track-memory: restored sub track off")
+        return
+    }
+
     val savedTitle = prefs.getString(titleKey, null)
     val savedLang = prefs.getString(langKey, "") ?: ""
 
@@ -106,3 +142,5 @@ internal fun MPVActivity.trackMemoryKeys(type: String): Pair<String, String> = w
     "audio" -> "last_user_audio_title" to "last_user_audio_lang"
     else    -> throw IllegalArgumentException("unknown track type: $type")
 }
+
+private const val TRACK_MEMORY_SUB_OFF_KEY = "last_user_sub_off"

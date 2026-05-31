@@ -44,14 +44,17 @@ internal fun MPVActivity.resumeKey(identity: ResumeIdentity): String {
 
 internal fun MPVActivity.legacyResumeKey(identity: ResumeIdentity) = "resume:${identity.hash}"
 
-internal fun MPVActivity.saveResumePosition() {
+internal fun MPVActivity.saveResumePosition(
+    positionMs: Long = psc.position,
+    durationMs: Long = psc.duration,
+) {
     val identity = if (shouldSavePosition)
         resumeIdentityFromSource(currentResumeSource)
     else
         null
     if (identity == null) return
-    val pos = psc.position
-    val dur = psc.duration
+    val pos = positionMs
+    val dur = durationMs
     if (pos > 0L && dur > 0L) {
         val prefs = getDefaultSharedPreferences(applicationContext)
         val key = resumeKey(identity)

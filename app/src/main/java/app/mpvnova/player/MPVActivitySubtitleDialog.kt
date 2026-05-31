@@ -48,6 +48,9 @@ private fun MPVActivity.handleSecondarySubAdjust(
 
 private fun MPVActivity.togglePersistSubFilters() {
     persistSubFilters = !persistSubFilters
+    if (persistSubFilters) {
+        saveUserTrackPick("sub", player.sid)
+    }
     writeSettings()
     showToast(
         getString(R.string.pref_persist_sub_filters_title),

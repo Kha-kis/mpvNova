@@ -294,9 +294,11 @@ class MPVActivity : AppCompatActivity() {
 
 
     internal var playbackHasStarted = false
-    // True once mpv reports END_FILE. Stremio's mpv parser treats OK without
-    // position/duration extras as completed playback.
-    internal var eofWasReached = false
+    // External-player result state. MPV_EVENT_END_FILE can also mean an early
+    // stream failure, so completion is only true when position is near duration.
+    internal var playbackCompletionReached = false
+    internal var resultPositionMs = -1L
+    internal var resultDurationMs = 0L
     internal var onloadCommands = mutableListOf<Array<String>>()
     internal var streamOpenLoading = false
     internal var streamCacheLoading = false

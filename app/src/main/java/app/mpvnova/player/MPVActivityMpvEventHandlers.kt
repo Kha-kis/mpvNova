@@ -26,8 +26,12 @@ private fun MPVActivity.handleMpvPlaybackRestart() {
 }
 
 private fun MPVActivity.handleMpvEndFile() {
-    eofWasReached = true
-    clearFinishedPositions()
+    capturePlaybackResultSnapshot(updateCompletion = true)
+    if (playbackCompletionReached) {
+        clearFinishedPositions()
+    } else {
+        saveResumePosition(resultPositionMs, resultDurationMs)
+    }
     psc.eof()
     updateMediaSession()
 }

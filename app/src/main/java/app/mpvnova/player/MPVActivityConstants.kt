@@ -30,6 +30,7 @@ internal const val THUMB_SIZE = 384
 internal const val ASPECT_RATIO_MIN = 1.2f
 internal const val AUDIO_FOCUS_DUCKING = 0.5f
 internal const val RESULT_INTENT = "is.xyz.mpv.MPVActivity.result"
+internal const val EXTRA_EXTERNAL_CALLER_PACKAGE = "app.mpvnova.extra.EXTERNAL_CALLER_PACKAGE"
 internal const val STREAM_TYPE = AudioManager.STREAM_MUSIC
 internal const val MILLIS_PER_SECOND_LONG = 1_000L
 internal const val MPV_MILLIS_PER_SECOND_FLOAT = 1_000f

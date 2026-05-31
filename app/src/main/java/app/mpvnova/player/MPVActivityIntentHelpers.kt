@@ -48,7 +48,7 @@ internal fun MPVActivity.addIntentSubtitles(launchExtras: Bundle) {
 }
 
 internal fun MPVActivity.applyIntentStartPosition(launchExtras: Bundle) {
-    val intentPositionMs = launchExtras.getInt("position", 0).toLong()
+    val intentPositionMs = launchExtras.externalStartPositionMs()
     val effectivePositionMs = effectiveIntentStartPosition(launchExtras, intentPositionMs)
     pendingStartPositionMs = effectivePositionMs
     if (effectivePositionMs <= 0L)
@@ -111,6 +111,18 @@ private val AUTOMATIC_SUBTITLE_EXTENSIONS = setOf(
     "sub",
     "vtt",
 )
+
+private fun Bundle.externalStartPositionMs(): Long {
+    val startFrom = getInt("startfrom", 0)
+    val position = getInt("position", 0)
+    val resumePosition = getInt("resume_position", 0)
+    val startPosition = when {
+        startFrom > 1 -> startFrom
+        position > 0 -> position
+        else -> resumePosition.coerceAtLeast(0)
+    }
+    return startPosition.toLong()
+}
 
 private fun automaticSubtitleSearchDirs(parent: File): List<File> {
     val canonicalParent = parent.canonicalFileOrNull() ?: return emptyList()
