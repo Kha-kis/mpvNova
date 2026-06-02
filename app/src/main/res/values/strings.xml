@@ -176,6 +176,40 @@
     <string name="sub_pos_default">Default</string>
     <string name="sub_secondary_unavailable">Unavailable</string>
 
+    <!-- Subtitle style customizer -->
+    <string name="sub_style_title">Subtitle style</string>
+    <string name="sub_style_row_summary">Colors, outline, background, and font.</string>
+    <string name="sub_style_summary">Customize how subtitles look. Applies to text subtitles; advanced (ASS) subtitles only change when override is on.</string>
+    <string name="sub_style_use_custom">Use custom subtitle style</string>
+    <string name="sub_style_text_color">Text color</string>
+    <string name="sub_style_text_color_summary">Color of the subtitle text.</string>
+    <string name="sub_style_text_opacity">Text opacity</string>
+    <string name="sub_style_text_opacity_summary">How solid the text appears.</string>
+    <string name="sub_style_edge">Edge style</string>
+    <string name="sub_style_edge_summary">Outline or drop shadow around the text.</string>
+    <string name="sub_style_edge_none">None</string>
+    <string name="sub_style_edge_outline">Outline</string>
+    <string name="sub_style_edge_shadow">Drop shadow</string>
+    <string name="sub_style_outline_color">Outline color</string>
+    <string name="sub_style_outline_color_summary">Color of the text outline.</string>
+    <string name="sub_style_outline_size">Outline thickness</string>
+    <string name="sub_style_outline_size_summary">Thickness of the outline.</string>
+    <string name="sub_style_bg_opacity">Background opacity</string>
+    <string name="sub_style_bg_opacity_summary">Solid box behind the text.</string>
+    <string name="sub_style_bg_color">Background color</string>
+    <string name="sub_style_bg_color_summary">Color of the background box.</string>
+    <string name="sub_style_font">Font</string>
+    <string name="sub_style_font_summary">Typeface used for subtitles.</string>
+    <string name="sub_style_add_font">Add font…</string>
+    <string name="sub_style_add_font_summary">Import a .ttf or .otf file to use as a subtitle font.</string>
+    <string name="sub_style_font_added">Font added: %s</string>
+    <string name="sub_style_remove_font">Remove font…</string>
+    <string name="sub_style_remove_font_summary">Delete a font you imported. Bundled fonts can\'t be removed.</string>
+    <string name="sub_style_font_removed">Font removed: %s</string>
+    <string name="sub_style_no_user_fonts">No imported fonts to remove.</string>
+    <string name="sub_style_override_ass">Apply to advanced (ASS) subtitles</string>
+    <string name="sub_style_override_ass_summary">Force this style onto ASS/SSA subtitles. May change signs and typesetting.</string>
+
     <!-- App chrome -->
     <string name="tv_brand">mpvNova</string>
     <string name="tv_launcher_tagline">Android TV playback</string>

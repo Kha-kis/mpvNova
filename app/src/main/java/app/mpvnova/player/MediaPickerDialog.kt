@@ -73,6 +73,7 @@ internal class MediaPickerDialog {
         val initialSecondaryPosState: ValueState = ValueState("", active = false),
         val initialSecondarySubState: ValueState = ValueState("", active = false),
         val persistSubFiltersOn: Boolean = false,
+        val subStyleStateText: String = "",
     )
 
     private lateinit var binding: DialogMediaPickerBinding
@@ -115,6 +116,7 @@ internal class MediaPickerDialog {
     var onSecondarySubAdjust: ((Int) -> ValueState)? = null
     var onSecondarySubSwap: (() -> Unit)? = null
     var onPersistSubClick: (() -> Unit)? = null
+    var onSubStyleClick: (() -> Unit)? = null
     var onSubFilterStatesRefresh: (() -> SubFilterStates)? = null
 
     fun buildView(layoutInflater: LayoutInflater, options: Options): View {
@@ -226,6 +228,8 @@ internal class MediaPickerDialog {
             this.secondaryPosState = options.initialSecondaryPosState
             this.secondarySubState = options.initialSecondarySubState
             persistSubFiltersEnabled = options.persistSubFiltersOn
+            binding.subStyleValue.text = options.subStyleStateText
+            binding.subStyleRow.setOnClickListener { onSubStyleClick?.invoke() }
             syncSubFilterChecks()
 
             binding.subScaleMinusBtn.setOnClickListener {
@@ -412,6 +416,7 @@ private fun DialogMediaPickerBinding.configurePanelVisibility(options: MediaPick
     nightModeRow.isVisible = options.showFilters
     audioNormRow.isVisible = options.showFilters
     downmixRow.isVisible = options.showFilters
+    subStyleRow.isVisible = options.showSubFilters
     subScaleRow.isVisible = options.showSubFilters
     subPosRow.isVisible = options.showSubFilters
     secondaryPosRow.isVisible = options.showSubFilters

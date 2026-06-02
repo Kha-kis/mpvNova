@@ -88,11 +88,39 @@ internal fun MPVActivity.onAudioFocusChange(type: Int, source: String) {
     }
 }
 
+/**
+ * `keep-open=yes` (set while a dialog is open so the file can't exit under it)
+ * parks mpv on the last frame if the video reaches its end while the dialog is
+ * up. Flipping keep-open back to "no" afterward does NOT un-park it, so the
+ * player would sit frozen forever and never return to the caller. When the last
+ * dialog closes, if we're parked at EOF, end playback explicitly so the normal
+ * shutdown -> finishWithResult -> return-to-caller (and autonext) path runs.
+ */
+internal fun MPVActivity.endPlaybackIfParkedAtEof() {
+    if (mpvGetPropertyBoolean("eof-reached") == true) {
+        capturePlaybackResultSnapshot(updateCompletion = true)
+        mpvCommand(arrayOf("quit"))
+    }
+}
+
 internal fun MPVActivity.keepPlaybackForDialog(): StateRestoreCallback {
-    val oldValue = mpvGetPropertyString("keep-open")
+    // Capture the real baseline only for the outermost dialog; nested/overlapping
+    // dialogs must not re-capture the already-forced "yes" or they'd restore it
+    // and leave the file stuck at EOF (never returning to the caller).
+    if (keepOpenDialogDepth == 0)
+        keepOpenSavedValue = mpvGetPropertyString("keep-open")
+    keepOpenDialogDepth++
     mpvSetPropertyBoolean("keep-open", true)
+    var restored = false
     return {
-        oldValue?.also { mpvSetPropertyString("keep-open", it) }
+        if (!restored) {
+            restored = true
+            keepOpenDialogDepth = (keepOpenDialogDepth - 1).coerceAtLeast(0)
+            if (keepOpenDialogDepth == 0) {
+                keepOpenSavedValue?.also { mpvSetPropertyString("keep-open", it) }
+                endPlaybackIfParkedAtEof()
+            }
+        }
     }
 }
 

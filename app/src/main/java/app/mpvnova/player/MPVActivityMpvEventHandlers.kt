@@ -78,6 +78,7 @@ private fun MPVActivity.handleMpvFileLoaded() {
     guardNearEndStartPosition()
     showResumeToastIfNeeded()
     refreshAudioFiltersAfterFileLoad()
+    applyCustomSubtitleStyleOnFileLoad()
     maybeApplyContentRefreshRate()
 }
 

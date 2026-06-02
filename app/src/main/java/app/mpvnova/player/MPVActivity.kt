@@ -271,6 +271,34 @@ class MPVActivity : AppCompatActivity() {
     internal var subPosLevel = DEFAULT_SUB_POSITION_INDEX
     // secondaryPosSteps index; default=0% at index 5
     internal var secondaryPosLevel = DEFAULT_SECONDARY_SUB_POSITION_INDEX
+    // Custom subtitle style. This is a persistent profile that is ALWAYS saved
+    // independently of persistSubFilters — the user's design is never discarded.
+    // customSubStyleEnabled is the master switch: the design is only applied to
+    // playback while it's on, and reloads as-configured when toggled back on.
+    internal var customSubStyleEnabled = false
+    internal var subStyleTextColorIndex = subtitleColorOptionIndex(SUBTITLE_TEXT_COLOR_DEFAULT_ID)
+    internal var subStyleTextOpacityIndex = nearestOpacityIndex(DEFAULT_SUBTITLE_TEXT_OPACITY_PERCENT)
+    internal var subStyleBorderColorIndex = subtitleColorOptionIndex(SUBTITLE_BORDER_COLOR_DEFAULT_ID)
+    internal var subStyleBorderSizeIndex = DEFAULT_SUBTITLE_BORDER_INDEX
+    internal var subStyleBgColorIndex = subtitleColorOptionIndex(SUBTITLE_BG_COLOR_DEFAULT_ID)
+    internal var subStyleBgOpacityIndex = nearestOpacityIndex(DEFAULT_SUBTITLE_BG_OPACITY_PERCENT)
+    internal var subStyleEdge = DEFAULT_SUBTITLE_EDGE_STYLE
+    // mpv sub-font family ("" = mpv default). Resolved against the live font
+    // list (generics + bundled + imported) at dialog time.
+    internal var subStyleFontFamily = SUBTITLE_FONT_DEFAULT_FAMILY
+    // When on, custom styling is forced onto ASS/SSA subs (sub-ass-override=force),
+    // overriding their built-in styling. Off by default so signs/typesetting stay intact.
+    internal var subStyleOverrideAss = false
+    // Snapshot of the sub-* properties taken the first time custom style is applied,
+    // so turning the toggle back off restores the real baseline (mpv defaults or the
+    // user's mpv.conf) instead of hardcoded guesses.
+    internal var subStyleSavedDefaults: Map<String, String?>? = null
+    // Nesting-aware keep-open guard for dialogs. Only the outermost dialog
+    // captures/restores the real baseline so overlapping dialogs (drawer →
+    // panel → style dialog) can't leave keep-open stuck "yes" and freeze the
+    // file at its end instead of returning to the caller.
+    internal var keepOpenDialogDepth = 0
+    internal var keepOpenSavedValue: String? = null
     internal var sessionDecoderMode: String? = null
     internal var autoDecoderFallback = true
     internal var shieldDecoderModeEnabled = true

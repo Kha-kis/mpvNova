@@ -49,6 +49,7 @@ internal fun MPVActivity.readSettings() {
     clampAudioFilterState()
     readSubFilterSettings(prefs)
     clampSubFilterState()
+    readSubtitleStyleSettings(prefs)
 }
 
 internal fun MPVActivity.writeSettings() {

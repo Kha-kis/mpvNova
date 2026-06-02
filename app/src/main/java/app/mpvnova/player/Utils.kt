@@ -82,6 +82,8 @@ private fun writeFontsConf(context: Context, configFile: File) {
         // Android system fonts reside here
         "<dir>/system/fonts/</dir>",
         "<dir>/product/fonts/</dir>",
+        // Bundled + user-imported subtitle fonts (see copyAssets / importSubtitleFont)
+        "<dir>${context.filesDir.path}/fonts</dir>",
         // Point fontconfig to the right cache path so that caching works
         "<cachedir>${context.cacheDir.path}</cachedir>",
         // Conveniently there is *no* Java API to query the system default fonts, but we can
@@ -241,7 +243,19 @@ internal object Utils {
         File("$configDir/scripts/auto_subs.lua").delete()
         File("$configDir/scripts").delete()
 
+        copyBundledFonts(assetManager, configDir)
         writeFontsConf(context, File("$configDir/fonts.conf"))
+    }
+
+    private fun copyBundledFonts(assetManager: android.content.res.AssetManager, configDir: String) {
+        val fontsDir = File("$configDir/fonts").apply { mkdirs() }
+        val names = assetManager.list("fonts") ?: return
+        for (name in names) {
+            val dest = File(fontsDir, name)
+            // Don't clobber on every launch (also leaves user-imported fonts alone).
+            if (!dest.exists())
+                AssetCopier.copyFile(assetManager, "fonts/$name", dest)
+        }
     }
 
     fun findRealPath(fd: Int): String? {
