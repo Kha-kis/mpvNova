@@ -3,15 +3,6 @@ package app.mpvnova.player
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 
-/**
- * Live + persisted application of the custom subtitle style profile.
- *
- * The design values are always persisted (see [writeSubtitleStyleSettings]); this
- * file decides whether and how they reach mpv. While [MPVActivity.customSubStyleEnabled]
- * is off nothing here touches rendering, and ASS/SSA subtitles keep their own
- * styling unless the user also turns on the override.
- */
-
 private val SUB_STYLE_PROPS = listOf(
     "sub-color",
     "sub-border-color",
@@ -29,7 +20,6 @@ private const val SUB_SHADOW_OFFSET_OFF = 0.0
 private const val SUB_TRANSPARENT = 0x000000
 private const val FULLY_OPAQUE_PERCENT = 100
 
-/** Master entry point. Applies the profile when enabled, restores the baseline when not. */
 internal fun MPVActivity.applyCustomSubtitleStyle() {
     if (customSubStyleEnabled) {
         snapshotSubStyleBaselineIfNeeded()
@@ -39,12 +29,7 @@ internal fun MPVActivity.applyCustomSubtitleStyle() {
     }
 }
 
-/**
- * Re-assert on each new file. Custom styling only carries between files when
- * "Persist subtitle settings" is on; otherwise it applies to the file the user
- * enabled it on and the next file starts clean. The design itself stays saved
- * either way, so re-enabling later restores it without redoing anything.
- */
+// Only carries to the next file when persist is on; the saved design sticks around either way.
 internal fun MPVActivity.applyCustomSubtitleStyleOnFileLoad() {
     if (!persistSubFilters && customSubStyleEnabled)
         customSubStyleEnabled = false
@@ -75,8 +60,7 @@ private fun MPVActivity.writeCustomSubtitleStyle() {
 
     val bgOpacity = SUBTITLE_OPACITY_PERCENT_STEPS[subStyleBgOpacityIndex]
     if (bgOpacity > 0) {
-        // Background box mode: a solid panel behind the line. The edge/shadow
-        // controls don't apply in this mode, so flatten the shadow.
+        // Background box and outline/edge are mutually exclusive modes.
         val bgColor = SUBTITLE_COLOR_OPTIONS[subStyleBgColorIndex]
         mpvSetPropertyString("sub-border-style", "background-box")
         mpvSetPropertyString("sub-back-color", mpvSubtitleColor(bgColor.rgb, bgOpacity))
@@ -108,18 +92,10 @@ private fun MPVActivity.applySubEdge() {
 }
 
 private fun MPVActivity.applySubFont() {
-    if (subStyleFontFamily.isNotEmpty()) {
-        mpvSetPropertyString("sub-font", subStyleFontFamily)
-    } else {
-        // "Default": put mpv's own font back rather than forcing a family.
-        subStyleSavedDefaults?.get("sub-font")?.let { mpvSetPropertyString("sub-font", it) }
-    }
+    mpvSetPropertyString("sub-font", subStyleFontFamily.ifEmpty { SUBTITLE_FONT_DEFAULT_FAMILY })
 }
 
 internal fun MPVActivity.readSubtitleStyleSettings(prefs: SharedPreferences) {
-    // The design below is always restored. Whether it's auto-applied carries
-    // only when "Persist subtitle settings" is on (read in readSubFilterSettings
-    // first), matching how sub scale/position and the audio filters behave.
     customSubStyleEnabled = persistSubFilters && prefs.getBoolean("custom_sub_style_enabled", false)
     subStyleTextColorIndex = subtitleColorOptionIndex(
         prefs.getString("sub_style_text_color", SUBTITLE_TEXT_COLOR_DEFAULT_ID) ?: SUBTITLE_TEXT_COLOR_DEFAULT_ID
@@ -141,15 +117,11 @@ internal fun MPVActivity.readSubtitleStyleSettings(prefs: SharedPreferences) {
     subStyleEdge = runCatching {
         SubtitleEdgeStyle.valueOf(prefs.getString("sub_style_edge", DEFAULT_SUBTITLE_EDGE_STYLE.name)!!)
     }.getOrDefault(DEFAULT_SUBTITLE_EDGE_STYLE)
-    subStyleFontFamily = prefs.getString("sub_style_font_family", SUBTITLE_FONT_DEFAULT_FAMILY)
-        ?: SUBTITLE_FONT_DEFAULT_FAMILY
+    subStyleFontFamily = (prefs.getString("sub_style_font_family", SUBTITLE_FONT_DEFAULT_FAMILY)
+        ?: SUBTITLE_FONT_DEFAULT_FAMILY).ifEmpty { SUBTITLE_FONT_DEFAULT_FAMILY }
     subStyleOverrideAss = prefs.getBoolean("sub_style_override_ass", false)
 }
 
-/**
- * Persist the whole design unconditionally — the profile is never discarded,
- * even while the master toggle (or persistSubFilters) is off.
- */
 internal fun MPVActivity.writeSubtitleStyleSettings() {
     val prefs = getDefaultSharedPreferences(applicationContext)
     with(prefs.edit()) {

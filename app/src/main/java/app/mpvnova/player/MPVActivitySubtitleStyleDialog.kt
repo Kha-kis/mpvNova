@@ -132,6 +132,7 @@ private fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
         font = SubtitleStyleDialog.Row(subtitleFontLabel(subStyleFontFamily), enabled = on),
         overrideOn = subStyleOverrideAss,
         overrideEnabled = on,
+        preview = subtitleStylePreviewSpec(),
     )
 }
 

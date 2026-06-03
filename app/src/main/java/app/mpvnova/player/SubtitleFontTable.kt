@@ -4,14 +4,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-/**
- * Minimal TrueType/OpenType `name`-table reader. Pulls a font file's family
- * name so the picker can show real names and so the value handed to mpv's
- * `sub-font` actually matches what libass resolves.
- *
- * Supports plain .ttf/.otf and .ttc collections (first font only). Anything it
- * can't parse returns null and the caller falls back to the file name.
- */
+// Reads a font's real family name so the picker shows it and sub-font matches.
 internal object SubtitleFontTable {
     private const val TAG_TTCF = 0x74746366 // 'ttcf'
     private const val TAG_NAME = 0x6E616D65 // 'name'

@@ -39,25 +39,31 @@
         android:textColor="@color/tv_text_dim"
         android:textSize="12sp" />
 
-    <ScrollView
+    <app.mpvnova.player.SubtitleStylePreviewView
+        android:id="@+id/stylePreview"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_sub_style_preview" />
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="12dp"
-        android:clipToPadding="false"
-        android:paddingEnd="10dp"
-        android:scrollbarDefaultDelayBeforeFade="1200"
-        android:scrollbarFadeDuration="240"
-        android:scrollbarSize="3dp"
-        android:scrollbarStyle="insideInset"
-        android:scrollbarThumbVertical="@drawable/bg_tv_scrollbar_thumb"
-        android:scrollbarTrackVertical="@drawable/bg_tv_scrollbar_track"
-        android:scrollbars="vertical">
+        android:layout_marginTop="12dp">
 
-        <LinearLayout
+        <ScrollView
+            android:id="@+id/styleScroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingEnd="10dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
             <!-- Master toggle -->
             <LinearLayout
@@ -643,5 +649,18 @@
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+
+        <View
+            android:id="@+id/styleScrollbarThumb"
+            android:layout_width="3dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|top"
+            android:layout_marginEnd="2dp"
+            android:alpha="0"
+            android:background="@drawable/bg_tv_scrollbar_thumb"
+            android:focusable="false"
+            android:importantForAccessibility="no"
+            android:visibility="invisible" />
+    </FrameLayout>
 </LinearLayout>

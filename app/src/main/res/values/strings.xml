@@ -178,6 +178,7 @@
 
     <!-- Subtitle style customizer -->
     <string name="sub_style_title">Subtitle style</string>
+    <string name="sub_style_preview_text">The quick brown fox</string>
     <string name="sub_style_row_summary">Colors, outline, background, and font.</string>
     <string name="sub_style_summary">Customize how subtitles look. Applies to text subtitles; advanced (ASS) subtitles only change when override is on.</string>
     <string name="sub_style_use_custom">Use custom subtitle style</string>

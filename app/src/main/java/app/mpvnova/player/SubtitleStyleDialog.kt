@@ -6,13 +6,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 
-/**
- * View layer for the subtitle style customizer, built from the same row
- * components as the other player panels (icon chips, card rows, stepper icon
- * buttons, check toggles). Pure UI: each control reports a [Control] + delta to
- * [onAdjust] and re-renders from the [State] the caller returns. mpv writes and
- * persistence live on MPVActivity (MPVActivitySubtitleStyle*.kt).
- */
 internal class SubtitleStyleDialog {
 
     enum class Control {
@@ -28,7 +21,6 @@ internal class SubtitleStyleDialog {
         OVERRIDE_ASS,
     }
 
-    /** One stepper row's display state. [chipRgb] non-null draws a colour swatch chip. */
     data class Row(val value: String, val enabled: Boolean = true, val chipRgb: Int? = null)
 
     data class State(
@@ -43,23 +35,21 @@ internal class SubtitleStyleDialog {
         val font: Row,
         val overrideOn: Boolean,
         val overrideEnabled: Boolean,
+        val preview: SubtitleStylePreviewView.Spec,
     )
 
     private lateinit var binding: DialogSubtitleStyleBinding
 
-    /** Adjust a control by delta (-1/+1); toggles ignore delta and flip. Returns the new full state. */
+    // delta is -1/+1; toggles ignore it and flip. Returns the new full state.
     var onAdjust: ((Control, Int) -> State)? = null
     var stateProvider: (() -> State)? = null
-
-    /** Open the file picker to import a user font. */
     var onAddFont: (() -> Unit)? = null
-
-    /** Open the list of imported fonts to remove one. */
     var onRemoveFont: (() -> Unit)? = null
 
     fun buildView(layoutInflater: LayoutInflater): View {
         binding = DialogSubtitleStyleBinding.inflate(layoutInflater)
         bindControls()
+        TvScrollbars.bind(binding.styleScroll, binding.styleScrollbarThumb)
         stateProvider?.invoke()?.let { render(it) }
         return binding.root
     }
@@ -94,6 +84,7 @@ internal class SubtitleStyleDialog {
 
     private fun render(state: State) {
         val b = binding
+        b.stylePreview.setSpec(state.preview)
         b.masterCheck.visibility = checkVisibility(state.masterOn)
 
         renderStepper(
