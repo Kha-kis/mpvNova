@@ -64,6 +64,10 @@ For mobile-focused Android mpv options, use projects such as [mpvEx](https://git
 </div>
 
 <div align="center">
+  <img src="docs/screenshots/player-subtitle-style.png" alt="Subtitle style panel" width="96%" />
+</div>
+
+<div align="center">
   <img src="docs/screenshots/player-custom-advanced-panel.png" alt="Custom advanced panel" width="96%" />
 </div>
 
