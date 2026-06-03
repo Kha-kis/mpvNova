@@ -33,6 +33,7 @@ class ExternalPlayerActivity : Activity() {
             }
             source.categories?.forEach { addCategory(it) }
             copyAllowedExtras(source, this)
+            materializeContentSubtitles(source, this)
             externalCallerPackage()?.let { putExtra(EXTRA_EXTERNAL_CALLER_PACKAGE, it) }
             if (containsContentUri(ALLOWED_EXTRA_KEYS))
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
