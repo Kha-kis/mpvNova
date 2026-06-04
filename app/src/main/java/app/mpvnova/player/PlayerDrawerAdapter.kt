@@ -21,6 +21,7 @@ private const val VIEW_TYPE_STATS = 2
 private const val VIEW_TYPE_PREFERENCE = 3
 private const val VIEW_TYPE_SPACER = 4
 private const val PREF_ROW_OFF_ALPHA = 0.55f
+private const val PREF_ROW_DISABLED_ALPHA = 0.4f
 
 private data class DrawerScrollbarHeightCache(
     val width: Int,
@@ -86,6 +87,14 @@ internal class PlayerDrawerAdapter(
 
     override fun getItemCount(): Int = rows.size
 
+    // Re-bind any row greyed out by changedKey so its disabled state refreshes in place.
+    private fun refreshRowsDisabledBy(changedKey: String) {
+        rows.forEachIndexed { index, row ->
+            if (row is PlayerDrawerRow.Preference && row.preference.disabledWhenOnKey == changedKey)
+                notifyItemChanged(index)
+        }
+    }
+
     override fun stableScrollbarMetrics(recyclerView: RecyclerView): StableScrollbarMetrics? {
         val result = measureDrawerScrollbarMetrics(recyclerView, rows, scrollbarHeightCache)
         scrollbarHeightCache = result.cache
@@ -140,11 +149,16 @@ internal class PlayerDrawerAdapter(
             prefRowTitle.setText(preference.titleRes)
             prefRowSummary.setText(preference.summaryRes)
             refreshPrefRowValue(prefRowValue, prefs.currentValue(preference))
+            val disabled = preference.disabledWhenOnKey?.let { prefs.getBoolean(it, false) } == true
+            root.alpha = if (disabled) PREF_ROW_DISABLED_ALPHA else 1f
             root.setOnClickListener {
+                if (disabled)
+                    return@setOnClickListener
                 val newValue = !prefs.currentValue(preference)
                 prefs.edit().putBoolean(preference.key, newValue).apply()
                 refreshPrefRowValue(prefRowValue, newValue)
                 activity.handleDrawerPreferenceChange(preference, newValue)
+                refreshRowsDisabledBy(preference.key)
             }
         }
     }

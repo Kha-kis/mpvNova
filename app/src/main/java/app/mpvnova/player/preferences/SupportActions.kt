@@ -46,6 +46,8 @@ object SupportActions {
         "no_ui_pause",
         "playlist_exit_warning",
         "use_time_remaining",
+        "hide_controls_while_seeking",
+        "minimal_seekbar_while_seeking",
     )
 
     fun copyDebugInfo(activity: Activity) {

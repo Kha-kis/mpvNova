@@ -18,14 +18,7 @@ internal fun MPVActivity.interceptDpadWithoutControls(ev: KeyEvent): Boolean {
         }
         KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
             when (ev.action) {
-                KeyEvent.ACTION_DOWN -> {
-                    showControls()
-                    btnSelected = 0
-                    // No requestFocus — setDpadSelected drives the highlight;
-                    // framework focus would trigger window-wide traversal.
-                    updateSelectedDpadButton()
-                    seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
-                }
+                KeyEvent.ACTION_DOWN -> seekFromHiddenControls(ev)
                 KeyEvent.ACTION_UP -> commitPendingSeekbarSeek()
             }
             true

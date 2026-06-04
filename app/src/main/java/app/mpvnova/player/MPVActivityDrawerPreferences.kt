@@ -52,6 +52,11 @@ private fun MPVActivity.handleDrawerInterfacePreference(
             lastBackPressMs = 0L
         }
         PlayerDrawerPreference.DPAD_UP_JUMPS_TOP -> dpadUpJumpsToTopControls = newValue
+        PlayerDrawerPreference.HIDE_CONTROLS_WHILE_SEEKING -> hideControlsWhileSeeking = newValue
+        PlayerDrawerPreference.MINIMAL_SEEKBAR_WHILE_SEEKING -> {
+            minimalSeekbarWhileSeeking = newValue
+            if (!newValue) hideMinimalSeekOverlay()
+        }
         else -> Unit
     }
 }

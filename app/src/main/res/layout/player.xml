@@ -371,6 +371,50 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Minimal seek overlay: shown only while seeking with ◀/▶ when the
+             "minimal seekbar while seeking" option is on. Kept outside @id/controls
+             so it never drags in the scrim/clock/autopause machinery. -->
+        <LinearLayout
+            android:id="@+id/seekOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="28dp"
+            android:alpha="0"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/seekOverlayTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_pill_purple"
+                android:fontFamily="monospace"
+                android:paddingStart="12dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
+                android:textColor="@color/tv_text"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:ignore="RtlSymmetry"
+                tools:text="03:29 / 23:48" />
+
+            <ProgressBar
+                android:id="@+id/seekOverlayBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:max="1000"
+                android:progressDrawable="@drawable/seekbar_progress_tv"
+                tools:progress="350" />
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/timeInfoPanel"
             android:layout_width="wrap_content"

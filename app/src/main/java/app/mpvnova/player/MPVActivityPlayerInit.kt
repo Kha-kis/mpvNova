@@ -30,7 +30,7 @@ internal fun MPVActivity.finishWithResult(code: Int, includeTimePos: Boolean = f
             data = if (intent.data?.scheme == "file") null else intent.data
         }
     }
-    setResult(externalPlaybackResultCode(code, includeTimePos), result)
+    setResult(code, result)
     finish()
 }
 

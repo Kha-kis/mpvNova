@@ -205,6 +205,14 @@ class MPVActivity : AppCompatActivity() {
             .withEndAction { binding.playerToast.visibility = View.GONE }
     }
 
+    internal val seekOverlayHideRunnable = Runnable {
+        binding.seekOverlay.animate()
+            .alpha(0f)
+            .setDuration(CONTROLS_FADE_DURATION)
+            .withLayer()
+            .withEndAction { binding.seekOverlay.visibility = View.GONE }
+    }
+
     internal val stopServiceRunnable = Runnable {
         val intent = Intent(this, BackgroundPlaybackService::class.java)
         applicationContext.stopService(intent)
@@ -236,6 +244,8 @@ class MPVActivity : AppCompatActivity() {
     internal var lastBackPressMs = 0L
     internal var autoRefreshRateSwitch = false
     internal var dpadUpJumpsToTopControls = false
+    internal var hideControlsWhileSeeking = false
+    internal var minimalSeekbarWhileSeeking = false
     // Drawer state: remembered tab, reopen-after-subdialog flag, cached binding.
     internal var lastDrawerTab: DrawerTab = DrawerTab.VIDEO
     internal var drawerReopenPending = false

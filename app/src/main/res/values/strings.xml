@@ -474,4 +474,8 @@
 
     <string name="pref_dpad_up_jumps_top_title">D-pad up jumps to top controls</string>
     <string name="pref_dpad_up_jumps_top_summary">When on, pressing Up from the seekbar jumps to the top-right PiP / Settings icons instead of hiding the overlay. When off (default), pressing Up from the seekbar hides the overlay.</string>
+    <string name="pref_hide_controls_while_seeking_title">Hide controls while seeking</string>
+    <string name="pref_hide_controls_while_seeking_summary">When on, pressing Left / Right seeks without opening the player controls. Up, Down and OK still bring them up.</string>
+    <string name="pref_minimal_seekbar_while_seeking_title">Minimal seekbar while seeking</string>
+    <string name="pref_minimal_seekbar_while_seeking_summary">When on, pressing Left / Right shows only a slim seekbar with the time instead of the full controls.</string>
 </resources>

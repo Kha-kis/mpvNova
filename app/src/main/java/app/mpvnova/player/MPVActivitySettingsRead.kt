@@ -27,6 +27,8 @@ internal fun MPVActivity.readPlaybackSettings(
     exitWithDoubleBack = prefs.getBoolean("exit_with_double_back", false)
     autoRefreshRateSwitch = prefs.getBoolean("auto_refresh_rate_switch", false)
     dpadUpJumpsToTopControls = prefs.getBoolean("dpad_up_jumps_to_top_controls", false)
+    hideControlsWhileSeeking = prefs.getBoolean("hide_controls_while_seeking", false)
+    minimalSeekbarWhileSeeking = prefs.getBoolean("minimal_seekbar_while_seeking", false)
     remoteNextChapterKeyCode = remoteButtonKeyCode(prefs.getString(
         PREF_REMOTE_NEXT_CHAPTER_BUTTON,
         REMOTE_BUTTON_DISABLED

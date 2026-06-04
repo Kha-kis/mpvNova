@@ -66,6 +66,20 @@
         android:summary="@string/pref_dpad_up_jumps_top_summary"
         android:title="@string/pref_dpad_up_jumps_top_title" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
+        android:key="hide_controls_while_seeking"
+        android:summary="@string/pref_hide_controls_while_seeking_summary"
+        android:title="@string/pref_hide_controls_while_seeking_title" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
+        android:key="minimal_seekbar_while_seeking"
+        android:summary="@string/pref_minimal_seekbar_while_seeking_summary"
+        android:title="@string/pref_minimal_seekbar_while_seeking_title" />
+
     <app.mpvnova.player.preferences.RemoteButtonPreference
         app:iconSpaceReserved="false"
         android:defaultValue="@string/pref_remote_button_unassigned_value"

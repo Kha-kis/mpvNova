@@ -42,6 +42,8 @@ internal enum class PlayerDrawerPreference(
     val summaryRes: Int,
     val key: String,
     val defaultValue: Boolean,
+    // When this key is on, the row greys out and ignores taps.
+    val disabledWhenOnKey: String? = null,
 ) {
     AUTOPAUSE_CONTROLS(
         PlayerDrawerPreferenceGroup.AUTOPAUSE,
@@ -98,6 +100,22 @@ internal enum class PlayerDrawerPreference(
         R.string.pref_dpad_up_jumps_top_summary,
         "dpad_up_jumps_to_top_controls",
         false,
+    ),
+    HIDE_CONTROLS_WHILE_SEEKING(
+        PlayerDrawerPreferenceGroup.INTERFACE,
+        R.string.pref_hide_controls_while_seeking_title,
+        R.string.pref_hide_controls_while_seeking_summary,
+        "hide_controls_while_seeking",
+        false,
+        disabledWhenOnKey = "minimal_seekbar_while_seeking",
+    ),
+    MINIMAL_SEEKBAR_WHILE_SEEKING(
+        PlayerDrawerPreferenceGroup.INTERFACE,
+        R.string.pref_minimal_seekbar_while_seeking_title,
+        R.string.pref_minimal_seekbar_while_seeking_summary,
+        "minimal_seekbar_while_seeking",
+        false,
+        disabledWhenOnKey = "hide_controls_while_seeking",
     ),
     AUTO_REFRESH_RATE(
         PlayerDrawerPreferenceGroup.VIDEO,
@@ -224,6 +242,8 @@ private fun addInterfaceRows(rows: MutableList<PlayerDrawerRow>) {
     rows.addPref(PlayerDrawerPreference.BOTTOM_CONTROLS)
     rows.addPref(PlayerDrawerPreference.EXIT_DOUBLE_BACK)
     rows.addPref(PlayerDrawerPreference.DPAD_UP_JUMPS_TOP)
+    rows.addPref(PlayerDrawerPreference.HIDE_CONTROLS_WHILE_SEEKING)
+    rows.addPref(PlayerDrawerPreference.MINIMAL_SEEKBAR_WHILE_SEEKING)
 }
 
 private fun MutableList<PlayerDrawerRow>.addButton(action: PlayerDrawerAction, textRes: Int) {

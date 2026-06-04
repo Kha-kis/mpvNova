@@ -65,6 +65,7 @@ private fun MPVActivity.resetControlsAlphaIfNeeded(controlsWereVisible: Boolean)
 private fun MPVActivity.performFirstShowSetup() {
     // hidden → visible. Autopause first so the decoder gets full CPU/GPU
     // for the overlay composition (Hi10p SW + alpha over SurfaceView drifts).
+    hideMinimalSeekOverlay()
     maybeAutoPauseForControlsOverlay()
     binding.controls.setVisibilityIfChanged(View.VISIBLE)
     binding.topControls.setVisibilityIfChanged(View.VISIBLE)

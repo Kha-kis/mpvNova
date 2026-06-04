@@ -4,9 +4,6 @@ import android.content.Intent
 
 internal const val EXTERNAL_END_BY_USER = "user"
 internal const val EXTERNAL_END_BY_PLAYBACK_COMPLETION = "playback_completion"
-internal const val VIMU_RESULT_INTENT = "net.gtvbox.videoplayer.result"
-internal const val VIMU_RESULT_STOPPED = 0
-internal const val VIMU_RESULT_COMPLETED = 1
 
 internal fun MPVActivity.capturePlaybackResultSnapshot(updateCompletion: Boolean = false) {
     resultPositionMs = currentPlaybackPositionForResult().coerceAtLeast(0L)
@@ -19,36 +16,9 @@ internal fun isPlaybackCompleteForResult(positionMs: Long, durationMs: Long): Bo
     return durationMs > 0L && positionMs >= durationMs - RESUME_NEAR_END_MS
 }
 
+// Stremio, Nuvio, and the other launchers key completion off end_by="playback_completion"
+// in the MX/mpv/VLC result format, so every caller gets that one contract.
 internal fun MPVActivity.buildExternalPlaybackResultIntent(endBy: String): Intent {
-    val callerPackage = externalCallerPackage()
-    return if (shouldUseVimuResultContract(callerPackage)) {
-        buildVimuPlaybackResultIntent()
-    } else {
-        buildMpvPlaybackResultIntent(endBy)
-    }
-}
-
-internal fun MPVActivity.externalPlaybackResultCode(defaultCode: Int, includeTimePos: Boolean): Int {
-    return externalPlaybackResultCode(
-        defaultCode = defaultCode,
-        includeTimePos = includeTimePos,
-        playbackComplete = playbackCompletionReached,
-        vimuResultContract = shouldUseVimuResultContract(externalCallerPackage()),
-    )
-}
-
-private fun MPVActivity.buildVimuPlaybackResultIntent(): Intent {
-    val safePosition = externalResultPosition().coerceAtLeast(0L)
-    val safeDuration = externalResultDuration().coerceAtLeast(0L)
-    return Intent(VIMU_RESULT_INTENT).apply {
-        data = intent.data
-        putExtra("position", safePosition.toInt())
-        intent.data?.let { putExtra("url", it.toString()) }
-        putExtra("duration", safeDuration.toInt())
-    }
-}
-
-private fun MPVActivity.buildMpvPlaybackResultIntent(endBy: String): Intent {
     val safePosition = externalResultPosition().coerceAtLeast(0L)
     val safeDuration = externalResultDuration().coerceAtLeast(0L)
     return Intent(RESULT_INTENT).apply {
@@ -62,12 +32,6 @@ private fun MPVActivity.buildMpvPlaybackResultIntent(endBy: String): Intent {
         }
         putExtra("end_by", endBy)
     }
-}
-
-private fun MPVActivity.externalCallerPackage(): String? {
-    return intent.getStringExtra(EXTRA_EXTERNAL_CALLER_PACKAGE)
-        ?: callingPackage
-        ?: callingActivity?.packageName
 }
 
 private fun MPVActivity.externalResultPosition(): Long {

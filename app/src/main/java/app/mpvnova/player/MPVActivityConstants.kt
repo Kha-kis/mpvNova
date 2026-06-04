@@ -30,12 +30,13 @@ internal const val THUMB_SIZE = 384
 internal const val ASPECT_RATIO_MIN = 1.2f
 internal const val AUDIO_FOCUS_DUCKING = 0.5f
 internal const val RESULT_INTENT = "is.xyz.mpv.MPVActivity.result"
-internal const val EXTRA_EXTERNAL_CALLER_PACKAGE = "app.mpvnova.extra.EXTERNAL_CALLER_PACKAGE"
 internal const val STREAM_TYPE = AudioManager.STREAM_MUSIC
 internal const val MILLIS_PER_SECOND_LONG = 1_000L
 internal const val MPV_MILLIS_PER_SECOND_FLOAT = 1_000f
 internal const val MPV_MILLIS_PER_SECOND_DOUBLE = 1_000.0
 internal const val SEEK_BAR_PRECISION = 1000L
+internal const val SEEK_OVERLAY_BAR_MAX = 1000L
+internal const val SEEK_OVERLAY_VISIBLE_MS = 1500L
 internal const val PLAYER_SEEKBAR_UI_INTERVAL_MS = 125L
 // Coalesce mpv's ~60Hz time-pos burst into a handful of UI updates/sec.
 internal const val TIME_POS_UI_COALESCE_DELAY_MS = 200L

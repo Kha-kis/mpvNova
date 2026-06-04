@@ -568,6 +568,23 @@ class PreferenceActivity : AppCompatActivity(),
                 activity?.let(SupportActions::resetPlayerUiSettings)
                 true
             }
+            bindSeekDisplayExclusivity()
+        }
+
+        // The two seek-display options are mutually exclusive: turning one on greys out the other.
+        private fun bindSeekDisplayExclusivity() {
+            val hide = findPreference<SwitchPreferenceCompat>("hide_controls_while_seeking")
+            val minimal = findPreference<SwitchPreferenceCompat>("minimal_seekbar_while_seeking")
+            hide?.isEnabled = minimal?.isChecked != true
+            minimal?.isEnabled = hide?.isChecked != true
+            hide?.setOnPreferenceChangeListener { _, newValue ->
+                minimal?.isEnabled = newValue != true
+                true
+            }
+            minimal?.setOnPreferenceChangeListener { _, newValue ->
+                hide?.isEnabled = newValue != true
+                true
+            }
         }
     }
 

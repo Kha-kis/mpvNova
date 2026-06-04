@@ -46,13 +46,16 @@
             xmlns:tools="http://schemas.android.com/tools" />
     </LinearLayout>
 
+    <!-- Fixed width on purpose: a wrap_content value would requestLayout on every
+         On/Off setText, and the focusable RecyclerView repairs focus to the top
+         row during that layout pass, scrolling the list up. -->
     <TextView
         android:id="@+id/prefRowValue"
-        android:layout_width="wrap_content"
+        android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:fontFamily="monospace"
-        android:minWidth="40dp"
+        android:gravity="end"
         android:textColor="?attr/mpvAccentHot"
         android:textSize="13sp"
         android:textStyle="bold"
