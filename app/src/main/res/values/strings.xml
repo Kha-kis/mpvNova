@@ -208,6 +208,24 @@
     <string name="sub_style_remove_font_summary">Delete a font you imported. Bundled fonts can\'t be removed.</string>
     <string name="sub_style_font_removed">Font removed: %s</string>
     <string name="sub_style_no_user_fonts">No imported fonts to remove.</string>
+    <string name="sub_style_blur">Outline blur</string>
+    <string name="sub_style_blur_summary">Soften the subtitle edges with a Gaussian blur.</string>
+    <string name="sub_style_shadow_size">Shadow distance</string>
+    <string name="sub_style_shadow_size_summary">How far the drop shadow falls. Needs the Drop shadow edge style.</string>
+    <string name="sub_style_shadow_color">Shadow color</string>
+    <string name="sub_style_shadow_color_summary">Color of the drop shadow.</string>
+    <string name="sub_style_spacing">Letter spacing</string>
+    <string name="sub_style_spacing_summary">Extra space between characters.</string>
+    <string name="sub_style_justify">Justify</string>
+    <string name="sub_style_justify_summary">How multi-line subtitles are aligned.</string>
+    <string name="sub_style_justify_auto">Auto</string>
+    <string name="sub_style_justify_left">Left</string>
+    <string name="sub_style_justify_center">Center</string>
+    <string name="sub_style_justify_right">Right</string>
+    <string name="sub_style_bold">Bold</string>
+    <string name="sub_style_bold_summary">Render subtitles in bold.</string>
+    <string name="sub_style_italic">Italic</string>
+    <string name="sub_style_italic_summary">Render subtitles in italics. Uses the font\'s real italic face when available.</string>
     <string name="sub_style_override_ass">Apply to advanced (ASS) subtitles</string>
     <string name="sub_style_override_ass_summary">Force this style onto ASS/SSA subtitles. May change signs and typesetting.</string>
 

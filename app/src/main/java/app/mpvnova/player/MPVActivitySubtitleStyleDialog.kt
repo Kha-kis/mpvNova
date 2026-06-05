@@ -35,40 +35,6 @@ internal fun MPVActivity.openSubtitleStyleDialog() {
     )
 }
 
-internal fun MPVActivity.adjustSubtitleStyle(
-    control: SubtitleStyleDialog.Control,
-    delta: Int,
-): SubtitleStyleDialog.State {
-    when (control) {
-        SubtitleStyleDialog.Control.MASTER -> customSubStyleEnabled = !customSubStyleEnabled
-        SubtitleStyleDialog.Control.TEXT_COLOR ->
-            subStyleTextColorIndex = wrapIndex(subStyleTextColorIndex, delta, SUBTITLE_COLOR_OPTIONS.size)
-        SubtitleStyleDialog.Control.TEXT_OPACITY ->
-            subStyleTextOpacityIndex = clampIndex(subStyleTextOpacityIndex, delta, SUBTITLE_OPACITY_PERCENT_STEPS.size)
-        SubtitleStyleDialog.Control.EDGE ->
-            subStyleEdge = SubtitleEdgeStyle.entries[
-                wrapIndex(subStyleEdge.ordinal, delta, SubtitleEdgeStyle.entries.size)
-            ]
-        SubtitleStyleDialog.Control.OUTLINE_COLOR ->
-            subStyleBorderColorIndex = wrapIndex(subStyleBorderColorIndex, delta, SUBTITLE_COLOR_OPTIONS.size)
-        SubtitleStyleDialog.Control.OUTLINE_SIZE ->
-            subStyleBorderSizeIndex = clampIndex(subStyleBorderSizeIndex, delta, SUBTITLE_BORDER_SIZE_STEPS.size)
-        SubtitleStyleDialog.Control.BG_OPACITY ->
-            subStyleBgOpacityIndex = clampIndex(subStyleBgOpacityIndex, delta, SUBTITLE_OPACITY_PERCENT_STEPS.size)
-        SubtitleStyleDialog.Control.BG_COLOR ->
-            subStyleBgColorIndex = wrapIndex(subStyleBgColorIndex, delta, SUBTITLE_COLOR_OPTIONS.size)
-        SubtitleStyleDialog.Control.FONT -> {
-            val choices = subtitleFontChoices()
-            val current = choices.indexOfFirst { it.family == subStyleFontFamily }.coerceAtLeast(0)
-            subStyleFontFamily = choices[wrapIndex(current, delta, choices.size)].family
-        }
-        SubtitleStyleDialog.Control.OVERRIDE_ASS -> subStyleOverrideAss = !subStyleOverrideAss
-    }
-    applyCustomSubtitleStyle()
-    writeSubtitleStyleSettings()
-    return subtitleStyleState()
-}
-
 private fun MPVActivity.pickAndImportSubtitleFont() {
     openFilePickerFor(R.string.sub_style_add_font) { result, data ->
         val family = importSubtitleFont(result, data)
@@ -104,12 +70,13 @@ private fun MPVActivity.showRemoveSubtitleFontDialog() {
     }
 }
 
-private fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
+internal fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
     val on = customSubStyleEnabled
     val bgOpacity = SUBTITLE_OPACITY_PERCENT_STEPS[subStyleBgOpacityIndex]
     val bgOn = bgOpacity > 0
     // Outline/edge and background box are mutually exclusive rendering modes.
     val edgeApplies = on && !bgOn
+    val shadowApplies = edgeApplies && subStyleEdge == SubtitleEdgeStyle.DROP_SHADOW
 
     return SubtitleStyleDialog.State(
         masterOn = on,
@@ -124,12 +91,30 @@ private fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
             "%.0f".format(SUBTITLE_BORDER_SIZE_STEPS[subStyleBorderSizeIndex]),
             enabled = edgeApplies && subStyleEdge != SubtitleEdgeStyle.NONE,
         ),
+        blur = SubtitleStyleDialog.Row(
+            if (subStyleBlurIndex == 0) getString(R.string.status_off)
+            else "%.1f".format(SUBTITLE_BLUR_STEPS[subStyleBlurIndex]),
+            enabled = on,
+        ),
+        shadowSize = SubtitleStyleDialog.Row(
+            "%.0f".format(SUBTITLE_SHADOW_SIZE_STEPS[subStyleShadowSizeIndex]),
+            enabled = shadowApplies,
+        ),
+        shadowColor = colorRow(subStyleShadowColorIndex, shadowApplies),
         bgOpacity = SubtitleStyleDialog.Row(
             if (bgOn) percentLabel(bgOpacity) else getString(R.string.status_off),
             enabled = on,
         ),
         bgColor = colorRow(subStyleBgColorIndex, on && bgOn),
         font = SubtitleStyleDialog.Row(subtitleFontLabel(subStyleFontFamily), enabled = on),
+        spacing = SubtitleStyleDialog.Row(
+            if (subStyleSpacingIndex == 0) getString(R.string.status_off)
+            else "%.0f".format(SUBTITLE_SPACING_STEPS[subStyleSpacingIndex]),
+            enabled = on,
+        ),
+        justify = SubtitleStyleDialog.Row(justifyLabel(subStyleJustify), enabled = on),
+        boldOn = subStyleBold,
+        italicOn = subStyleItalic,
         overrideOn = subStyleOverrideAss,
         overrideEnabled = on,
         preview = subtitleStylePreviewSpec(),
@@ -151,6 +136,12 @@ private fun MPVActivity.edgeLabel(edge: SubtitleEdgeStyle): String = getString(
     }
 )
 
-private fun wrapIndex(current: Int, delta: Int, size: Int): Int = ((current + delta) % size + size) % size
+private fun MPVActivity.justifyLabel(justify: SubtitleJustify): String = getString(
+    when (justify) {
+        SubtitleJustify.AUTO -> R.string.sub_style_justify_auto
+        SubtitleJustify.LEFT -> R.string.sub_style_justify_left
+        SubtitleJustify.CENTER -> R.string.sub_style_justify_center
+        SubtitleJustify.RIGHT -> R.string.sub_style_justify_right
+    }
+)
 
-private fun clampIndex(current: Int, delta: Int, size: Int): Int = (current + delta).coerceIn(0, size - 1)

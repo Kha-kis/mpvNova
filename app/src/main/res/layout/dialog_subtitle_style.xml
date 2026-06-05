@@ -408,6 +408,130 @@
                     app:tint="@color/tv_text" />
             </LinearLayout>
 
+            <!-- Outline blur -->
+            <LinearLayout
+                android:id="@+id/blurRow"
+                style="@style/SubStyleStepperRow">
+
+                <FrameLayout style="@style/SubStyleIconChip">
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout style="@style/SubStyleLabelGroup">
+                    <TextView style="@style/SubStyleTitle" android:text="@string/sub_style_blur" />
+                    <TextView style="@style/SubStyleSummary" android:text="@string/sub_style_blur_summary" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/blurMinusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_decrease"
+                    app:srcCompat="@drawable/ic_remove_24dp"
+                    app:tint="@color/tv_text" />
+
+                <TextView
+                    android:id="@+id/blurValue"
+                    style="@style/SubStyleValue"
+                    tools:text="Off" />
+
+                <ImageButton
+                    android:id="@+id/blurPlusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_increase"
+                    app:srcCompat="@drawable/ic_add_24dp"
+                    app:tint="@color/tv_text" />
+            </LinearLayout>
+
+            <!-- Shadow distance -->
+            <LinearLayout
+                android:id="@+id/shadowSizeRow"
+                style="@style/SubStyleStepperRow">
+
+                <FrameLayout style="@style/SubStyleIconChip">
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout style="@style/SubStyleLabelGroup">
+                    <TextView style="@style/SubStyleTitle" android:text="@string/sub_style_shadow_size" />
+                    <TextView style="@style/SubStyleSummary" android:text="@string/sub_style_shadow_size_summary" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/shadowSizeMinusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_decrease"
+                    app:srcCompat="@drawable/ic_remove_24dp"
+                    app:tint="@color/tv_text" />
+
+                <TextView
+                    android:id="@+id/shadowSizeValue"
+                    style="@style/SubStyleValue"
+                    tools:text="2" />
+
+                <ImageButton
+                    android:id="@+id/shadowSizePlusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_increase"
+                    app:srcCompat="@drawable/ic_add_24dp"
+                    app:tint="@color/tv_text" />
+            </LinearLayout>
+
+            <!-- Shadow color -->
+            <LinearLayout
+                android:id="@+id/shadowColorRow"
+                style="@style/SubStyleStepperRow">
+
+                <FrameLayout style="@style/SubStyleIconChip">
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout style="@style/SubStyleLabelGroup">
+                    <TextView style="@style/SubStyleTitle" android:text="@string/sub_style_shadow_color" />
+                    <TextView style="@style/SubStyleSummary" android:text="@string/sub_style_shadow_color_summary" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/shadowColorChip"
+                    style="@style/SubStyleColorChip" />
+
+                <ImageButton
+                    android:id="@+id/shadowColorMinusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_decrease"
+                    app:srcCompat="@drawable/ic_remove_24dp"
+                    app:tint="@color/tv_text" />
+
+                <TextView
+                    android:id="@+id/shadowColorValue"
+                    style="@style/SubStyleValue"
+                    tools:text="Black" />
+
+                <ImageButton
+                    android:id="@+id/shadowColorPlusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_increase"
+                    app:srcCompat="@drawable/ic_add_24dp"
+                    app:tint="@color/tv_text" />
+            </LinearLayout>
+
             <!-- Background opacity -->
             <LinearLayout
                 android:id="@+id/bgOpacityRow"
@@ -530,6 +654,222 @@
                     android:contentDescription="@string/btn_increase"
                     app:srcCompat="@drawable/ic_add_24dp"
                     app:tint="@color/tv_text" />
+            </LinearLayout>
+
+            <!-- Letter spacing -->
+            <LinearLayout
+                android:id="@+id/spacingRow"
+                style="@style/SubStyleStepperRow">
+
+                <FrameLayout style="@style/SubStyleIconChip">
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout style="@style/SubStyleLabelGroup">
+                    <TextView style="@style/SubStyleTitle" android:text="@string/sub_style_spacing" />
+                    <TextView style="@style/SubStyleSummary" android:text="@string/sub_style_spacing_summary" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/spacingMinusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_decrease"
+                    app:srcCompat="@drawable/ic_remove_24dp"
+                    app:tint="@color/tv_text" />
+
+                <TextView
+                    android:id="@+id/spacingValue"
+                    style="@style/SubStyleValue"
+                    tools:text="Off" />
+
+                <ImageButton
+                    android:id="@+id/spacingPlusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_increase"
+                    app:srcCompat="@drawable/ic_add_24dp"
+                    app:tint="@color/tv_text" />
+            </LinearLayout>
+
+            <!-- Text justification -->
+            <LinearLayout
+                android:id="@+id/justifyRow"
+                style="@style/SubStyleStepperRow">
+
+                <FrameLayout style="@style/SubStyleIconChip">
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout style="@style/SubStyleLabelGroup">
+                    <TextView style="@style/SubStyleTitle" android:text="@string/sub_style_justify" />
+                    <TextView style="@style/SubStyleSummary" android:text="@string/sub_style_justify_summary" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/justifyMinusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_decrease"
+                    app:srcCompat="@drawable/ic_remove_24dp"
+                    app:tint="@color/tv_text" />
+
+                <TextView
+                    android:id="@+id/justifyValue"
+                    style="@style/SubStyleValue"
+                    tools:text="Auto" />
+
+                <ImageButton
+                    android:id="@+id/justifyPlusBtn"
+                    style="@style/MpvPlayer.ButtonBarIconButton"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/btn_increase"
+                    app:srcCompat="@drawable/ic_add_24dp"
+                    app:tint="@color/tv_text" />
+            </LinearLayout>
+
+            <!-- Bold -->
+            <LinearLayout
+                android:id="@+id/boldRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_tv_track_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp">
+
+                <FrameLayout
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bg_tv_icon_chip">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_subtitles_black_24dp"
+                        app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sub_style_bold"
+                        android:textColor="@color/tv_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/sub_style_bold_summary"
+                        android:textColor="@color/tv_text_dim"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/boldCheck"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_tv_check"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <!-- Italic -->
+            <LinearLayout
+                android:id="@+id/italicRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_tv_track_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp">
+
+                <FrameLayout
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bg_tv_icon_chip">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_subtitles_black_24dp"
+                        app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sub_style_italic"
+                        android:textColor="@color/tv_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/sub_style_italic_summary"
+                        android:textColor="@color/tv_text_dim"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/italicCheck"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_tv_check"
+                    android:visibility="invisible" />
             </LinearLayout>
 
             <!-- Add a user font -->

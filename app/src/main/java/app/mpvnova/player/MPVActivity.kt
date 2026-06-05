@@ -287,10 +287,17 @@ class MPVActivity : AppCompatActivity() {
     internal var subStyleTextOpacityIndex = nearestOpacityIndex(DEFAULT_SUBTITLE_TEXT_OPACITY_PERCENT)
     internal var subStyleBorderColorIndex = subtitleColorOptionIndex(SUBTITLE_BORDER_COLOR_DEFAULT_ID)
     internal var subStyleBorderSizeIndex = DEFAULT_SUBTITLE_BORDER_INDEX
+    internal var subStyleBlurIndex = DEFAULT_SUBTITLE_BLUR_INDEX
+    internal var subStyleShadowSizeIndex = DEFAULT_SUBTITLE_SHADOW_SIZE_INDEX
+    internal var subStyleShadowColorIndex = subtitleColorOptionIndex(SUBTITLE_SHADOW_COLOR_DEFAULT_ID)
+    internal var subStyleSpacingIndex = DEFAULT_SUBTITLE_SPACING_INDEX
+    internal var subStyleJustify = DEFAULT_SUBTITLE_JUSTIFY
     internal var subStyleBgColorIndex = subtitleColorOptionIndex(SUBTITLE_BG_COLOR_DEFAULT_ID)
     internal var subStyleBgOpacityIndex = nearestOpacityIndex(DEFAULT_SUBTITLE_BG_OPACITY_PERCENT)
     internal var subStyleEdge = DEFAULT_SUBTITLE_EDGE_STYLE
     internal var subStyleFontFamily = SUBTITLE_FONT_DEFAULT_FAMILY
+    internal var subStyleBold = false
+    internal var subStyleItalic = false
     // Forces our style onto ASS subs too; off so their signs and typesetting survive.
     internal var subStyleOverrideAss = false
     // The sub-* values from before we touched them, so disabling restores the real baseline.

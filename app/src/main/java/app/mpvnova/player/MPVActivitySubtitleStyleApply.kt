@@ -7,15 +7,20 @@ private val SUB_STYLE_PROPS = listOf(
     "sub-color",
     "sub-border-color",
     "sub-border-size",
+    "sub-blur",
     "sub-back-color",
     "sub-border-style",
     "sub-shadow-offset",
     "sub-shadow-color",
+    "sub-spacing",
+    "sub-justify",
+    "sub-ass-justify",
     "sub-font",
+    "sub-bold",
+    "sub-italic",
     "sub-ass-override",
 )
 
-private const val SUB_SHADOW_OFFSET_ON = 2.0
 private const val SUB_SHADOW_OFFSET_OFF = 0.0
 private const val SUB_TRANSPARENT = 0x000000
 private const val FULLY_OPAQUE_PERCENT = 100
@@ -57,6 +62,7 @@ private fun MPVActivity.writeCustomSubtitleStyle() {
     val borderColor = SUBTITLE_COLOR_OPTIONS[subStyleBorderColorIndex]
     mpvSetPropertyString("sub-border-color", mpvSubtitleColor(borderColor.rgb, FULLY_OPAQUE_PERCENT))
     mpvSetPropertyDouble("sub-border-size", SUBTITLE_BORDER_SIZE_STEPS[subStyleBorderSizeIndex])
+    mpvSetPropertyDouble("sub-blur", SUBTITLE_BLUR_STEPS[subStyleBlurIndex])
 
     val bgOpacity = SUBTITLE_OPACITY_PERCENT_STEPS[subStyleBgOpacityIndex]
     if (bgOpacity > 0) {
@@ -71,7 +77,13 @@ private fun MPVActivity.writeCustomSubtitleStyle() {
         applySubEdge()
     }
 
+    mpvSetPropertyDouble("sub-spacing", SUBTITLE_SPACING_STEPS[subStyleSpacingIndex])
+    mpvSetPropertyString("sub-justify", subStyleJustify.mpvValue)
+    mpvSetPropertyString("sub-ass-justify", if (subStyleJustify == SubtitleJustify.AUTO) "no" else "yes")
+
     applySubFont()
+    mpvSetPropertyString("sub-bold", if (subStyleBold) "yes" else "no")
+    mpvSetPropertyString("sub-italic", if (subStyleItalic) "yes" else "no")
     mpvSetPropertyString("sub-ass-override", if (subStyleOverrideAss) "force" else "scale")
 }
 
@@ -85,8 +97,9 @@ private fun MPVActivity.applySubEdge() {
             mpvSetPropertyDouble("sub-shadow-offset", SUB_SHADOW_OFFSET_OFF)
         }
         SubtitleEdgeStyle.DROP_SHADOW -> {
-            mpvSetPropertyString("sub-shadow-color", mpvSubtitleColor(SUB_TRANSPARENT, FULLY_OPAQUE_PERCENT))
-            mpvSetPropertyDouble("sub-shadow-offset", SUB_SHADOW_OFFSET_ON)
+            val shadowColor = SUBTITLE_COLOR_OPTIONS[subStyleShadowColorIndex]
+            mpvSetPropertyString("sub-shadow-color", mpvSubtitleColor(shadowColor.rgb, FULLY_OPAQUE_PERCENT))
+            mpvSetPropertyDouble("sub-shadow-offset", SUBTITLE_SHADOW_SIZE_STEPS[subStyleShadowSizeIndex])
         }
     }
 }
@@ -108,6 +121,18 @@ internal fun MPVActivity.readSubtitleStyleSettings(prefs: SharedPreferences) {
     )
     subStyleBorderSizeIndex = prefs.getInt("sub_style_border_size", DEFAULT_SUBTITLE_BORDER_INDEX)
         .coerceIn(0, SUBTITLE_BORDER_SIZE_STEPS.lastIndex)
+    subStyleBlurIndex = prefs.getInt("sub_style_blur", DEFAULT_SUBTITLE_BLUR_INDEX)
+        .coerceIn(0, SUBTITLE_BLUR_STEPS.lastIndex)
+    subStyleShadowSizeIndex = prefs.getInt("sub_style_shadow_size", DEFAULT_SUBTITLE_SHADOW_SIZE_INDEX)
+        .coerceIn(0, SUBTITLE_SHADOW_SIZE_STEPS.lastIndex)
+    subStyleShadowColorIndex = subtitleColorOptionIndex(
+        prefs.getString("sub_style_shadow_color", SUBTITLE_SHADOW_COLOR_DEFAULT_ID) ?: SUBTITLE_SHADOW_COLOR_DEFAULT_ID
+    )
+    subStyleSpacingIndex = prefs.getInt("sub_style_spacing", DEFAULT_SUBTITLE_SPACING_INDEX)
+        .coerceIn(0, SUBTITLE_SPACING_STEPS.lastIndex)
+    subStyleJustify = runCatching {
+        SubtitleJustify.valueOf(prefs.getString("sub_style_justify", DEFAULT_SUBTITLE_JUSTIFY.name)!!)
+    }.getOrDefault(DEFAULT_SUBTITLE_JUSTIFY)
     subStyleBgColorIndex = subtitleColorOptionIndex(
         prefs.getString("sub_style_bg_color", SUBTITLE_BG_COLOR_DEFAULT_ID) ?: SUBTITLE_BG_COLOR_DEFAULT_ID
     )
@@ -119,6 +144,8 @@ internal fun MPVActivity.readSubtitleStyleSettings(prefs: SharedPreferences) {
     }.getOrDefault(DEFAULT_SUBTITLE_EDGE_STYLE)
     subStyleFontFamily = (prefs.getString("sub_style_font_family", SUBTITLE_FONT_DEFAULT_FAMILY)
         ?: SUBTITLE_FONT_DEFAULT_FAMILY).ifEmpty { SUBTITLE_FONT_DEFAULT_FAMILY }
+    subStyleBold = prefs.getBoolean("sub_style_bold", false)
+    subStyleItalic = prefs.getBoolean("sub_style_italic", false)
     subStyleOverrideAss = prefs.getBoolean("sub_style_override_ass", false)
 }
 
@@ -130,10 +157,17 @@ internal fun MPVActivity.writeSubtitleStyleSettings() {
         putInt("sub_style_text_opacity", SUBTITLE_OPACITY_PERCENT_STEPS[subStyleTextOpacityIndex])
         putString("sub_style_border_color", SUBTITLE_COLOR_OPTIONS[subStyleBorderColorIndex].id)
         putInt("sub_style_border_size", subStyleBorderSizeIndex)
+        putInt("sub_style_blur", subStyleBlurIndex)
+        putInt("sub_style_shadow_size", subStyleShadowSizeIndex)
+        putString("sub_style_shadow_color", SUBTITLE_COLOR_OPTIONS[subStyleShadowColorIndex].id)
+        putInt("sub_style_spacing", subStyleSpacingIndex)
+        putString("sub_style_justify", subStyleJustify.name)
         putString("sub_style_bg_color", SUBTITLE_COLOR_OPTIONS[subStyleBgColorIndex].id)
         putInt("sub_style_bg_opacity", SUBTITLE_OPACITY_PERCENT_STEPS[subStyleBgOpacityIndex])
         putString("sub_style_edge", subStyleEdge.name)
         putString("sub_style_font_family", subStyleFontFamily)
+        putBoolean("sub_style_bold", subStyleBold)
+        putBoolean("sub_style_italic", subStyleItalic)
         putBoolean("sub_style_override_ass", subStyleOverrideAss)
         apply()
     }

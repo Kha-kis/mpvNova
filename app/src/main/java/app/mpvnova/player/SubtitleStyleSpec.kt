@@ -28,6 +28,25 @@ internal const val DEFAULT_SUBTITLE_BG_OPACITY_PERCENT = 0
 internal val SUBTITLE_BORDER_SIZE_STEPS = doubleArrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
 internal const val DEFAULT_SUBTITLE_BORDER_INDEX = 3
 
+internal val SUBTITLE_BLUR_STEPS = doubleArrayOf(0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0)
+internal const val DEFAULT_SUBTITLE_BLUR_INDEX = 0
+
+internal val SUBTITLE_SHADOW_SIZE_STEPS = doubleArrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+internal const val DEFAULT_SUBTITLE_SHADOW_SIZE_INDEX = 2
+internal const val SUBTITLE_SHADOW_COLOR_DEFAULT_ID = "black"
+
+internal val SUBTITLE_SPACING_STEPS = doubleArrayOf(0.0, 1.0, 2.0, 4.0, 6.0, 8.0)
+internal const val DEFAULT_SUBTITLE_SPACING_INDEX = 0
+
+internal enum class SubtitleJustify(val mpvValue: String) {
+    AUTO("auto"),
+    LEFT("left"),
+    CENTER("center"),
+    RIGHT("right"),
+}
+
+internal val DEFAULT_SUBTITLE_JUSTIFY = SubtitleJustify.AUTO
+
 // No raised/depressed: those need a directional shadow that libass can't do.
 internal enum class SubtitleEdgeStyle {
     OUTLINE,

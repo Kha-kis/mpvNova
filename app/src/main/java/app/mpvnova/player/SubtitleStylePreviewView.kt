@@ -1,6 +1,7 @@
 package app.mpvnova.player
 
 import android.content.Context
+import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -26,6 +27,8 @@ internal class SubtitleStylePreviewView @JvmOverloads constructor(
         val shadowColor: Int,
         val shadowRadiusPx: Float,
         val shadowOffsetPx: Float,
+        val blurRadiusPx: Float,
+        val letterSpacingEm: Float,
         val typeface: Typeface?,
     )
 
@@ -58,6 +61,9 @@ internal class SubtitleStylePreviewView @JvmOverloads constructor(
 
         val textSize = height * TEXT_HEIGHT_RATIO
         applyTextSize(textSize, s.typeface)
+        applyBlur(s.blurRadiusPx)
+        fillPaint.letterSpacing = s.letterSpacingEm
+        strokePaint.letterSpacing = s.letterSpacingEm
 
         val centerX = width / 2f
         val baseline = height / 2f - (fillPaint.descent() + fillPaint.ascent()) / 2f
@@ -74,6 +80,16 @@ internal class SubtitleStylePreviewView @JvmOverloads constructor(
         fillPaint.typeface = face
         strokePaint.textSize = textSize
         strokePaint.typeface = face
+    }
+
+    private fun applyBlur(blurRadiusPx: Float) {
+        val filter = if (blurRadiusPx > 0f) {
+            BlurMaskFilter(blurRadiusPx, BlurMaskFilter.Blur.NORMAL)
+        } else {
+            null
+        }
+        fillPaint.maskFilter = filter
+        strokePaint.maskFilter = filter
     }
 
     private fun drawBackgroundBox(

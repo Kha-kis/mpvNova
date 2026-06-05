@@ -4,8 +4,8 @@ import android.graphics.Color
 import android.graphics.Typeface
 import java.util.Locale
 
-private const val SUB_PREVIEW_SHADOW_ALPHA = 180
-private const val SUB_PREVIEW_SHADOW_DP = 2f
+private const val SUB_PREVIEW_SHADOW_BLUR_DP = 1.5f
+private const val SUB_PREVIEW_SPACING_EM_FACTOR = 0.04f
 private const val FULLY_OPAQUE_PERCENT = 100
 
 internal fun MPVActivity.subtitleStylePreviewSpec(): SubtitleStylePreviewView.Spec {
@@ -14,6 +14,8 @@ internal fun MPVActivity.subtitleStylePreviewSpec(): SubtitleStylePreviewView.Sp
     val bgOn = bgOpacity > 0
     val outlineActive = !bgOn && subStyleEdge != SubtitleEdgeStyle.NONE
     val shadowOn = !bgOn && subStyleEdge == SubtitleEdgeStyle.DROP_SHADOW
+    val shadowOffset = (SUBTITLE_SHADOW_SIZE_STEPS[subStyleShadowSizeIndex] * density).toFloat()
+    val letterSpacing = (SUBTITLE_SPACING_STEPS[subStyleSpacingIndex] * SUB_PREVIEW_SPACING_EM_FACTOR).toFloat()
 
     return SubtitleStylePreviewView.Spec(
         text = getString(R.string.sub_style_preview_text),
@@ -36,18 +38,37 @@ internal fun MPVActivity.subtitleStylePreviewSpec(): SubtitleStylePreviewView.Sp
         } else {
             Color.TRANSPARENT
         },
-        shadowColor = if (shadowOn) Color.argb(SUB_PREVIEW_SHADOW_ALPHA, 0, 0, 0) else Color.TRANSPARENT,
-        shadowRadiusPx = if (shadowOn) SUB_PREVIEW_SHADOW_DP * density else 0f,
-        shadowOffsetPx = if (shadowOn) SUB_PREVIEW_SHADOW_DP * density else 0f,
-        typeface = subtitleTypefaceFor(subStyleFontFamily),
+        shadowColor = if (shadowOn) {
+            subtitleArgb(SUBTITLE_COLOR_OPTIONS[subStyleShadowColorIndex].rgb, FULLY_OPAQUE_PERCENT)
+        } else {
+            Color.TRANSPARENT
+        },
+        shadowRadiusPx = if (shadowOn) SUB_PREVIEW_SHADOW_BLUR_DP * density else 0f,
+        shadowOffsetPx = if (shadowOn) shadowOffset else 0f,
+        blurRadiusPx = (SUBTITLE_BLUR_STEPS[subStyleBlurIndex] * density).toFloat(),
+        letterSpacingEm = letterSpacing,
+        typeface = subtitleTypefaceFor(subStyleFontFamily, subStyleBold, subStyleItalic),
     )
 }
 
-internal fun MPVActivity.subtitleTypefaceFor(family: String): Typeface = when (family) {
-    "", "sans-serif" -> Typeface.SANS_SERIF
-    "serif" -> Typeface.SERIF
-    "monospace" -> Typeface.MONOSPACE
-    else -> userOrBundledTypeface(family) ?: Typeface.DEFAULT
+internal fun MPVActivity.subtitleTypefaceFor(
+    family: String,
+    bold: Boolean = false,
+    italic: Boolean = false,
+): Typeface {
+    val base = when (family) {
+        "", "sans-serif" -> Typeface.SANS_SERIF
+        "serif" -> Typeface.SERIF
+        "monospace" -> Typeface.MONOSPACE
+        else -> userOrBundledTypeface(family) ?: Typeface.DEFAULT
+    }
+    val style = when {
+        bold && italic -> Typeface.BOLD_ITALIC
+        bold -> Typeface.BOLD
+        italic -> Typeface.ITALIC
+        else -> Typeface.NORMAL
+    }
+    return if (style == Typeface.NORMAL) base else Typeface.create(base, style)
 }
 
 private fun MPVActivity.userOrBundledTypeface(family: String): Typeface? {

@@ -15,9 +15,16 @@ internal class SubtitleStyleDialog {
         EDGE,
         OUTLINE_COLOR,
         OUTLINE_SIZE,
+        BLUR,
+        SHADOW_SIZE,
+        SHADOW_COLOR,
         BG_OPACITY,
         BG_COLOR,
         FONT,
+        SPACING,
+        JUSTIFY,
+        BOLD,
+        ITALIC,
         OVERRIDE_ASS,
     }
 
@@ -30,9 +37,16 @@ internal class SubtitleStyleDialog {
         val edge: Row,
         val outlineColor: Row,
         val outlineSize: Row,
+        val blur: Row,
+        val shadowSize: Row,
+        val shadowColor: Row,
         val bgOpacity: Row,
         val bgColor: Row,
         val font: Row,
+        val spacing: Row,
+        val justify: Row,
+        val boldOn: Boolean,
+        val italicOn: Boolean,
         val overrideOn: Boolean,
         val overrideEnabled: Boolean,
         val preview: SubtitleStylePreviewView.Spec,
@@ -67,12 +81,24 @@ internal class SubtitleStyleDialog {
         b.outlineColorPlusBtn.setOnClickListener { adjust(Control.OUTLINE_COLOR, 1) }
         b.outlineSizeMinusBtn.setOnClickListener { adjust(Control.OUTLINE_SIZE, -1) }
         b.outlineSizePlusBtn.setOnClickListener { adjust(Control.OUTLINE_SIZE, 1) }
+        b.blurMinusBtn.setOnClickListener { adjust(Control.BLUR, -1) }
+        b.blurPlusBtn.setOnClickListener { adjust(Control.BLUR, 1) }
+        b.shadowSizeMinusBtn.setOnClickListener { adjust(Control.SHADOW_SIZE, -1) }
+        b.shadowSizePlusBtn.setOnClickListener { adjust(Control.SHADOW_SIZE, 1) }
+        b.shadowColorMinusBtn.setOnClickListener { adjust(Control.SHADOW_COLOR, -1) }
+        b.shadowColorPlusBtn.setOnClickListener { adjust(Control.SHADOW_COLOR, 1) }
+        b.spacingMinusBtn.setOnClickListener { adjust(Control.SPACING, -1) }
+        b.spacingPlusBtn.setOnClickListener { adjust(Control.SPACING, 1) }
+        b.justifyMinusBtn.setOnClickListener { adjust(Control.JUSTIFY, -1) }
+        b.justifyPlusBtn.setOnClickListener { adjust(Control.JUSTIFY, 1) }
         b.bgOpacityMinusBtn.setOnClickListener { adjust(Control.BG_OPACITY, -1) }
         b.bgOpacityPlusBtn.setOnClickListener { adjust(Control.BG_OPACITY, 1) }
         b.bgColorMinusBtn.setOnClickListener { adjust(Control.BG_COLOR, -1) }
         b.bgColorPlusBtn.setOnClickListener { adjust(Control.BG_COLOR, 1) }
         b.fontMinusBtn.setOnClickListener { adjust(Control.FONT, -1) }
         b.fontPlusBtn.setOnClickListener { adjust(Control.FONT, 1) }
+        b.boldRow.setOnClickListener { adjust(Control.BOLD, 1) }
+        b.italicRow.setOnClickListener { adjust(Control.ITALIC, 1) }
         b.addFontRow.setOnClickListener { onAddFont?.invoke() }
         b.removeFontRow.setOnClickListener { onRemoveFont?.invoke() }
         b.overrideAssRow.setOnClickListener { adjust(Control.OVERRIDE_ASS, 1) }
@@ -105,6 +131,16 @@ internal class SubtitleStyleDialog {
             b.outlineSizeRow, b.outlineSizeValue, b.outlineSizeMinusBtn, b.outlineSizePlusBtn, state.outlineSize,
         )
         renderStepper(
+            b.blurRow, b.blurValue, b.blurMinusBtn, b.blurPlusBtn, state.blur,
+        )
+        renderStepper(
+            b.shadowSizeRow, b.shadowSizeValue, b.shadowSizeMinusBtn, b.shadowSizePlusBtn, state.shadowSize,
+        )
+        renderStepper(
+            b.shadowColorRow, b.shadowColorValue, b.shadowColorMinusBtn, b.shadowColorPlusBtn, state.shadowColor,
+        )
+        applyChip(b.shadowColorChip, state.shadowColor)
+        renderStepper(
             b.bgOpacityRow, b.bgOpacityValue, b.bgOpacityMinusBtn, b.bgOpacityPlusBtn, state.bgOpacity,
         )
         renderStepper(
@@ -114,10 +150,22 @@ internal class SubtitleStyleDialog {
         renderStepper(
             b.fontRow, b.fontValue, b.fontMinusBtn, b.fontPlusBtn, state.font,
         )
+        renderStepper(
+            b.spacingRow, b.spacingValue, b.spacingMinusBtn, b.spacingPlusBtn, state.spacing,
+        )
+        renderStepper(
+            b.justifyRow, b.justifyValue, b.justifyMinusBtn, b.justifyPlusBtn, state.justify,
+        )
 
-        b.overrideAssRow.alpha = rowAlpha(state.overrideEnabled)
-        b.overrideAssRow.isClickable = state.overrideEnabled
-        b.overrideAssCheck.visibility = checkVisibility(state.overrideOn && state.overrideEnabled)
+        renderToggle(b.boldRow, b.boldCheck, state.boldOn, state.masterOn)
+        renderToggle(b.italicRow, b.italicCheck, state.italicOn, state.masterOn)
+        renderToggle(b.overrideAssRow, b.overrideAssCheck, state.overrideOn, state.overrideEnabled)
+    }
+
+    private fun renderToggle(row: View, check: View, on: Boolean, enabled: Boolean) {
+        row.alpha = rowAlpha(enabled)
+        row.isClickable = enabled
+        check.visibility = checkVisibility(on && enabled)
     }
 
     private fun renderStepper(row: View, value: TextView, minus: ImageButton, plus: ImageButton, state: Row) {
