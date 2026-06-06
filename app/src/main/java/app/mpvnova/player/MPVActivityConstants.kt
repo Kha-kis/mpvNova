@@ -23,6 +23,9 @@ internal const val TOAST_TITLED_PER_CHAR_MS = 14L
 internal const val TOAST_TITLED_MAX_MS = 5_600L
 internal const val TOAST_TOP_WITH_TITLE_DP = 96f
 internal const val TOAST_TOP_NO_TITLE_DP = 22f
+internal const val TOAST_OVERLAY_TOP_DP = 28f
+internal const val SAVE_PRESET_WIDTH_FRACTION = 0.6f
+internal const val SAVE_PRESET_MAX_WIDTH_DP = 640f
 internal const val CLOCK_TICK_INTERVAL_MS = 30_000L
 internal const val MIN_CLOCK_TICK_DELAY_MS = 1_000L
 internal const val BACKGROUND_SERVICE_STOP_DELAY_MS = 1_000L
@@ -111,10 +114,8 @@ internal const val AUDIO_DELAY_MIN_SEC = -600.0
 internal const val AUDIO_DELAY_MAX_SEC = 600.0
 internal const val SUB_DELAY_MIN_SEC = -600.0
 internal const val SUB_DELAY_MAX_SEC = 600.0
-internal const val ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION = 0.56f
-internal const val ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP = 620f
-internal const val ADVANCED_SUB_DELAY_DIALOG_HEIGHT_FRACTION = 0.72f
-internal const val ADVANCED_SUB_DELAY_DIALOG_MAX_HEIGHT_DP = 520f
+internal const val ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION = 0.42f
+internal const val ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP = 520f
 // Player settings drawer (right-edge VIMU-style panel). Wider than other
 // in-player dialogs since it has two columns (content + tabs).
 internal const val DRAWER_WIDTH_FRACTION = 0.52f

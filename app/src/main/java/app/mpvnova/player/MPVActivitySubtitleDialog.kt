@@ -17,6 +17,13 @@ internal fun MPVActivity.configureSubPickerCallbacks(
         dismissDialog()
         openSubtitleStyleDialog()
     }
+    impl.onSubPresetAdjust = { delta ->
+        val presetName = cycleSubtitleStylePreset(delta)
+        MediaPickerDialog.SubPresetState(
+            presetName = presetName,
+            subStyleStateText = subtitleStyleToggleText(),
+        )
+    }
     impl.onSubScaleAdjust = { delta -> adjustSubScale(delta) }
     impl.onSubPosAdjust = { delta -> adjustSubPos(delta) }
     impl.onSecondaryPosAdjust = { delta -> adjustSecondaryPos(delta) }
@@ -87,8 +94,12 @@ private fun MPVActivity.subPickerOptions(delayValue: String): MediaPickerDialog.
         initialSecondaryPosState = currentSecondaryPosState(),
         initialSecondarySubState = currentSecondarySubState(),
         persistSubFiltersOn = persistSubFilters,
-        subStyleStateText = getString(
-            if (customSubStyleEnabled) R.string.status_on else R.string.status_off
-        ),
+        subStyleStateText = subtitleStyleToggleText(),
+        showSubPresetCycler = hasSubtitleStylePresets(),
+        initialSubPresetName = currentSubtitleStylePresetName(),
     )
 }
+
+private fun MPVActivity.subtitleStyleToggleText(): String = getString(
+    if (customSubStyleEnabled) R.string.status_on else R.string.status_off
+)

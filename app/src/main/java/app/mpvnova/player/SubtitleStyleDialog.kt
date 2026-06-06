@@ -31,6 +31,7 @@ internal class SubtitleStyleDialog {
     data class Row(val value: String, val enabled: Boolean = true, val chipRgb: Int? = null)
 
     data class State(
+        val title: String,
         val masterOn: Boolean,
         val textColor: Row,
         val textOpacity: Row,
@@ -59,6 +60,10 @@ internal class SubtitleStyleDialog {
     var stateProvider: (() -> State)? = null
     var onAddFont: (() -> Unit)? = null
     var onRemoveFont: (() -> Unit)? = null
+    var onSavePreset: (() -> Unit)? = null
+    var onApplyPreset: (() -> Unit)? = null
+    var onEditPreset: (() -> Unit)? = null
+    var onDeletePreset: (() -> Unit)? = null
 
     fun buildView(layoutInflater: LayoutInflater): View {
         binding = DialogSubtitleStyleBinding.inflate(layoutInflater)
@@ -101,6 +106,10 @@ internal class SubtitleStyleDialog {
         b.italicRow.setOnClickListener { adjust(Control.ITALIC, 1) }
         b.addFontRow.setOnClickListener { onAddFont?.invoke() }
         b.removeFontRow.setOnClickListener { onRemoveFont?.invoke() }
+        b.savePresetRow.setOnClickListener { onSavePreset?.invoke() }
+        b.applyPresetRow.setOnClickListener { onApplyPreset?.invoke() }
+        b.editPresetRow.setOnClickListener { onEditPreset?.invoke() }
+        b.deletePresetRow.setOnClickListener { onDeletePreset?.invoke() }
         b.overrideAssRow.setOnClickListener { adjust(Control.OVERRIDE_ASS, 1) }
     }
 
@@ -110,6 +119,7 @@ internal class SubtitleStyleDialog {
 
     private fun render(state: State) {
         val b = binding
+        b.styleTitle.text = state.title
         b.stylePreview.setSpec(state.preview)
         b.masterCheck.visibility = checkVisibility(state.masterOn)
 

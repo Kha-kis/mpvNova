@@ -121,7 +121,7 @@ internal fun MPVActivity.onBackPressedImpl() {
     }
 
     val restore = pauseForDialog()
-    with (AlertDialog.Builder(this)) {
+    val dialog = with (AlertDialog.Builder(this)) {
         setMessage(getString(R.string.exit_warning_playlist, notYetPlayed))
         setPositiveButton(R.string.dialog_yes) { dialog, _ ->
             dialog.dismiss()
@@ -131,6 +131,7 @@ internal fun MPVActivity.onBackPressedImpl() {
             dialog.dismiss()
             restore()
         }
-        create().show()
+        create()
     }
+    showPlayerDialog(dialog)
 }

@@ -79,8 +79,6 @@ private fun MPVActivity.handleAudioSubtitleDrawerAction(
             showSubDelayPicker(pauseForDialog(), PlayerDialogLayout(
                 widthFraction = ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION,
                 maxWidthDp = ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP,
-                heightFraction = ADVANCED_SUB_DELAY_DIALOG_HEIGHT_FRACTION,
-                maxHeightDp = ADVANCED_SUB_DELAY_DIALOG_MAX_HEIGHT_DP,
             ))
         }
         PlayerDrawerAction.SUB_SEEK_PREV -> mpvCommand(arrayOf("sub-seek", "-1"))

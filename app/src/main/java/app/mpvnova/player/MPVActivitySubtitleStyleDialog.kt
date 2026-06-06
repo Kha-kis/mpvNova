@@ -17,6 +17,22 @@ internal fun MPVActivity.openSubtitleStyleDialog() {
         dialog.dismiss()
         showRemoveSubtitleFontDialog()
     }
+    impl.onSavePreset = {
+        dialog.dismiss()
+        openSavePresetPrompt()
+    }
+    impl.onApplyPreset = {
+        dialog.dismiss()
+        showApplyPresetDialog()
+    }
+    impl.onEditPreset = {
+        dialog.dismiss()
+        showEditPresetDialog()
+    }
+    impl.onDeletePreset = {
+        dialog.dismiss()
+        showDeletePresetDialog()
+    }
 
     dialog = with(AlertDialog.Builder(this)) {
         val inflater = LayoutInflater.from(context)
@@ -43,7 +59,7 @@ private fun MPVActivity.pickAndImportSubtitleFont() {
             if (customSubStyleEnabled)
                 applyCustomSubtitleStyle()
             writeSubtitleStyleSettings()
-            showToast(getString(R.string.sub_style_font_added, family))
+            showToast(getString(R.string.sub_style_font_added), family)
         }
         openSubtitleStyleDialog()
     }
@@ -52,22 +68,27 @@ private fun MPVActivity.pickAndImportSubtitleFont() {
 private fun MPVActivity.showRemoveSubtitleFontDialog() {
     val families = removableFontFamilies()
     if (families.isEmpty()) {
-        showToast(getString(R.string.sub_style_no_user_fonts))
+        showToast(
+            getString(R.string.sub_style_remove_font),
+            getString(R.string.sub_style_no_user_fonts),
+        )
         openSubtitleStyleDialog()
         return
     }
     val restore = keepPlaybackForDialog()
     val items = families.toTypedArray()
-    with(AlertDialog.Builder(this)) {
+    val dialog = with(AlertDialog.Builder(this)) {
         setTitle(R.string.sub_style_remove_font)
         setItems(items) { d, which ->
+            val family = families[which]
+            removeSubtitleFontFamily(family)
+            showToast(getString(R.string.sub_style_font_removed), family)
             d.dismiss()
-            removeSubtitleFontFamily(families[which])
-            showToast(getString(R.string.sub_style_font_removed, families[which]))
         }
         setOnDismissListener { restore(); openSubtitleStyleDialog() }
-        create().show()
+        create()
     }
+    showPlayerDialog(dialog)
 }
 
 internal fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
@@ -79,6 +100,9 @@ internal fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
     val shadowApplies = edgeApplies && subStyleEdge == SubtitleEdgeStyle.DROP_SHADOW
 
     return SubtitleStyleDialog.State(
+        title = editingSubtitleStylePreset?.name?.let {
+            getString(R.string.sub_style_preset_editing, it)
+        } ?: getString(R.string.sub_style_title),
         masterOn = on,
         textColor = colorRow(subStyleTextColorIndex, on),
         textOpacity = SubtitleStyleDialog.Row(
@@ -144,4 +168,3 @@ private fun MPVActivity.justifyLabel(justify: SubtitleJustify): String = getStri
         SubtitleJustify.RIGHT -> R.string.sub_style_justify_right
     }
 )
-

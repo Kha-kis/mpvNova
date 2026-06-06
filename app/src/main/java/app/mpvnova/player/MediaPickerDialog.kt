@@ -55,6 +55,10 @@ internal class MediaPickerDialog {
         val secondaryPos: ValueState,
         val secondarySub: ValueState,
     )
+    data class SubPresetState(
+        val presetName: String,
+        val subStyleStateText: String,
+    )
     data class Options(
         val title: String,
         val items: List<Item>,
@@ -74,6 +78,8 @@ internal class MediaPickerDialog {
         val initialSecondarySubState: ValueState = ValueState("", active = false),
         val persistSubFiltersOn: Boolean = false,
         val subStyleStateText: String = "",
+        val showSubPresetCycler: Boolean = false,
+        val initialSubPresetName: String = "",
     )
 
     private lateinit var binding: DialogMediaPickerBinding
@@ -117,6 +123,7 @@ internal class MediaPickerDialog {
     var onSecondarySubSwap: (() -> Unit)? = null
     var onPersistSubClick: (() -> Unit)? = null
     var onSubStyleClick: (() -> Unit)? = null
+    var onSubPresetAdjust: ((Int) -> SubPresetState)? = null
     var onSubFilterStatesRefresh: (() -> SubFilterStates)? = null
 
     fun buildView(layoutInflater: LayoutInflater, options: Options): View {
@@ -230,6 +237,13 @@ internal class MediaPickerDialog {
             persistSubFiltersEnabled = options.persistSubFiltersOn
             binding.subStyleValue.text = options.subStyleStateText
             binding.subStyleRow.setOnClickListener { onSubStyleClick?.invoke() }
+            binding.subPresetValue.text = options.initialSubPresetName
+            binding.subPresetMinusBtn.setOnClickListener {
+                onSubPresetAdjust?.invoke(-1)?.let(::syncSubPresetState)
+            }
+            binding.subPresetPlusBtn.setOnClickListener {
+                onSubPresetAdjust?.invoke(1)?.let(::syncSubPresetState)
+            }
             syncSubFilterChecks()
 
             binding.subScaleMinusBtn.setOnClickListener {
@@ -274,6 +288,11 @@ internal class MediaPickerDialog {
                 syncSubFilterChecks()
             }
         }
+    }
+
+    private fun syncSubPresetState(state: SubPresetState) {
+        binding.subPresetValue.text = state.presetName
+        binding.subStyleValue.text = state.subStyleStateText
     }
 
     private fun refreshFilterStates() {
@@ -417,6 +436,7 @@ private fun DialogMediaPickerBinding.configurePanelVisibility(options: MediaPick
     audioNormRow.isVisible = options.showFilters
     downmixRow.isVisible = options.showFilters
     subStyleRow.isVisible = options.showSubFilters
+    subPresetRow.isVisible = options.showSubFilters && options.showSubPresetCycler
     subScaleRow.isVisible = options.showSubFilters
     subPosRow.isVisible = options.showSubFilters
     secondaryPosRow.isVisible = options.showSubFilters

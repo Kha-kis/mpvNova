@@ -770,7 +770,7 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
-                                android:src="@drawable/ic_subtitles_black_24dp"
+                                android:src="@drawable/ic_sub_delay"
                                 app:tint="@color/tv_text" />
                         </FrameLayout>
 
@@ -886,6 +886,100 @@
                             tools:text="Off" />
                     </LinearLayout>
 
+                    <!-- Saved preset quick-cycle (shown only when presets exist) -->
+                    <LinearLayout
+                        android:id="@+id/subPresetRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_tv_panel_card"
+                        android:minHeight="76dp"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="10dp"
+                        android:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/bg_tv_icon_chip">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_sub_preset_24dp"
+                                app:tint="@color/tv_text" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sub_style_preset"
+                                android:textColor="@color/tv_text"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:maxLines="2"
+                                android:ellipsize="end"
+                                android:text="@string/sub_style_preset_summary"
+                                android:textColor="@color/tv_text_dim"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <ImageButton
+                            android:id="@+id/subPresetMinusBtn"
+                            style="@style/MpvPlayer.ButtonBarIconButton"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center_vertical"
+                            android:contentDescription="@string/btn_decrease"
+                            android:minWidth="34dp"
+                            android:minHeight="34dp"
+                            app:srcCompat="@drawable/ic_remove_24dp"
+                            app:tint="@color/tv_text" />
+
+                        <TextView
+                            android:id="@+id/subPresetValue"
+                            android:layout_width="92dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:ellipsize="end"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:textColor="@color/tv_text"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            tools:text="Crunchyroll" />
+
+                        <ImageButton
+                            android:id="@+id/subPresetPlusBtn"
+                            style="@style/MpvPlayer.ButtonBarIconButton"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center_vertical"
+                            android:contentDescription="@string/btn_increase"
+                            android:minWidth="34dp"
+                            android:minHeight="34dp"
+                            app:srcCompat="@drawable/ic_add_24dp"
+                            app:tint="@color/tv_text" />
+                    </LinearLayout>
+
                     <LinearLayout
                         android:id="@+id/subScaleRow"
                         android:layout_width="match_parent"
@@ -910,7 +1004,7 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
-                                android:src="@drawable/ic_subtitles_black_24dp"
+                                android:src="@drawable/ic_style_size"
                                 app:tint="@color/tv_text" />
                         </FrameLayout>
 
@@ -1001,7 +1095,7 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
-                                android:src="@drawable/ic_subtitles_black_24dp"
+                                android:src="@drawable/ic_sub_position"
                                 app:tint="@color/tv_text" />
                         </FrameLayout>
 
@@ -1092,7 +1186,7 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
-                                android:src="@drawable/ic_subtitles_black_24dp"
+                                android:src="@drawable/ic_style_layers"
                                 app:tint="@color/tv_text" />
                         </FrameLayout>
 

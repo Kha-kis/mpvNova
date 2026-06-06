@@ -34,9 +34,17 @@
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_marginTop="12dp"
+        android:focusable="true"
+        android:focusableInTouchMode="false"
+        android:maxHeight="8dp"
+        android:minHeight="8dp"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
         android:progressDrawable="@drawable/seekbar_progress_tv"
-        android:thumb="@drawable/seekbar_thumb_tv" />
+        android:splitTrack="false"
+        android:thumb="@drawable/seekbar_thumb_tv"
+        android:thumbOffset="16dp" />
 
 </LinearLayout>

@@ -16,7 +16,7 @@ internal fun MPVActivity.cycleSub() = trackSwitchNotification {
 }
 
 internal fun MPVActivity.showWidePlayerDialog(dialog: AlertDialog, layout: PlayerDialogLayout = PlayerDialogLayout()) {
-    dialog.show()
+    showPlayerDialog(dialog)
     dialog.window?.apply {
         setBackgroundDrawableResource(android.R.color.transparent)
         decorView.setPadding(0, 0, 0, 0)
@@ -51,6 +51,17 @@ internal fun MPVActivity.showWidePlayerDialog(dialog: AlertDialog, layout: Playe
             }
         }
     }
+    rehostActivePlayerToast()
+}
+
+internal fun MPVActivity.showPlayerDialog(dialog: AlertDialog) {
+    playerDialogStack.removeAll { !it.isShowing }
+    topPlayerDialog = dialog
+    dialog.show()
+    if (dialog !in playerDialogStack) {
+        playerDialogStack += dialog
+    }
+    rehostActivePlayerToast()
 }
 
 internal fun MPVActivity.pickAudio() {
@@ -164,10 +175,8 @@ internal fun MPVActivity.openSubDelayDialog() {
     showSubDelayPicker(
         restore,
         PlayerDialogLayout(
-            widthFraction = 0.82f,
-            maxWidthDp = 980f,
-            heightFraction = 0.82f,
-            maxHeightDp = 760f,
+            widthFraction = ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION,
+            maxWidthDp = ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP,
         )
     )
 }
@@ -196,7 +205,7 @@ internal fun MPVActivity.openPlaylistMenu(restore: StateRestoreCallback) {
                     impl.refresh()
                 }
                 builder.setNegativeButton(R.string.dialog_cancel) { dialog, _ -> dialog.cancel() }
-                create().show()
+                showPlayerDialog(create())
             }
         }
 

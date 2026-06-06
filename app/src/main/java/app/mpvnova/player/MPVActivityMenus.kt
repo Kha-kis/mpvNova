@@ -36,10 +36,8 @@ internal fun MPVActivity.genericPickerDialog(
         contentView = pickerView,
         restoreState = restoreState,
         layout = PlayerDialogLayout(
-            widthFraction = 0.56f,
-            maxWidthDp = 620f,
-            heightFraction = 0.62f,
-            maxHeightDp = 520f,
+            widthFraction = 0.46f,
+            maxWidthDp = 560f,
         ),
     ) {
         picker.number?.let {

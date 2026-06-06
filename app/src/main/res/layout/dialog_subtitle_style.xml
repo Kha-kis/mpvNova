@@ -19,6 +19,7 @@
         android:textColor="?attr/mpvAccentHot" />
 
     <TextView
+        android:id="@+id/styleTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -158,7 +159,7 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_subtitles_black_24dp"
+                        android:src="@drawable/ic_style_override"
                         app:tint="@color/tv_text" />
                 </FrameLayout>
 
@@ -206,7 +207,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_text_color" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -250,7 +251,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_opacity" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -290,7 +291,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_edge" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -330,7 +331,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_palette" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -374,7 +375,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_line_weight" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -414,7 +415,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_blur" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -454,7 +455,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_layers" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -494,7 +495,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_palette" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -538,7 +539,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_opacity" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -578,7 +579,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_palette" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -622,7 +623,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_font" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -662,7 +663,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_spacing" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -702,7 +703,7 @@
                 style="@style/SubStyleStepperRow">
 
                 <FrameLayout style="@style/SubStyleIconChip">
-                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_subtitles_black_24dp" app:tint="@color/tv_text" />
+                    <ImageView style="@style/SubStyleIcon" android:src="@drawable/ic_style_justify" app:tint="@color/tv_text" />
                 </FrameLayout>
 
                 <LinearLayout style="@style/SubStyleLabelGroup">
@@ -762,7 +763,7 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_subtitles_black_24dp"
+                        android:src="@drawable/ic_style_bold"
                         app:tint="@color/tv_text" />
                 </FrameLayout>
 
@@ -830,7 +831,7 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_subtitles_black_24dp"
+                        android:src="@drawable/ic_style_italic"
                         app:tint="@color/tv_text" />
                 </FrameLayout>
 
@@ -983,6 +984,238 @@
                         android:maxLines="2"
                         android:ellipsize="end"
                         android:text="@string/sub_style_remove_font_summary"
+                        android:textColor="@color/tv_text_dim"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Save as preset -->
+            <LinearLayout
+                android:id="@+id/savePresetRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_tv_track_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp">
+
+                <FrameLayout
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bg_tv_icon_chip">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_style_save"
+                        app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sub_style_save_preset"
+                        android:textColor="@color/tv_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/sub_style_save_preset_summary"
+                        android:textColor="@color/tv_text_dim"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Apply preset -->
+            <LinearLayout
+                android:id="@+id/applyPresetRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_tv_track_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp">
+
+                <FrameLayout
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bg_tv_icon_chip">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_style_apply"
+                        app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sub_style_apply_preset"
+                        android:textColor="@color/tv_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/sub_style_apply_preset_summary"
+                        android:textColor="@color/tv_text_dim"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Edit preset -->
+            <LinearLayout
+                android:id="@+id/editPresetRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_tv_track_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp">
+
+                <FrameLayout
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bg_tv_icon_chip">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_style_edit"
+                        app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sub_style_edit_preset"
+                        android:textColor="@color/tv_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/sub_style_edit_preset_summary"
+                        android:textColor="@color/tv_text_dim"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Delete preset -->
+            <LinearLayout
+                android:id="@+id/deletePresetRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_tv_track_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp">
+
+                <FrameLayout
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bg_tv_icon_chip">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_style_delete"
+                        app:tint="@color/tv_text" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sub_style_delete_preset"
+                        android:textColor="@color/tv_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/sub_style_delete_preset_summary"
                         android:textColor="@color/tv_text_dim"
                         android:textSize="10sp" />
                 </LinearLayout>

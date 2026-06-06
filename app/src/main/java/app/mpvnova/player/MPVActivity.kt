@@ -198,11 +198,17 @@ class MPVActivity : AppCompatActivity() {
     }
 
     internal val playerToastHideRunnable = Runnable {
+        val hidingState = playerToastState
         binding.playerToast.animate()
             .alpha(0f)
             .setDuration(PLAYER_TOAST_FADE_OUT_MS)
             .withLayer()
-            .withEndAction { binding.playerToast.visibility = View.GONE }
+            .withEndAction {
+                binding.playerToast.visibility = View.GONE
+                if (playerToastState === hidingState && overlayToastView == null) {
+                    playerToastState = null
+                }
+            }
     }
 
     internal val seekOverlayHideRunnable = Runnable {
@@ -252,6 +258,14 @@ class MPVActivity : AppCompatActivity() {
     internal var drawerBinding: app.mpvnova.player.databinding.DialogPlayerDrawerBinding? = null
     internal var drawerHandlersBound = false
     internal var currentDrawerDialog: androidx.appcompat.app.AlertDialog? = null
+    // The frontmost player dialog (set when shown). Toasts host inside its window so
+    // they render above the panel instead of behind it.
+    internal var topPlayerDialog: android.app.Dialog? = null
+    internal val playerDialogStack = mutableListOf<android.app.Dialog>()
+    internal var overlayToastView: android.view.View? = null
+    internal var overlayToastHideRunnable: Runnable? = null
+    internal var playerToastState: PlayerToastState? = null
+    internal var playerToastToken = 0
     internal var remoteNextChapterKeyCode: Int? = null
     internal var playerScreenBrightnessActive = false
     internal var rememberPlayerScreenBrightness = false
@@ -300,6 +314,9 @@ class MPVActivity : AppCompatActivity() {
     internal var subStyleItalic = false
     // Forces our style onto ASS subs too; off so their signs and typesetting survive.
     internal var subStyleOverrideAss = false
+    // Quick-cycle index into the saved presets, and the preset currently being edited.
+    internal var subStylePresetIndex = 0
+    internal var editingSubtitleStylePreset: SubtitleStylePreset? = null
     // The sub-* values from before we touched them, so disabling restores the real baseline.
     internal var subStyleSavedDefaults: Map<String, String?>? = null
     // Depth-counted so stacked dialogs don't leave keep-open stuck on (which froze the file at EOF).

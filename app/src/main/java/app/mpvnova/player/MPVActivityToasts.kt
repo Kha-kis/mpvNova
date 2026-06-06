@@ -1,6 +1,5 @@
 package app.mpvnova.player
 
-import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -32,26 +31,15 @@ internal fun MPVActivity.showToastInternal(
     durationMs: Long
 ) {
     val effectiveDurationMs = resolvedToastDuration(title, detail, durationMs)
-    fadeHandler.removeCallbacks(playerToastHideRunnable)
-    binding.playerToast.animate().cancel()
-    if (cancel) {
-        binding.playerToast.alpha = 1f
-    }
-
-    binding.playerToastTitle.isVisible = !title.isNullOrBlank()
-    binding.playerToastTitle.text = title
-    binding.playerToastMessage.text = detail
-    updatePlayerToastPlacement()
-    binding.playerToast.visibility = View.VISIBLE
-
-    if (binding.playerToast.alpha < 1f) {
-        binding.playerToast.alpha = 0f
-        binding.playerToast.animate().alpha(1f).setDuration(PLAYER_TOAST_FADE_IN_MS).withLayer()
-    } else {
-        binding.playerToast.alpha = 1f
-    }
-
-    fadeHandler.postDelayed(playerToastHideRunnable, effectiveDurationMs)
+    val state = PlayerToastState(
+        title = title,
+        detail = detail,
+        hideAtMs = currentToastUptimeMs() + effectiveDurationMs,
+        token = ++playerToastToken,
+    )
+    playerToastState = state
+    renderPlayerToast(state, cancel, animate = true)
+    schedulePlayerToastHide(state)
 }
 
 internal fun MPVActivity.resolvedToastDuration(
