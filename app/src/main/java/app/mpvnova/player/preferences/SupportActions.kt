@@ -1,15 +1,25 @@
 package app.mpvnova.player.preferences
 
+import android.Manifest
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.preference.PreferenceManager
 import app.mpvnova.player.BuildConfig
@@ -17,8 +27,11 @@ import app.mpvnova.player.MPVView
 import app.mpvnova.player.MpvLogRingBuffer
 import app.mpvnova.player.NativeLibraryVersion
 import app.mpvnova.player.R
+import app.mpvnova.player.Utils
 import app.mpvnova.player.toShieldDecoderFallback
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,6 +71,11 @@ object SupportActions {
     }
 
     fun exportConfigBundle(activity: Activity) {
+        val bundle = createSupportBundle(activity)
+        SupportBundleExportFlow(activity, bundle).show()
+    }
+
+    private fun createSupportBundle(activity: Activity): File {
         val supportDir = File(activity.cacheDir, "support")
         if (!supportDir.exists())
             supportDir.mkdirs()
@@ -68,31 +86,13 @@ object SupportActions {
         ZipOutputStream(bundle.outputStream()).use { zip ->
             zip.textEntry("debug-info.txt", buildDebugInfo(activity))
             zip.textEntry("settings-summary.txt", buildSettingsSummary(activity))
+            zip.textEntry("storage-report.txt", buildStorageReport(activity))
             zip.configEntry(activity, "mpv.conf")
             zip.configEntry(activity, "input.conf")
             zip.textEntry("logs.txt", buildMpvLogDump())
             zip.crashEntries(activity)
         }
-
-        val uri = FileProvider.getUriForFile(
-            activity,
-            "${BuildConfig.APPLICATION_ID}.fileprovider",
-            bundle
-        )
-        val streamClip = ClipData.newUri(activity.contentResolver, bundle.name, uri)
-        val shareIntent = Intent(Intent.ACTION_SEND)
-            .setType("application/zip")
-            .putExtra(Intent.EXTRA_STREAM, uri)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        shareIntent.clipData = streamClip
-        val chooser = Intent.createChooser(shareIntent, activity.getString(R.string.support_export_chooser))
-        chooser.clipData = streamClip
-        chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        try {
-            activity.startActivity(chooser)
-        } catch (_: ActivityNotFoundException) {
-            Toast.makeText(activity, R.string.support_export_no_target, Toast.LENGTH_SHORT).show()
-        }
+        return bundle
     }
 
     fun resetPlayerUiSettings(activity: Activity) {
@@ -219,3 +219,295 @@ object SupportActions {
 
     private const val AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv"
 }
+
+@Suppress("DEPRECATION")
+private fun buildStorageReport(context: Context): String {
+    return buildString {
+        appendLine("mpvNova storage report")
+        appendLine()
+        appendLine("External storage directory")
+        appendLine(Environment.getExternalStorageDirectory().describeStoragePath())
+        appendLine()
+        appendLine("externalMediaDirs")
+        context.externalMediaDirs.forEachIndexed { index, file ->
+            appendLine("$index: ${file?.describeStoragePath() ?: "null"}")
+        }
+        appendLine()
+        appendLine("mpvNova detected storage volumes")
+        runCatching {
+            Utils.getStorageVolumes(context)
+        }.onSuccess { volumes ->
+            if (volumes.isEmpty()) {
+                appendLine("No readable volumes detected.")
+            } else {
+                volumes.forEachIndexed { index, volume ->
+                    appendLine("$index: ${volume.description} -> ${volume.path.describeStoragePath()}")
+                }
+            }
+        }.onFailure { error ->
+            appendLine("Storage volume detection failed: ${error.javaClass.name}: ${error.message}")
+        }
+        appendLine()
+        appendLine("/proc/mounts storage entries")
+        runCatching {
+            File("/proc/mounts").forEachLine { line ->
+                if (line.contains("/storage") || line.contains("/mnt/media_rw")) {
+                    appendLine(line)
+                }
+            }
+        }.onFailure { error ->
+            appendLine("/proc/mounts read failed: ${error.javaClass.name}: ${error.message}")
+        }
+    }
+}
+
+private fun File.describeStoragePath(): String {
+    return "$absolutePath exists=${exists()} canRead=${canRead()} isDirectory=${isDirectory()}"
+}
+
+private class SupportBundleExportFlow(
+    private val activity: Activity,
+    private val bundle: File
+) {
+    fun show() {
+        val options = mutableListOf<SupportExportOption>()
+        options.add(
+            SupportExportOption(
+                activity.getString(R.string.support_export_save_downloads)
+            ) {
+                saveBundleToDownloads()
+            }
+        )
+
+        querySupportBundleTargets()
+            .firstOrNull { it.packageName == LOCALSEND_PACKAGE }
+            ?.let { target ->
+                options.add(
+                    SupportExportOption(
+                        activity.getString(R.string.support_export_share_localsend)
+                    ) {
+                        launchShareTarget(target)
+                    }
+                )
+            }
+
+        options.add(
+            SupportExportOption(
+                activity.getString(R.string.support_export_share_other)
+            ) {
+                showShareTargetDialog()
+            }
+        )
+
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.support_export_chooser)
+            .setItems(options.map { it.label }.toTypedArray()) { dialog, which ->
+                dialog.dismiss()
+                options[which].action()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun saveBundleToDownloads() {
+        if (needsLegacyDownloadsPermission()) {
+            pendingLegacyDownloadsFlow = this
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_WRITE_DOWNLOADS
+            )
+            return
+        }
+        saveBundleToDownloadsAfterPermission()
+    }
+
+    fun saveBundleToDownloadsAfterPermission() {
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                saveBundleToDownloadsMediaStore()
+            } else {
+                saveBundleToLegacyDownloads()
+            }
+        }.onSuccess { savedName ->
+            Toast.makeText(
+                activity,
+                activity.getString(R.string.support_export_saved, savedName),
+                Toast.LENGTH_LONG
+            ).show()
+        }.onFailure {
+            Toast.makeText(activity, R.string.support_export_save_failed, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun needsLegacyDownloadsPermission(): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+            ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+    }
+
+    @TargetApi(Build.VERSION_CODES.Q)
+    private fun saveBundleToDownloadsMediaStore(): String {
+        val resolver = activity.contentResolver
+        val values = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, bundle.name)
+            put(MediaStore.Downloads.MIME_TYPE, SUPPORT_BUNDLE_MIME_TYPE)
+            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+        val uri = checkNotNull(resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)) {
+            "Could not create Downloads entry"
+        }
+        runCatching {
+            checkNotNull(resolver.openOutputStream(uri)) {
+                "Could not open Downloads entry"
+            }.use { output ->
+                bundle.inputStream().use { input -> input.copyTo(output) }
+            }
+            values.clear()
+            values.put(MediaStore.Downloads.IS_PENDING, 0)
+            resolver.update(uri, values, null, null)
+        }.onFailure {
+            resolver.delete(uri, null, null)
+        }.getOrThrow()
+        return bundle.name
+    }
+
+    @Suppress("DEPRECATION")
+    private fun saveBundleToLegacyDownloads(): String {
+        val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        if (!downloads.exists() && !downloads.mkdirs())
+            throw IOException("Could not create Downloads directory")
+        val target = uniqueDownloadFile(downloads, bundle.name)
+        bundle.copyTo(target, overwrite = false)
+        return target.name
+    }
+
+    private fun uniqueDownloadFile(directory: File, filename: String): File {
+        var target = File(directory, filename)
+        if (!target.exists())
+            return target
+
+        val base = target.nameWithoutExtension
+        val extension = target.extension.takeIf { it.isNotBlank() }?.let { ".$it" }.orEmpty()
+        var index = 2
+        do {
+            target = File(directory, "$base-$index$extension")
+            index++
+        } while (target.exists())
+        return target
+    }
+
+    private fun showShareTargetDialog() {
+        val targets = querySupportBundleTargets()
+            .filter { it.packageName != LOCALSEND_PACKAGE }
+        if (targets.isEmpty()) {
+            Toast.makeText(activity, R.string.support_export_no_target, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.support_export_share_target_title)
+            .setItems(targets.map { it.label }.toTypedArray()) { dialog, which ->
+                dialog.dismiss()
+                launchShareTarget(targets[which])
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun querySupportBundleTargets(): List<SupportShareTarget> {
+        val shareIntent = buildShareIntent().first
+        val packageManager = activity.packageManager
+        val targets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.queryIntentActivities(
+                shareIntent,
+                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        }
+        return targets
+            .mapNotNull { it.toSupportShareTarget(activity) }
+            .distinctBy { "${it.packageName}/${it.className}" }
+            .sortedBy { it.label.lowercase(Locale.US) }
+    }
+
+    private fun launchShareTarget(target: SupportShareTarget) {
+        val (shareIntent, uri) = buildShareIntent()
+        shareIntent.component = ComponentName(target.packageName, target.className)
+        try {
+            activity.grantUriPermission(target.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            activity.startActivity(shareIntent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(activity, R.string.support_export_share_failed, Toast.LENGTH_SHORT).show()
+        } catch (_: SecurityException) {
+            Toast.makeText(activity, R.string.support_export_share_failed, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun buildShareIntent(): Pair<Intent, Uri> {
+        val uri = FileProvider.getUriForFile(
+            activity,
+            "${BuildConfig.APPLICATION_ID}.fileprovider",
+            bundle
+        )
+        val streamClip = ClipData.newUri(activity.contentResolver, bundle.name, uri)
+        val shareIntent = Intent(Intent.ACTION_SEND)
+            .setType(SUPPORT_BUNDLE_MIME_TYPE)
+            .putExtra(Intent.EXTRA_STREAM, uri)
+            .putExtra(Intent.EXTRA_TITLE, bundle.name)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        shareIntent.clipData = streamClip
+        return shareIntent to uri
+    }
+}
+
+private data class SupportExportOption(
+    val label: String,
+    val action: () -> Unit
+)
+
+private data class SupportShareTarget(
+    val packageName: String,
+    val className: String,
+    val label: String
+)
+
+private fun ResolveInfo.toSupportShareTarget(context: Context): SupportShareTarget? {
+    val info = activityInfo ?: return null
+    val label = loadLabel(context.packageManager)
+        .toString()
+        .takeIf { it.isNotBlank() }
+        ?: info.packageName
+    return SupportShareTarget(
+        packageName = info.packageName,
+        className = info.name,
+        label = label
+    )
+}
+
+fun handleSupportExportPermissionResult(
+    activity: Activity,
+    requestCode: Int,
+    grantResults: IntArray
+) {
+    if (requestCode == REQUEST_WRITE_DOWNLOADS) {
+        val pendingFlow = pendingLegacyDownloadsFlow
+        pendingLegacyDownloadsFlow = null
+        if (pendingFlow != null) {
+            if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
+                pendingFlow.saveBundleToDownloadsAfterPermission()
+            else
+                Toast.makeText(activity, R.string.support_export_save_failed, Toast.LENGTH_LONG).show()
+        }
+    }
+}
+
+private const val LOCALSEND_PACKAGE = "org.localsend.localsend_app"
+private const val SUPPORT_BUNDLE_MIME_TYPE = "application/zip"
+private const val REQUEST_WRITE_DOWNLOADS = 24061
+private var pendingLegacyDownloadsFlow: SupportBundleExportFlow? = null

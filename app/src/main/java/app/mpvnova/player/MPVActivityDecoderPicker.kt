@@ -14,7 +14,9 @@ internal fun MPVActivity.pickDecoder() {
     val currentMode = currentDecoderUiMode()
     val rawItems = decoderRawItems(currentMode)
     val items = rawItems.toDecoderPickerItems(currentMode)
-    val impl = MediaPickerDialog()
+    val impl = decoderPickerDialog ?: MediaPickerDialog().also {
+        decoderPickerDialog = it
+    }
     lateinit var dialog: AlertDialog
     impl.onItemClick = { idx ->
         sessionDecoderMode = rawItems[idx].second

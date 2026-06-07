@@ -13,15 +13,20 @@ internal fun MPVActivity.showPlayerPickerDialog(
     onOk: () -> Unit
 ) {
     lateinit var dialog: AlertDialog
-    val binding = DialogPlayerPickerBinding.inflate(layoutInflater)
+    val binding = playerPickerBinding ?: DialogPlayerPickerBinding.inflate(layoutInflater).also {
+        handleInsetsAsPadding(it.root)
+        playerPickerBinding = it
+    }
+    binding.root.detachFromParent()
+    contentView.detachFromParent()
     binding.pickerTitle.setText(titleRes)
+    binding.pickerContent.removeAllViews()
     binding.pickerContent.addView(contentView)
     binding.cancelBtn.setOnClickListener { dialog.cancel() }
     binding.okBtn.setOnClickListener {
         onOk()
         dialog.dismiss()
     }
-    handleInsetsAsPadding(binding.root)
     dialog = with(AlertDialog.Builder(this)) {
         setView(binding.root)
         setOnDismissListener { restoreState(); reopenDrawerIfPending() }
@@ -34,7 +39,9 @@ internal fun MPVActivity.showSubDelayPicker(
     restoreState: StateRestoreCallback,
     layout: PlayerDialogLayout
 ) {
-    val picker = SubDelayDialog(SUB_DELAY_MIN_SEC, SUB_DELAY_MAX_SEC)
+    val picker = subDelayDialog ?: SubDelayDialog(SUB_DELAY_MIN_SEC, SUB_DELAY_MAX_SEC).also {
+        subDelayDialog = it
+    }
     val pickerView = picker.buildView(layoutInflater)
     picker.delay1 = player.subDelay ?: 0.0
     picker.delay2 = if (player.secondarySid != -1) player.secondarySubDelay else null

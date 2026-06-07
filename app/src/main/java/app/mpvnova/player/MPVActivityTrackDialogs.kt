@@ -71,7 +71,9 @@ internal fun MPVActivity.pickAudio() {
     val items = tracks.map {
         MediaPickerDialog.Item(it.name, it.mpvId, it.mpvId == selectedId)
     }
-    val impl = MediaPickerDialog()
+    val impl = audioPickerDialog ?: MediaPickerDialog().also {
+        audioPickerDialog = it
+    }
     lateinit var dialog: AlertDialog
     impl.onItemClick = { idx ->
         val trackId = tracks[idx].mpvId
@@ -157,7 +159,9 @@ internal fun MPVActivity.buildSubItems(): List<MediaPickerDialog.Item> {
 
 internal fun MPVActivity.pickSub() {
     val restore = keepPlaybackForDialog()
-    val impl = MediaPickerDialog()
+    val impl = subtitlePickerDialog ?: MediaPickerDialog().also {
+        subtitlePickerDialog = it
+    }
     lateinit var dialog: AlertDialog
     configureSubPickerCallbacks(impl) { dialog.dismiss() }
     dialog = createSubPickerDialog(impl, restore)
@@ -182,7 +186,9 @@ internal fun MPVActivity.openSubDelayDialog() {
 }
 
 internal fun MPVActivity.openPlaylistMenu(restore: StateRestoreCallback) {
-    val impl = PlaylistDialog(player)
+    val impl = playlistDialog ?: PlaylistDialog(player).also {
+        playlistDialog = it
+    }
     lateinit var dialog: AlertDialog
 
     impl.listeners = object : PlaylistDialog.Listeners {

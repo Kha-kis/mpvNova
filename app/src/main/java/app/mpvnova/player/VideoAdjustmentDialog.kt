@@ -28,32 +28,42 @@ internal class VideoAdjustmentDialog(
     var rememberValue = initialRemember ?: false
         private set
 
+    fun reset(initialValue: Int, initialRemember: Boolean?): VideoAdjustmentDialog {
+        value = initialValue.coerceIn(config.minValue, config.maxValue)
+        rememberValue = initialRemember ?: false
+        return this
+    }
+
     fun buildView(
         layoutInflater: LayoutInflater,
         onOk: () -> Unit,
         onCancel: () -> Unit
     ): View {
-        binding = DialogVideoAdjustmentBinding.inflate(layoutInflater)
-        binding.adjustmentTitle.setText(config.titleRes)
-        binding.adjustmentSeekBar.max = config.maxValue - config.minValue
-        binding.adjustmentSeekBar.setOnSeekBarChangeListener(
-            object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    if (fromUser) {
-                        setValue(progress + config.minValue, notify = true)
+        if (!::binding.isInitialized) {
+            binding = DialogVideoAdjustmentBinding.inflate(layoutInflater)
+            binding.adjustmentTitle.setText(config.titleRes)
+            binding.adjustmentSeekBar.max = config.maxValue - config.minValue
+            binding.adjustmentSeekBar.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+                        if (fromUser) {
+                            setValue(progress + config.minValue, notify = true)
+                        }
                     }
-                }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+                }
+            )
+            binding.resetBtn.setOnClickListener {
+                setValue(config.defaultValue, notify = true)
             }
-        )
-        binding.resetBtn.setOnClickListener {
-            setValue(config.defaultValue, notify = true)
+        } else {
+            binding.root.detachFromParent()
         }
         binding.rememberRow.visibility = if (hasRememberToggle) View.VISIBLE else View.GONE
         binding.rememberRow.setOnClickListener {

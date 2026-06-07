@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -82,13 +83,7 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         }
 
         binding.docBtn.setOnClickListener {
-            try {
-                documentTreeOpener.launch(null)
-            } catch (ignored: ActivityNotFoundException) {
-                // Android TV doesn't come with a document picker and certain versions just throw
-                // instead of handling this gracefully
-                binding.docBtn.isEnabled = false
-            }
+            openDocumentTree()
         }
         binding.urlBtn.setOnClickListener {
             saveChoice("url")
@@ -204,6 +199,22 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
             "file" -> binding.filepickerBtn.callOnClick()
             else -> false
         }
+    }
+
+    private fun openDocumentTree() {
+        if (!hasDocumentTreePicker(requireContext())) {
+            showDocumentPickerUnavailable()
+            return
+        }
+        try {
+            documentTreeOpener.launch(null)
+        } catch (ignored: ActivityNotFoundException) {
+            showDocumentPickerUnavailable()
+        }
+    }
+
+    private fun showDocumentPickerUnavailable() {
+        Toast.makeText(requireContext(), R.string.document_picker_unavailable, Toast.LENGTH_LONG).show()
     }
 
     private fun playFile(filepath: String) {

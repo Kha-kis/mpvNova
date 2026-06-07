@@ -26,27 +26,30 @@ internal class PlaylistDialog(private val player: MPVView) {
     var listeners: Listeners? = null
 
     fun buildView(layoutInflater: LayoutInflater): View {
-        binding = DialogPlaylistBinding.inflate(layoutInflater)
+        if (!::binding.isInitialized) {
+            binding = DialogPlaylistBinding.inflate(layoutInflater)
+            binding.list.adapter = CustomAdapter(this)
+            binding.list.setHasFixedSize(true)
 
-        binding.list.adapter = CustomAdapter(this)
-        binding.list.setHasFixedSize(true)
-        refresh()
+            binding.fileBtn.setOnClickListener { listeners?.pickFile() }
+            binding.urlBtn.setOnClickListener { listeners?.openUrl() }
 
-        binding.fileBtn.setOnClickListener { listeners?.pickFile() }
-        binding.urlBtn.setOnClickListener { listeners?.openUrl() }
-
-        binding.shuffleBtn.setOnClickListener {
-            if (playlist.size > 1) {
-                player.changeShuffle(true)
+            binding.shuffleBtn.setOnClickListener {
+                if (playlist.size > 1) {
+                    player.changeShuffle(true)
+                    refresh()
+                }
+            }
+            binding.repeatBtn.setOnClickListener {
+                player.cycleRepeat()
                 refresh()
             }
-        }
-        binding.repeatBtn.setOnClickListener {
-            player.cycleRepeat()
-            refresh()
+            handleInsetsAsPadding(binding.root)
+        } else {
+            binding.root.detachFromParent()
         }
 
-        handleInsetsAsPadding(binding.root)
+        refresh()
         return binding.root
     }
 

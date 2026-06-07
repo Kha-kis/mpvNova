@@ -11,6 +11,10 @@ internal class DecimalPickerDialog(
     private lateinit var binding: DialogDecimalBinding
 
     override fun buildView(layoutInflater: LayoutInflater): View {
+        if (::binding.isInitialized) {
+            binding.root.detachFromParent()
+            return binding.root
+        }
         binding = DialogDecimalBinding.inflate(layoutInflater)
 
         // hide extraneous UI parts

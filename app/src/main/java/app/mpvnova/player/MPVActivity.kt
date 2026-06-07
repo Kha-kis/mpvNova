@@ -256,6 +256,16 @@ class MPVActivity : AppCompatActivity() {
     internal var lastDrawerTab: DrawerTab = DrawerTab.VIDEO
     internal var drawerReopenPending = false
     internal var drawerBinding: app.mpvnova.player.databinding.DialogPlayerDrawerBinding? = null
+    internal var playerPickerBinding: app.mpvnova.player.databinding.DialogPlayerPickerBinding? = null
+    internal var speedPickerDialog: SpeedPickerDialog? = null
+    internal var subDelayDialog: SubDelayDialog? = null
+    internal var audioPickerDialog: MediaPickerDialog? = null
+    internal var subtitlePickerDialog: MediaPickerDialog? = null
+    internal var decoderPickerDialog: MediaPickerDialog? = null
+    internal var subtitleStyleDialog: SubtitleStyleDialog? = null
+    internal var playlistDialog: PlaylistDialog? = null
+    internal val videoAdjustmentDialogs = mutableMapOf<String, VideoAdjustmentDialog>()
+    internal var playerBrightnessDialog: VideoAdjustmentDialog? = null
     internal var drawerHandlersBound = false
     internal var currentDrawerDialog: androidx.appcompat.app.AlertDialog? = null
     // The frontmost player dialog (set when shown). Toasts host inside its window so

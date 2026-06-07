@@ -35,6 +35,10 @@ internal class SpeedPickerDialog : PickerDialog {
     }
 
     override fun buildView(layoutInflater: LayoutInflater): View {
+        if (::binding.isInitialized) {
+            binding.root.detachFromParent()
+            return binding.root
+        }
         binding = DialogSliderBinding.inflate(layoutInflater)
         val context = layoutInflater.context
 

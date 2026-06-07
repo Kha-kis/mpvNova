@@ -12,18 +12,19 @@ internal fun MPVActivity.openPlayerBrightnessPicker(restoreState: StateRestoreCa
     } else {
         defaultPlayerScreenBrightnessPercent()
     }
-    val picker = VideoAdjustmentDialog(
-        config = VideoAdjustmentDialogConfig(
-            titleRes = R.string.video_brightness,
-            minValue = MIN_PLAYER_SCREEN_BRIGHTNESS_PERCENT,
-            maxValue = MAX_PLAYER_SCREEN_BRIGHTNESS_PERCENT,
-            defaultValue = DEFAULT_PLAYER_SCREEN_BRIGHTNESS_PERCENT,
-            valueFormatRes = R.string.format_fixed_number
-        ),
-        initialValue = initialPercent,
-        initialRemember = rememberPlayerScreenBrightness,
-        onPreview = ::previewPlayerScreenBrightness
-    )
+    val picker = playerBrightnessDialog?.reset(initialPercent, rememberPlayerScreenBrightness)
+        ?: VideoAdjustmentDialog(
+            config = VideoAdjustmentDialogConfig(
+                titleRes = R.string.video_brightness,
+                minValue = MIN_PLAYER_SCREEN_BRIGHTNESS_PERCENT,
+                maxValue = MAX_PLAYER_SCREEN_BRIGHTNESS_PERCENT,
+                defaultValue = DEFAULT_PLAYER_SCREEN_BRIGHTNESS_PERCENT,
+                valueFormatRes = R.string.format_fixed_number
+            ),
+            initialValue = initialPercent,
+            initialRemember = rememberPlayerScreenBrightness,
+            onPreview = ::previewPlayerScreenBrightness
+        ).also { playerBrightnessDialog = it }
     var accepted = false
     lateinit var dialog: AlertDialog
     dialog = with(AlertDialog.Builder(this)) {

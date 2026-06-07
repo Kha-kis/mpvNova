@@ -10,7 +10,9 @@ internal fun MPVActivity.clampSubFilterState() {
 }
 
 internal fun MPVActivity.pickSpeed() {
-    val picker = SpeedPickerDialog()
+    val picker = speedPickerDialog ?: SpeedPickerDialog().also {
+        speedPickerDialog = it
+    }
     val restore = keepPlaybackForDialog()
     genericPickerDialog(picker, R.string.title_speed_dialog, "speed") {
         restore()

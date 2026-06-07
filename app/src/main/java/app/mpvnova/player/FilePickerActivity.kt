@@ -3,6 +3,7 @@ package app.mpvnova.player
 
 import `is`.xyz.filepicker.AbstractFilePickerFragment
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -288,7 +289,11 @@ internal object FilePickerMenuActions {
         activity: FilePickerActivity,
         currentFragment: MPVFilePickerFragment,
     ) {
-        val volumes = Utils.getStorageVolumes(activity)
+        val volumes = runCatching {
+            Utils.getStorageVolumes(activity)
+        }.onFailure { error ->
+            Log.w(FilePickerActivity.TAG, "FilePickerActivity: failed to enumerate storage volumes", error)
+        }.getOrDefault(emptyList())
         showExternalStoragePicker(activity, currentFragment, volumes)
     }
 
@@ -308,6 +313,10 @@ internal object FilePickerMenuActions {
         currentFragment: MPVFilePickerFragment,
         volumes: List<Utils.StoragePath>,
     ) {
+        if (volumes.isEmpty()) {
+            Toast.makeText(activity, R.string.storage_browser_unavailable, Toast.LENGTH_LONG).show()
+            return
+        }
         AlertDialog.Builder(activity)
             .setTitle(R.string.action_external_storage)
             .setItems(volumes.map { it.description }.toTypedArray()) { dialog, item ->
@@ -642,7 +651,16 @@ class ChoiceFragment : Fragment(R.layout.fragment_filepicker_choice) {
             (activity as FilePickerActivity).showUrlDialog()
         }
         binding.docBtn.setOnClickListener {
-            (activity as FilePickerActivity).documentOpener.launch(arrayOf("*/*"))
+            val pickerActivity = activity as FilePickerActivity
+            if (!hasDocumentFilePicker(pickerActivity)) {
+                Toast.makeText(pickerActivity, R.string.document_picker_unavailable, Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            try {
+                pickerActivity.documentOpener.launch(arrayOf("*/*"))
+            } catch (ignored: ActivityNotFoundException) {
+                Toast.makeText(pickerActivity, R.string.document_picker_unavailable, Toast.LENGTH_LONG).show()
+            }
         }
         if (!requireArguments().getBoolean("allow_document", false))
             binding.docBtn.visibility = View.GONE

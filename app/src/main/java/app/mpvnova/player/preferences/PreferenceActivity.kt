@@ -209,6 +209,15 @@ class PreferenceActivity : AppCompatActivity(),
         updateManager.resumePendingInstallIfAllowed()
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        handleSupportExportPermissionResult(this, requestCode, grantResults)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         preferences.unregisterOnSharedPreferenceChangeListener(this)

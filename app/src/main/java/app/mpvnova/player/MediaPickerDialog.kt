@@ -127,7 +127,13 @@ internal class MediaPickerDialog {
     var onSubFilterStatesRefresh: (() -> SubFilterStates)? = null
 
     fun buildView(layoutInflater: LayoutInflater, options: Options): View {
-        binding = DialogMediaPickerBinding.inflate(layoutInflater)
+        val firstBuild = !::binding.isInitialized
+        if (firstBuild) {
+            binding = DialogMediaPickerBinding.inflate(layoutInflater)
+            handleInsetsAsPadding(binding.root)
+        } else {
+            binding.root.detachFromParent()
+        }
 
         binding.bindHeader(options)
         configureList(options)
@@ -138,7 +144,6 @@ internal class MediaPickerDialog {
         configureSubtitleFilters(options)
         binding.requestInitialFocus(options)
 
-        handleInsetsAsPadding(binding.root)
         return binding.root
     }
 
@@ -165,8 +170,10 @@ internal class MediaPickerDialog {
                     weight = 0f
                 }
         }
-        this.items = options.items
-        binding.list.adapter = Adapter(this)
+        updateItems(options.items)
+        if (binding.list.adapter == null) {
+            binding.list.adapter = Adapter(this)
+        }
     }
 
     private fun configureAudioFilters(options: Options) {

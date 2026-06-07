@@ -119,11 +119,20 @@ private object StorageVolumeResolver {
     @Suppress("DEPRECATION")
     fun collectCandidates(context: Context): List<String> {
         val candidates = mutableListOf<String>()
-        context.externalMediaDirs.forEach {
-            if (it != null)
-                candidates.add(it.absolutePath)
+        candidates.add(Environment.getExternalStorageDirectory().absolutePath)
+        runCatching {
+            context.externalMediaDirs.forEach {
+                if (it != null)
+                    candidates.add(it.absolutePath)
+            }
+        }.onFailure { error ->
+            Log.w(TAG, "Failed to inspect external media directories", error)
         }
-        File("/proc/mounts").forEachLine { line -> addProcMountCandidate(candidates, line) }
+        runCatching {
+            File("/proc/mounts").forEachLine { line -> addProcMountCandidate(candidates, line) }
+        }.onFailure { error ->
+            Log.w(TAG, "Failed to inspect /proc/mounts", error)
+        }
         return candidates
     }
 
@@ -146,6 +155,8 @@ private object StorageVolumeResolver {
         return try {
             storageManager.getStorageVolume(file)
         } catch (ignored: SecurityException) {
+            null
+        } catch (ignored: IllegalArgumentException) {
             null
         }
     }
@@ -217,7 +228,9 @@ fun handleInsetsAsPadding(view: View) {
 
 @SuppressLint("NewApi")
 private fun storageVolumeDisplayName(volume: StorageVolume, context: Context, root: File): String {
-    val label = volume.getDescription(context).trim().ifEmpty { root.path }
+    val label = runCatching {
+        volume.getDescription(context).trim()
+    }.getOrDefault("").ifEmpty { root.path }
     val mountId = root.name
     return if (volume.isPrimary || mountId.isEmpty() || label.contains(mountId, ignoreCase = true)) {
         label

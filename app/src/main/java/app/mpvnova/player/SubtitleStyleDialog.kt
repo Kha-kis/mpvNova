@@ -66,9 +66,14 @@ internal class SubtitleStyleDialog {
     var onDeletePreset: (() -> Unit)? = null
 
     fun buildView(layoutInflater: LayoutInflater): View {
-        binding = DialogSubtitleStyleBinding.inflate(layoutInflater)
-        bindControls()
-        TvScrollbars.bind(binding.styleScroll, binding.styleScrollbarThumb)
+        if (!::binding.isInitialized) {
+            binding = DialogSubtitleStyleBinding.inflate(layoutInflater)
+            bindControls()
+            TvScrollbars.bind(binding.styleScroll, binding.styleScrollbarThumb)
+        } else {
+            binding.root.detachFromParent()
+            binding.styleScroll.scrollTo(0, 0)
+        }
         stateProvider?.invoke()?.let { render(it) }
         return binding.root
     }

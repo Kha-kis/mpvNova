@@ -14,18 +14,20 @@ internal fun MPVActivity.openVideoAdjustmentPicker(
     val previousValue = (
         mpvGetPropertyDouble(spec.property) ?: VIDEO_ADJUSTMENT_DEFAULT_INT.toDouble()
     ).roundToInt().coerceIn(VIDEO_ADJUSTMENT_MIN_INT, VIDEO_ADJUSTMENT_MAX_INT)
-    val picker = VideoAdjustmentDialog(
-        config = VideoAdjustmentDialogConfig(
-            titleRes = spec.titleRes,
-            minValue = VIDEO_ADJUSTMENT_MIN_INT,
-            maxValue = VIDEO_ADJUSTMENT_MAX_INT,
-            defaultValue = VIDEO_ADJUSTMENT_DEFAULT_INT,
-            valueFormatRes = R.string.format_fixed_number
-        ),
-        initialValue = previousValue,
-        initialRemember = rememberVideoAdjustment(spec),
-        onPreview = { value -> mpvSetPropertyInt(spec.property, value) }
-    )
+    val initialRemember = rememberVideoAdjustment(spec)
+    val picker = videoAdjustmentDialogs[spec.property]?.reset(previousValue, initialRemember)
+        ?: VideoAdjustmentDialog(
+            config = VideoAdjustmentDialogConfig(
+                titleRes = spec.titleRes,
+                minValue = VIDEO_ADJUSTMENT_MIN_INT,
+                maxValue = VIDEO_ADJUSTMENT_MAX_INT,
+                defaultValue = VIDEO_ADJUSTMENT_DEFAULT_INT,
+                valueFormatRes = R.string.format_fixed_number
+            ),
+            initialValue = previousValue,
+            initialRemember = initialRemember,
+            onPreview = { value -> mpvSetPropertyInt(spec.property, value) }
+        ).also { videoAdjustmentDialogs[spec.property] = it }
     var accepted = false
     lateinit var dialog: AlertDialog
     dialog = with(AlertDialog.Builder(this)) {

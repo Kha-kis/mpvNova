@@ -13,6 +13,10 @@ internal class SubDelayDialog(
     private lateinit var binding: DialogDecimalBinding
 
     fun buildView(layoutInflater: LayoutInflater): View {
+        if (::binding.isInitialized) {
+            binding.root.detachFromParent()
+            return binding.root
+        }
         binding = DialogDecimalBinding.inflate(layoutInflater)
 
         binding.editText.addTextChangedListener(afterTextChanged = { text ->

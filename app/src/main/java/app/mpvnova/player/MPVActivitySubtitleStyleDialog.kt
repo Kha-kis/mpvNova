@@ -5,7 +5,9 @@ import androidx.appcompat.app.AlertDialog
 
 internal fun MPVActivity.openSubtitleStyleDialog() {
     val restore = keepPlaybackForDialog()
-    val impl = SubtitleStyleDialog()
+    val impl = subtitleStyleDialog ?: SubtitleStyleDialog().also {
+        subtitleStyleDialog = it
+    }
     impl.stateProvider = { subtitleStyleState() }
     impl.onAdjust = { control, delta -> adjustSubtitleStyle(control, delta) }
     lateinit var dialog: AlertDialog
