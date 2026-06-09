@@ -31,6 +31,7 @@
     <string name="btn_voice_boost">Voice boost</string>
     <string name="btn_volume_boost">Volume boost</string>
     <string name="btn_dialogue_downmix">Channel Downmix</string>
+    <string name="btn_center_boost">Center Boost</string>
     <string name="btn_decrease" translatable="false">-</string>
     <string name="btn_increase" translatable="false">+</string>
     <string name="btn_night_mode">DRC</string>
@@ -38,6 +39,7 @@
     <string name="btn_voice_boost_summary">Pull speech forward with cleanup, presence, and light compression.</string>
     <string name="btn_volume_boost_summary">Add loudness after dynamics processing.</string>
     <string name="btn_dialogue_downmix_summary">Fold surround channels to stereo with center focus.</string>
+    <string name="btn_center_boost_summary">Boost center-channel dialogue in surround audio.</string>
     <string name="btn_night_mode_summary">Compress peaks with matched gain and center focus.</string>
     <string name="btn_audio_norm_summary">Even quiet and loud passages in real time.</string>
     <string name="btn_next_chapter">Next chapter</string>
@@ -110,6 +112,7 @@
     <string name="voice_boost_preset_speech">Speech +10</string>
     <string name="voice_boost_preset_loud">Speech max</string>
     <string name="night_mode_preset_drc">DRC</string>
+    <string name="night_mode_preset_drc_plus" translatable="false">DRC+</string>
     <string name="filter_blocked_by_drc">Blocked by\nDRC</string>
     <string name="filter_blocked_by_audio_norm">Blocked by\nAudio\nNormalization</string>
     <string name="audio_norm_preset_light">-18 LUFS</string>
@@ -511,7 +514,7 @@
     <string name="btn_decoder">Decoder</string>
     <string name="btn_audio_filters">Audio filters &amp; track</string>
 
-    <!-- VIMU-parity additions. -->
+    <!-- Android TV playback controls. -->
     <string name="pref_exit_with_double_back_title">Exit with double back press</string>
     <string name="pref_exit_with_double_back_summary">Require pressing Back twice within two seconds to exit the player. Helps prevent accidental TV-remote exits during playback.</string>
     <string name="exit_double_back_hint">Press Back again to exit</string>

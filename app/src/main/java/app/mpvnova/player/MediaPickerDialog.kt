@@ -48,6 +48,7 @@ internal class MediaPickerDialog {
         val nightMode: ValueState,
         val audioNorm: ValueState,
         val downmix: ValueState,
+        val centerBoost: ValueState,
     )
     data class SubFilterStates(
         val subScale: ValueState,
@@ -70,6 +71,7 @@ internal class MediaPickerDialog {
         val initialNightModeState: ValueState = ValueState("", active = false),
         val initialAudioNormState: ValueState = ValueState("", active = false),
         val initialDownmixState: ValueState = ValueState("", active = false),
+        val initialCenterBoostState: ValueState = ValueState("", active = false),
         val persistFiltersOn: Boolean = false,
         val showSubFilters: Boolean = false,
         val initialSubScaleState: ValueState = ValueState("", active = false),
@@ -93,6 +95,7 @@ internal class MediaPickerDialog {
     private var nightModeState = ValueState("", false)
     private var audioNormState = ValueState("", false)
     private var downmixState = ValueState("", false)
+    private var centerBoostState = ValueState("", false)
     private var persistFiltersEnabled = false
     private var subScaleState = ValueState("", false)
     private var subPosState = ValueState("", false)
@@ -112,6 +115,7 @@ internal class MediaPickerDialog {
     var onNightModeAdjust: ((Int) -> ValueState)? = null
     var onAudioNormAdjust: ((Int) -> ValueState)? = null
     var onDownmixAdjust: ((Int) -> ValueState)? = null
+    var onCenterBoostAdjust: ((Int) -> ValueState)? = null
     var onPersistClick: (() -> Unit)? = null
     var onFilterStatesRefresh: (() -> FilterStates)? = null
 
@@ -179,59 +183,75 @@ internal class MediaPickerDialog {
     private fun configureAudioFilters(options: Options) {
         binding.filterGroup.isVisible = options.showFilters || options.showSubFilters
         if (options.showFilters) {
-            this.voiceBoostState = options.initialVoiceBoostState
-            this.volumeBoostState = options.initialVolumeBoostState
-            this.nightModeState = options.initialNightModeState
-            this.audioNormState = options.initialAudioNormState
-            this.downmixState = options.initialDownmixState
-            persistFiltersEnabled = options.persistFiltersOn
-            syncFilterChecks()
-
-            binding.voiceBoostMinusBtn.setOnClickListener {
-                voiceBoostState = onVoiceBoostAdjust?.invoke(-1) ?: voiceBoostState
-                refreshFilterStates()
-            }
-            binding.voiceBoostPlusBtn.setOnClickListener {
-                voiceBoostState = onVoiceBoostAdjust?.invoke(1) ?: voiceBoostState
-                refreshFilterStates()
-            }
-            binding.volumeBoostMinusBtn.setOnClickListener {
-                volumeBoostState = onVolumeBoostAdjust?.invoke(-1) ?: volumeBoostState
-                refreshFilterStates()
-            }
-            binding.volumeBoostPlusBtn.setOnClickListener {
-                volumeBoostState = onVolumeBoostAdjust?.invoke(1) ?: volumeBoostState
-                refreshFilterStates()
-            }
-            binding.nightModeMinusBtn.setOnClickListener {
-                nightModeState = onNightModeAdjust?.invoke(-1) ?: nightModeState
-                refreshFilterStates()
-            }
-            binding.nightModePlusBtn.setOnClickListener {
-                nightModeState = onNightModeAdjust?.invoke(1) ?: nightModeState
-                refreshFilterStates()
-            }
-            binding.audioNormMinusBtn.setOnClickListener {
-                audioNormState = onAudioNormAdjust?.invoke(-1) ?: audioNormState
-                refreshFilterStates()
-            }
-            binding.audioNormPlusBtn.setOnClickListener {
-                audioNormState = onAudioNormAdjust?.invoke(1) ?: audioNormState
-                refreshFilterStates()
-            }
-            binding.downmixMinusBtn.setOnClickListener {
-                downmixState = onDownmixAdjust?.invoke(-1) ?: downmixState
-                refreshFilterStates()
-            }
-            binding.downmixPlusBtn.setOnClickListener {
-                downmixState = onDownmixAdjust?.invoke(1) ?: downmixState
-                refreshFilterStates()
-            }
+            bindAudioFilterStates(options)
+            bindAudioFilterAdjusters()
             binding.persistFiltersRow.setOnClickListener {
                 onPersistClick?.invoke()
                 persistFiltersEnabled = !persistFiltersEnabled
                 syncFilterChecks()
             }
+        }
+    }
+
+    private fun bindAudioFilterStates(options: Options) {
+        voiceBoostState = options.initialVoiceBoostState
+        volumeBoostState = options.initialVolumeBoostState
+        nightModeState = options.initialNightModeState
+        audioNormState = options.initialAudioNormState
+        downmixState = options.initialDownmixState
+        centerBoostState = options.initialCenterBoostState
+        persistFiltersEnabled = options.persistFiltersOn
+        syncFilterChecks()
+    }
+
+    private fun bindAudioFilterAdjusters() {
+        binding.voiceBoostMinusBtn.setOnClickListener {
+            voiceBoostState = onVoiceBoostAdjust?.invoke(-1) ?: voiceBoostState
+            refreshFilterStates()
+        }
+        binding.voiceBoostPlusBtn.setOnClickListener {
+            voiceBoostState = onVoiceBoostAdjust?.invoke(1) ?: voiceBoostState
+            refreshFilterStates()
+        }
+        binding.volumeBoostMinusBtn.setOnClickListener {
+            volumeBoostState = onVolumeBoostAdjust?.invoke(-1) ?: volumeBoostState
+            refreshFilterStates()
+        }
+        binding.volumeBoostPlusBtn.setOnClickListener {
+            volumeBoostState = onVolumeBoostAdjust?.invoke(1) ?: volumeBoostState
+            refreshFilterStates()
+        }
+        binding.nightModeMinusBtn.setOnClickListener {
+            nightModeState = onNightModeAdjust?.invoke(-1) ?: nightModeState
+            refreshFilterStates()
+        }
+        binding.nightModePlusBtn.setOnClickListener {
+            nightModeState = onNightModeAdjust?.invoke(1) ?: nightModeState
+            refreshFilterStates()
+        }
+        binding.audioNormMinusBtn.setOnClickListener {
+            audioNormState = onAudioNormAdjust?.invoke(-1) ?: audioNormState
+            refreshFilterStates()
+        }
+        binding.audioNormPlusBtn.setOnClickListener {
+            audioNormState = onAudioNormAdjust?.invoke(1) ?: audioNormState
+            refreshFilterStates()
+        }
+        binding.downmixMinusBtn.setOnClickListener {
+            downmixState = onDownmixAdjust?.invoke(-1) ?: downmixState
+            refreshFilterStates()
+        }
+        binding.downmixPlusBtn.setOnClickListener {
+            downmixState = onDownmixAdjust?.invoke(1) ?: downmixState
+            refreshFilterStates()
+        }
+        binding.centerBoostMinusBtn.setOnClickListener {
+            centerBoostState = onCenterBoostAdjust?.invoke(-1) ?: centerBoostState
+            refreshFilterStates()
+        }
+        binding.centerBoostPlusBtn.setOnClickListener {
+            centerBoostState = onCenterBoostAdjust?.invoke(1) ?: centerBoostState
+            refreshFilterStates()
         }
     }
 
@@ -246,10 +266,10 @@ internal class MediaPickerDialog {
             binding.subStyleRow.setOnClickListener { onSubStyleClick?.invoke() }
             binding.subPresetValue.text = options.initialSubPresetName
             binding.subPresetMinusBtn.setOnClickListener {
-                onSubPresetAdjust?.invoke(-1)?.let(::syncSubPresetState)
+                onSubPresetAdjust?.invoke(-1)?.let(binding::syncSubPresetState)
             }
             binding.subPresetPlusBtn.setOnClickListener {
-                onSubPresetAdjust?.invoke(1)?.let(::syncSubPresetState)
+                onSubPresetAdjust?.invoke(1)?.let(binding::syncSubPresetState)
             }
             syncSubFilterChecks()
 
@@ -297,11 +317,6 @@ internal class MediaPickerDialog {
         }
     }
 
-    private fun syncSubPresetState(state: SubPresetState) {
-        binding.subPresetValue.text = state.presetName
-        binding.subStyleValue.text = state.subStyleStateText
-    }
-
     private fun refreshFilterStates() {
         onFilterStatesRefresh?.invoke()?.let { states ->
             voiceBoostState = states.voiceBoost
@@ -309,6 +324,7 @@ internal class MediaPickerDialog {
             nightModeState = states.nightMode
             audioNormState = states.audioNorm
             downmixState = states.downmix
+            centerBoostState = states.centerBoost
         }
         syncFilterChecks()
     }
@@ -319,6 +335,7 @@ internal class MediaPickerDialog {
         syncValueRow(binding.nightModeRow, binding.nightModeValue, nightModeState)
         syncValueRow(binding.audioNormRow, binding.audioNormValue, audioNormState)
         syncValueRow(binding.downmixRow, binding.downmixValue, downmixState)
+        syncValueRow(binding.centerBoostRow, binding.centerBoostValue, centerBoostState)
         syncAdjustButton(binding.voiceBoostMinusBtn, voiceBoostState.canDecrease)
         syncAdjustButton(binding.voiceBoostPlusBtn, voiceBoostState.canIncrease)
         syncAdjustButton(binding.volumeBoostMinusBtn, volumeBoostState.canDecrease)
@@ -329,6 +346,8 @@ internal class MediaPickerDialog {
         syncAdjustButton(binding.audioNormPlusBtn, audioNormState.canIncrease)
         syncAdjustButton(binding.downmixMinusBtn, downmixState.canDecrease)
         syncAdjustButton(binding.downmixPlusBtn, downmixState.canIncrease)
+        syncAdjustButton(binding.centerBoostMinusBtn, centerBoostState.canDecrease)
+        syncAdjustButton(binding.centerBoostPlusBtn, centerBoostState.canIncrease)
         binding.persistFiltersCheck.visibility = if (persistFiltersEnabled) View.VISIBLE else View.INVISIBLE
     }
 
@@ -363,10 +382,6 @@ internal class MediaPickerDialog {
         binding.persistSubFiltersCheck.visibility = if (persistSubFiltersEnabled) View.VISIBLE else View.INVISIBLE
     }
 
-    private fun clickItem(position: Int) {
-        onItemClick?.invoke(position)
-    }
-
     /** Swap in a new row list and rebuild the RecyclerView. Used when the
      *  caller state changes while the dialog is open (e.g. swapping the
      *  primary / secondary subtitle pair). */
@@ -386,7 +401,7 @@ internal class MediaPickerDialog {
                 view.setOnClickListener {
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION)
-                        parent.clickItem(position)
+                        parent.onItemClick?.invoke(position)
                 }
             }
             fun bind(item: Item) {
@@ -442,6 +457,7 @@ private fun DialogMediaPickerBinding.configurePanelVisibility(options: MediaPick
     nightModeRow.isVisible = options.showFilters
     audioNormRow.isVisible = options.showFilters
     downmixRow.isVisible = options.showFilters
+    centerBoostRow.isVisible = options.showFilters
     subStyleRow.isVisible = options.showSubFilters
     subPresetRow.isVisible = options.showSubFilters && options.showSubPresetCycler
     subScaleRow.isVisible = options.showSubFilters
@@ -459,6 +475,11 @@ private fun DialogMediaPickerBinding.configureDelay(
         delayValue.text = options.delayText ?: "0.00 s"
         delayRow.setOnClickListener { onDelayClick?.invoke() }
     }
+}
+
+private fun DialogMediaPickerBinding.syncSubPresetState(state: MediaPickerDialog.SubPresetState) {
+    subPresetValue.text = state.presetName
+    subStyleValue.text = state.subStyleStateText
 }
 
 private fun DialogMediaPickerBinding.configureResponsiveSizing(

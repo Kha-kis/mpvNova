@@ -117,7 +117,7 @@ private fun MPVActivity.showResumeToastIfNeeded() {
 }
 
 private fun MPVActivity.anyAudioFilterOn(): Boolean =
-    isVoiceBoostOn() || isVolumeBoostOn() || isNightModeOn() || isAudioNormOn()
+    isVoiceBoostOn() || isVolumeBoostOn() || isNightModeOn() || isAudioNormOn() || isCenterBoostOn()
 
 private fun MPVActivity.refreshAudioFiltersAfterFileLoad() {
     if (persistAudioFilters) {
@@ -128,6 +128,7 @@ private fun MPVActivity.refreshAudioFiltersAfterFileLoad() {
         volumeBoostDb = 0
         nightModeLevel = 0
         audioNormLevel = 0
+        centerBoostLevel = 0
         rebuildAudioFilters()
         eventUiHandler.post { refreshAllFilterTints() }
     }

@@ -75,45 +75,12 @@ internal fun MPVActivity.pickAudio() {
         audioPickerDialog = it
     }
     lateinit var dialog: AlertDialog
-    impl.onItemClick = { idx ->
-        val trackId = tracks[idx].mpvId
-        player.aid = trackId
-        saveUserTrackPick("audio", trackId)
-        dialog.dismiss()
-        trackSwitchNotification { TrackData(trackId, "audio") }
-    }
-    impl.onVoiceBoostAdjust = { delta -> adjustVoiceBoost(delta) }
-    impl.onVolumeBoostAdjust = { delta -> adjustVolumeBoost(delta) }
-    impl.onNightModeAdjust = { delta -> adjustNightMode(delta) }
-    impl.onAudioNormAdjust = { delta -> adjustAudioNorm(delta) }
-    impl.onDownmixAdjust = { delta -> adjustDownmix(delta) }
-    impl.onFilterStatesRefresh = { currentFilterStates() }
-    impl.onPersistClick    = {
-        persistAudioFilters = !persistAudioFilters
-        writeSettings()
-        showToast(
-            getString(R.string.pref_persist_filters_title),
-            getString(if (persistAudioFilters) R.string.status_on else R.string.status_off)
-        )
-    }
+    configureAudioPickerCallbacks(impl, tracks) { dialog.dismiss() }
 
     @Suppress("DEPRECATION")
     dialog = with(AlertDialog.Builder(this)) {
         val inflater = LayoutInflater.from(context)
-        setView(impl.buildView(
-            inflater,
-            MediaPickerDialog.Options(
-                title = getString(R.string.dialog_title_audio),
-                items = items,
-                showFilters = true,
-                initialVoiceBoostState = currentVoiceBoostState(),
-                initialVolumeBoostState = currentVolumeBoostState(),
-                initialNightModeState = currentNightModeState(),
-                initialAudioNormState = currentAudioNormState(),
-                initialDownmixState = currentDownmixState(),
-                persistFiltersOn = persistAudioFilters,
-            )
-        ))
+        setView(impl.buildView(inflater, audioPickerOptions(items)))
         setOnDismissListener { restore(); reopenDrawerIfPending() }
         create()
     }

@@ -58,29 +58,30 @@ internal fun MPVActivity.writeSettings() {
     with (prefs.edit()) {
         putBoolean("use_time_remaining", useTimeRemaining)
         putBoolean("persist_audio_filters", persistAudioFilters)
-        putBoolean("voice_boost_on", if (persistAudioFilters) isVoiceBoostOn() else false)
-        putInt("voice_boost_level", if (persistAudioFilters) voiceBoostLevel else 0)
-        putInt("volume_boost_db", if (persistAudioFilters) volumeBoostDb else 0)
-        putBoolean("night_mode_on", if (persistAudioFilters) isNightModeOn() else false)
-        putInt("night_mode_level", if (persistAudioFilters) nightModeLevel else 0)
-        putBoolean("audio_norm_on", if (persistAudioFilters) isAudioNormOn() else false)
-        putInt("audio_norm_level", if (persistAudioFilters) audioNormLevel else 0)
-        putBoolean("downmix_on", if (persistAudioFilters) isDownmixOn() else false)
-        putInt("downmix_level", if (persistAudioFilters) downmixLevel else 0)
+        putBoolean("voice_boost_on", persistedAudioFilterEnabled(isVoiceBoostOn()))
+        putInt("voice_boost_level", persistedAudioFilterLevel(voiceBoostLevel))
+        putInt("volume_boost_db", persistedAudioFilterLevel(volumeBoostDb))
+        putBoolean("night_mode_on", persistedAudioFilterEnabled(isNightModeOn()))
+        putInt("night_mode_level", persistedAudioFilterLevel(nightModeLevel))
+        putBoolean("audio_norm_on", persistedAudioFilterEnabled(isAudioNormOn()))
+        putInt("audio_norm_level", persistedAudioFilterLevel(audioNormLevel))
+        putBoolean("downmix_on", persistedAudioFilterEnabled(isDownmixOn()))
+        putInt("downmix_level", persistedAudioFilterLevel(downmixLevel))
+        putBoolean("center_boost_on", persistedAudioFilterEnabled(isCenterBoostOn()))
+        putInt("center_boost_level", persistedAudioFilterLevel(centerBoostLevel))
 
         putBoolean("persist_sub_filters", persistSubFilters)
-        putInt("sub_scale_level", if (persistSubFilters) subScaleLevel else DEFAULT_SUB_SCALE_INDEX)
+        putInt("sub_scale_level", persistedSubFilterLevel(subScaleLevel, DEFAULT_SUB_SCALE_INDEX))
         putInt(
             "sub_pos_pct",
-            if (persistSubFilters) subPosSteps[subPosLevel] else DEFAULT_SUB_POSITION_PERCENT
+            persistedSubPositionLevel(subPosSteps[subPosLevel], DEFAULT_SUB_POSITION_PERCENT)
         )
         putInt(
             "secondary_sub_pos_pct",
-            if (persistSubFilters) {
-                secondaryPosSteps[secondaryPosLevel]
-            } else {
+            persistedSubPositionLevel(
+                secondaryPosSteps[secondaryPosLevel],
                 DEFAULT_SECONDARY_SUB_POSITION_PERCENT
-            }
+            )
         )
         apply()
     }
@@ -93,6 +94,7 @@ internal fun MPVActivity.clampAudioFilterState() {
     if (nightModeLevel > 0 && audioNormLevel > 0)
         audioNormLevel = 0
     downmixLevel = downmixLevel.coerceIn(0, downmixPresetLabelIds.lastIndex)
+    centerBoostLevel = centerBoostLevel.coerceIn(0, centerBoostMixLevels.lastIndex)
     val volumeIndex = volumeBoostStepsDb.indexOf(volumeBoostDb)
     volumeBoostDb = if (volumeIndex >= 0) {
         volumeBoostDb

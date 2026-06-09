@@ -62,12 +62,23 @@ internal fun MPVActivity.readAudioFilterSettings(prefs: SharedPreferences) {
     persistAudioFilters = prefs.getBoolean("persist_audio_filters", false)
     voiceBoostLevel = persistedAudioLevel(prefs, "voice_boost_level", "voice_boost_on")
     volumeBoostDb = if (persistAudioFilters) prefs.getInt("volume_boost_db", 0) else 0
-    nightModeLevel = persistedAudioLevel(prefs, "night_mode_level", "night_mode_on")
+    nightModeLevel = persistedAudioLevel(
+        prefs,
+        levelKey = "night_mode_level",
+        legacyToggleKey = "night_mode_on",
+        legacyEnabledLevel = NIGHT_MODE_DRC_LEVEL
+    )
     audioNormLevel = persistedAudioLevel(prefs, "audio_norm_level", "audio_norm_on")
     downmixLevel = persistedAudioLevel(
         prefs,
         levelKey = "downmix_level",
         legacyToggleKey = "downmix_on",
+        legacyEnabledLevel = 1
+    )
+    centerBoostLevel = persistedAudioLevel(
+        prefs,
+        levelKey = "center_boost_level",
+        legacyToggleKey = "center_boost_on",
         legacyEnabledLevel = 1
     )
 }

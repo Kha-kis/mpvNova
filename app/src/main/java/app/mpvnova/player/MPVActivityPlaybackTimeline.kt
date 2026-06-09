@@ -22,12 +22,12 @@ internal fun MPVActivity.millisFromSeekbarProgress(progress: Int): Long {
     return progress.toLong() * MILLIS_PER_SECOND_LONG / SEEK_BAR_PRECISION
 }
 
-internal fun MPVActivity.seekPlaybackFromDpad(deltaMs: Long) {
+internal fun MPVActivity.seekPlaybackFromDpad(deltaMs: Long, baseOnVisibleSeekbar: Boolean = false) {
     val durationMs = psc.duration.coerceAtLeast(0L)
     if (durationMs <= 0L)
         return
     val isNewDpadSeek = pendingDpadSeekPreviewMs == null
-    val displayedPositionMs = if (binding.playbackSeekbar.max > 0) {
+    val displayedPositionMs = if (baseOnVisibleSeekbar && binding.playbackSeekbar.max > 0) {
         millisFromSeekbarProgress(binding.playbackSeekbar.progress)
     } else {
         psc.position

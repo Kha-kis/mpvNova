@@ -40,6 +40,8 @@ internal fun MPVActivity.isVoiceBoostOn() = voiceBoostLevel > 0
 
 internal fun MPVActivity.isVolumeBoostOn() = volumeBoostDb > 0
 
-internal fun MPVActivity.isNightModeOn() = nightModeLevel > 0
+internal fun MPVActivity.isNightModeOn() = nightModeLevel > NIGHT_MODE_OFF_LEVEL
 
 internal fun MPVActivity.isAudioNormOn() = audioNormLevel > 0
+
+internal fun MPVActivity.isCenterBoostOn() = centerBoostLevel > 0

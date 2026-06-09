@@ -1,51 +1,7 @@
 package app.mpvnova.player
 
-import android.util.Log
 import java.util.Locale
 import kotlin.math.roundToInt
-
-internal fun MPVActivity.buildDrcAresampleFilter(): String {
-    // Ghidra shows the native player building this exact stage shape:
-    //   aresample=<out_rate>:in_chlayout=<in>:out_chlayout=<out>:out_sample_fmt=<fmt>
-    // and only then appending :center_mix_level=3.0 when center boost is enabled.
-    val outRate = mpvGetPropertyInt("audio-out-params/samplerate")
-        ?.takeIf { it > 0 }
-        ?: mpvGetPropertyInt("audio-params/samplerate")
-            ?.takeIf { it > 0 }
-        ?: DEFAULT_AUDIO_SAMPLE_RATE
-    val sourceChannels = currentAudioChannelCount()
-    val controlledDownmixActive = isDownmixOn() && sourceChannels >= MIN_SURROUND_CHANNELS
-    val inputLayout = if (controlledDownmixActive) {
-        "stereo"
-    } else {
-        mpvGetPropertyString("audio-params/channels")
-            ?.takeIf { it.isNotBlank() }
-    }
-    val outputLayout = when {
-        controlledDownmixActive -> "stereo"
-        else -> mpvGetPropertyString("audio-out-params/channels")
-            ?.takeIf { it.isNotBlank() }
-            ?: inputLayout
-            ?: "stereo"
-    }
-    val outputFormat = mapMpvAudioFormatToFfmpeg(
-        mpvGetPropertyString("audio-out-params/format")
-            ?: mpvGetPropertyString("audio-params/format")
-    ) ?: "flt"
-
-    val options = mutableListOf("$outRate")
-    inputLayout?.let { options += "in_chlayout=$it" }
-    options += "out_chlayout=$outputLayout"
-    options += "out_sample_fmt=$outputFormat"
-    Log.i(
-        MPV_ACTIVITY_TAG,
-        if (controlledDownmixActive)
-            "DRC using controlled Channel Downmix output: ${sourceChannels}ch -> stereo"
-        else
-            "DRC active without forced center downmix: ${sourceChannels}ch source"
-    )
-    return "aresample=${options.joinToString(":")}"
-}
 
 internal fun MPVActivity.drcVolumeMultiplier(): String {
     // The native player stores integer gain percentages and its transcoder converts
@@ -98,6 +54,25 @@ internal fun MPVActivity.buildDrcAudioStageFilter(): String {
     stageFilters += drcFilterBody.trimEnd(',')
     stageFilters += buildDrcAresampleFilter()
     return "$drcAudioStageFilterLabel:lavfi=[${stageFilters.joinToString(",")}]"
+}
+
+internal fun MPVActivity.buildDrcPlusAudioStageFilter(): String {
+    val stageFilters = mutableListOf<String>()
+    if (isVolumeBoostOn())
+        stageFilters += "volume=${drcVolumeMultiplier()}"
+    stageFilters += buildDrcAresampleFilter()
+    if (!currentAudioCodecName().isEac3CodecName())
+        stageFilters += drcPlusCompressorFilterBody
+    stageFilters += drcPlusLimiterFilterBody
+    stageFilters += "aformat=sample_fmts=${currentAudioFilterOutputSampleFormat()}"
+    return "$drcAudioStageFilterLabel:lavfi=[${stageFilters.joinToString(",")}]"
+}
+
+internal fun MPVActivity.buildNightModeAudioStageFilter(): String {
+    return when (nightModeLevel) {
+        NIGHT_MODE_DRC_PLUS_LEVEL -> buildDrcPlusAudioStageFilter()
+        else -> buildDrcAudioStageFilter()
+    }
 }
 
 internal fun MPVActivity.getVoiceBoostLabel(): String = getString(voiceBoostPresetLabelIds[voiceBoostLevel])

@@ -116,7 +116,7 @@ internal const val SUB_DELAY_MIN_SEC = -600.0
 internal const val SUB_DELAY_MAX_SEC = 600.0
 internal const val ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION = 0.42f
 internal const val ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP = 520f
-// Player settings drawer (right-edge VIMU-style panel). Wider than other
+// Player settings drawer (right-edge panel). Wider than other
 // in-player dialogs since it has two columns (content + tabs).
 internal const val DRAWER_WIDTH_FRACTION = 0.52f
 internal const val DRAWER_MAX_WIDTH_DP = 800f

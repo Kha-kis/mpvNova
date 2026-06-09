@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.mpvnova.player.databinding.DialogPlayerDrawerBinding
 
 /**
- * Player settings drawer: right-edge VIMU-style panel. Tabs swap the
+ * Player settings drawer: right-edge panel. Tabs swap the
  * RecyclerView rows in place so focus stays inside one dialog.
  */
 

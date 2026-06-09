@@ -13,12 +13,24 @@ internal val volumeBoostFilterLabel = "@volumeboost"
 internal val nightModeFilterLabel = "@nightmode"
 internal val audioNormFilterLabel = "@dynaudnorm"
 internal val downmixFilterLabel = "@dialoguedownmix"
+internal val centerBoostFilterLabel = "@centerboost"
 internal val drcAudioStageFilterLabel = "@drcaudio"
 
 /** DRC body shared between night-mode and the standalone DRC stage. */
 internal val drcFilterBody = "dynaudnorm=f=100:p=1/sqrt(2):m=100:s=12:g=11"
+internal val drcPlusCompressorFilterBody =
+    "acompressor=threshold=0.025:ratio=10:attack=3:release=130:makeup=2.3:knee=2:" +
+        "detection=peak:link=maximum"
+internal val drcPlusLimiterFilterBody = "alimiter=limit=0.95:attack=5:release=50:level=false"
+internal val drcDecoderScaleOff = "0"
+internal val drcPlusEac3DecoderScale = "0.8"
+
+internal const val NIGHT_MODE_OFF_LEVEL = 0
+internal const val NIGHT_MODE_DRC_LEVEL = 1
+internal const val NIGHT_MODE_DRC_PLUS_LEVEL = 2
 
 internal val volumeBoostStepsDb = VOLUME_BOOST_STEPS_DB
+internal val centerBoostMixLevels = doubleArrayOf(0.0, 3.0, 3.5, 4.0, 4.5, 5.0)
 
 // Preset label string resource IDs — indexed by preset level (0 = off),
 // length matches the matching preset chain array.
@@ -43,6 +55,7 @@ internal val downmixPresetLabelIds = intArrayOf(
 internal val nightModePresetLabelIds = intArrayOf(
     R.string.filter_value_off,
     R.string.night_mode_preset_drc,
+    R.string.night_mode_preset_drc_plus,
 )
 
 internal val audioNormPresetLabelIds = intArrayOf(
@@ -60,6 +73,7 @@ internal val audioNormPresetLabelIds = intArrayOf(
 internal val nightModePresets: List<String> = listOf(
     "",
     "$nightModeFilterLabel:lavfi=[$drcFilterBody]",
+    "$nightModeFilterLabel:lavfi=[$drcPlusCompressorFilterBody,$drcPlusLimiterFilterBody]",
 )
 
 internal val audioNormPresets: List<String> = listOf(

@@ -115,7 +115,10 @@ internal fun MPVActivity.handleHorizontalDpad(
     when (ev.action) {
         KeyEvent.ACTION_DOWN -> {
             if (seekbarSelected) {
-                seekPlaybackFromDpad(seekDeltaFromDpadEvent(ev))
+                seekPlaybackFromDpad(
+                    seekDeltaFromDpadEvent(ev),
+                    baseOnVisibleSeekbar = true
+                )
                 keepVisibleControlsFresh()
             } else {
                 val direction = if (ev.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1

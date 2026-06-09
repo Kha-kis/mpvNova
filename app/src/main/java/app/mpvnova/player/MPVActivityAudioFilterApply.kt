@@ -13,12 +13,14 @@ internal fun MPVActivity.buildAudioFilterChain(): String {
     if (isNightModeOn()) {
         if (isDownmixOn())
             surroundDialogueDownmixFilter()?.let { filters += it }
-        filters += buildDrcAudioStageFilter()
+        filters += buildNightModeAudioStageFilter()
         if (isVoiceBoostOn())
             filters += drcVoiceBoostPresets[voiceBoostLevel]
     } else {
         if (isDownmixOn())
             surroundDialogueDownmixFilter()?.let { filters += it }
+        if (isCenterBoostOn())
+            filters += buildCenterBoostAudioStageFilter()
         if (isAudioNormOn())
             filters += audioNormPresets[audioNormLevel]
         if (isVoiceBoostOn())
@@ -30,11 +32,13 @@ internal fun MPVActivity.buildAudioFilterChain(): String {
 }
 
 internal fun MPVActivity.applySavedAudioFilterDefaults() {
+    applyNightModeDecoderDrcScale()
     val filterChain = if (persistAudioFilters) buildAudioFilterChain() else ""
     mpvSetOptionString("af", filterChain)
 }
 
 internal fun MPVActivity.applyAudioFilterState() {
+    applyNightModeDecoderDrcScale()
     mpvSetPropertyString("af", buildAudioFilterChain())
 }
 
@@ -109,4 +113,26 @@ internal fun MPVActivity.adjustDownmix(delta: Int, wrap: Boolean = false): Media
         getDownmixLabel()
     )
     return currentDownmixState()
+}
+
+internal fun MPVActivity.adjustCenterBoost(delta: Int, wrap: Boolean = false): MediaPickerDialog.ValueState {
+    val maxLevel = centerBoostMixLevels.lastIndex
+    val nextLevel = when {
+        wrap -> {
+            when {
+                centerBoostLevel + delta > maxLevel -> 0
+                centerBoostLevel + delta < 0 -> maxLevel
+                else -> centerBoostLevel + delta
+            }
+        }
+        else -> (centerBoostLevel + delta).coerceIn(0, maxLevel)
+    }
+    centerBoostLevel = nextLevel
+    rebuildAudioFilters()
+    writeSettings()
+    showToast(
+        getString(R.string.btn_center_boost),
+        if (isCenterBoostOn()) getCenterBoostLabel() else getString(R.string.status_off)
+    )
+    return currentCenterBoostState()
 }

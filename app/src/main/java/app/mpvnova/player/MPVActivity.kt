@@ -591,6 +591,7 @@ class MPVActivity : AppCompatActivity() {
     internal var nightModeLevel = 0
     internal var audioNormLevel = 0
     internal var downmixLevel = 0
+    internal var centerBoostLevel = 0
 
     // Subtitle filter state. subPosSteps spans -25..125% in 5% steps so the
     // user can click past edges without focus bouncing (mpv soft-clamps).

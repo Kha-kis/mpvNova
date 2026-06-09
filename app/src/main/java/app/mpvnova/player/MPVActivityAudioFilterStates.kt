@@ -5,6 +5,10 @@ internal fun MPVActivity.getNightModeLabel(): String = getString(nightModePreset
 
 internal fun MPVActivity.getAudioNormLabel(): String = getString(audioNormPresetLabelIds[audioNormLevel])
 
+internal fun MPVActivity.getCenterBoostLabel(): String {
+    return if (isCenterBoostOn()) centerBoostMixLevelLabel() else getString(R.string.filter_value_off)
+}
+
 internal fun MPVActivity.currentVoiceBoostState(): MediaPickerDialog.ValueState {
     val maxLevel = voiceBoostPresets.lastIndex
     return MediaPickerDialog.ValueState(
@@ -34,6 +38,16 @@ internal fun MPVActivity.currentDownmixState(): MediaPickerDialog.ValueState {
         active = active,
         canDecrease = downmixLevel > 0,
         canIncrease = downmixLevel < maxLevel
+    )
+}
+
+internal fun MPVActivity.currentCenterBoostState(): MediaPickerDialog.ValueState {
+    val maxLevel = centerBoostMixLevels.lastIndex
+    return MediaPickerDialog.ValueState(
+        label = getCenterBoostLabel(),
+        active = isCenterBoostOn(),
+        canDecrease = centerBoostLevel > 0,
+        canIncrease = centerBoostLevel < maxLevel
     )
 }
 
@@ -83,6 +97,7 @@ internal fun MPVActivity.currentFilterStates(): MediaPickerDialog.FilterStates {
         volumeBoost = currentVolumeBoostState(),
         nightMode = currentNightModeState(),
         audioNorm = currentAudioNormState(),
-        downmix = currentDownmixState()
+        downmix = currentDownmixState(),
+        centerBoost = currentCenterBoostState()
     )
 }
