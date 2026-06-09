@@ -30,6 +30,10 @@ typealias ActivityResultCallback = (Int, Intent?) -> Unit
 typealias StateRestoreCallback = () -> Unit
 
 class MPVActivity : AppCompatActivity() {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(UiScale.wrap(newBase))
+    }
+
     internal val eventUiHandler = Handler(Looper.getMainLooper())
     internal val fadeHandler = Handler(Looper.getMainLooper())
     internal val stopServiceHandler = Handler(Looper.getMainLooper())
@@ -249,6 +253,7 @@ class MPVActivity : AppCompatActivity() {
     internal var exitWithDoubleBack = false
     internal var lastBackPressMs = 0L
     internal var autoRefreshRateSwitch = false
+    internal var autoResolutionSwitch = false
     internal var dpadUpJumpsToTopControls = false
     internal var hideControlsWhileSeeking = false
     internal var minimalSeekbarWhileSeeking = false
@@ -324,6 +329,9 @@ class MPVActivity : AppCompatActivity() {
     internal var subStyleItalic = false
     // Forces our style onto ASS subs too; off so their signs and typesetting survive.
     internal var subStyleOverrideAss = false
+    // Strip: removes the script's own styling so our style hits every line, even
+    // releases that use named styles instead of "Default" (loses signs/typesetting).
+    internal var subStyleForceAllAss = false
     // Quick-cycle index into the saved presets, and the preset currently being edited.
     internal var subStylePresetIndex = 0
     internal var editingSubtitleStylePreset: SubtitleStylePreset? = null

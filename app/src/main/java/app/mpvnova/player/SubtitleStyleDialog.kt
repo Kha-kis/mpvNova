@@ -26,6 +26,7 @@ internal class SubtitleStyleDialog {
         BOLD,
         ITALIC,
         OVERRIDE_ASS,
+        FORCE_ALL_ASS,
     }
 
     data class Row(val value: String, val enabled: Boolean = true, val chipRgb: Int? = null)
@@ -50,6 +51,7 @@ internal class SubtitleStyleDialog {
         val italicOn: Boolean,
         val overrideOn: Boolean,
         val overrideEnabled: Boolean,
+        val forceAllOn: Boolean,
         val preview: SubtitleStylePreviewView.Spec,
     )
 
@@ -116,6 +118,7 @@ internal class SubtitleStyleDialog {
         b.editPresetRow.setOnClickListener { onEditPreset?.invoke() }
         b.deletePresetRow.setOnClickListener { onDeletePreset?.invoke() }
         b.overrideAssRow.setOnClickListener { adjust(Control.OVERRIDE_ASS, 1) }
+        b.forceAllAssRow.setOnClickListener { adjust(Control.FORCE_ALL_ASS, 1) }
     }
 
     private fun adjust(control: Control, delta: Int) {
@@ -175,6 +178,7 @@ internal class SubtitleStyleDialog {
         renderToggle(b.boldRow, b.boldCheck, state.boldOn, state.masterOn)
         renderToggle(b.italicRow, b.italicCheck, state.italicOn, state.masterOn)
         renderToggle(b.overrideAssRow, b.overrideAssCheck, state.overrideOn, state.overrideEnabled)
+        renderToggle(b.forceAllAssRow, b.forceAllAssCheck, state.forceAllOn, state.masterOn)
     }
 
     private fun renderToggle(row: View, check: View, on: Boolean, enabled: Boolean) {

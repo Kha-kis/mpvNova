@@ -84,7 +84,14 @@ private fun MPVActivity.writeCustomSubtitleStyle() {
     applySubFont()
     mpvSetPropertyString("sub-bold", if (subStyleBold) "yes" else "no")
     mpvSetPropertyString("sub-italic", if (subStyleItalic) "yes" else "no")
-    mpvSetPropertyString("sub-ass-override", if (subStyleOverrideAss) "force" else "scale")
+    // strip wins: it removes the script's own styling so our style lands on every
+    // line, even releases that use named styles instead of "Default".
+    val assOverride = when {
+        subStyleForceAllAss -> "strip"
+        subStyleOverrideAss -> "force"
+        else -> "scale"
+    }
+    mpvSetPropertyString("sub-ass-override", assOverride)
 }
 
 private fun MPVActivity.applySubEdge() {
@@ -147,6 +154,7 @@ internal fun MPVActivity.readSubtitleStyleSettings(prefs: SharedPreferences) {
     subStyleBold = prefs.getBoolean("sub_style_bold", false)
     subStyleItalic = prefs.getBoolean("sub_style_italic", false)
     subStyleOverrideAss = prefs.getBoolean("sub_style_override_ass", false)
+    subStyleForceAllAss = prefs.getBoolean("sub_style_force_all_ass", false)
 }
 
 internal fun MPVActivity.writeSubtitleStyleSettings() {
@@ -169,6 +177,7 @@ internal fun MPVActivity.writeSubtitleStyleSettings() {
         putBoolean("sub_style_bold", subStyleBold)
         putBoolean("sub_style_italic", subStyleItalic)
         putBoolean("sub_style_override_ass", subStyleOverrideAss)
+        putBoolean("sub_style_force_all_ass", subStyleForceAllAss)
         apply()
     }
 }

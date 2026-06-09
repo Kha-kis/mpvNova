@@ -143,6 +143,7 @@ internal fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
         italicOn = subStyleItalic,
         overrideOn = subStyleOverrideAss,
         overrideEnabled = on,
+        forceAllOn = subStyleForceAllAss,
         preview = subtitleStylePreviewSpec(),
     )
 }

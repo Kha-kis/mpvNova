@@ -54,4 +54,11 @@
         android:summary="@string/pref_auto_refresh_rate_summary"
         android:title="@string/pref_auto_refresh_rate_title" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
+        android:key="auto_resolution_switch"
+        android:summary="@string/pref_resolution_match_summary"
+        android:title="@string/pref_resolution_match_title" />
+
 </PreferenceScreen>

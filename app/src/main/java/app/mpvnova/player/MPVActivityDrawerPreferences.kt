@@ -68,11 +68,11 @@ private fun MPVActivity.handleDrawerVideoPreference(
     when (preference) {
         PlayerDrawerPreference.AUTO_REFRESH_RATE -> {
             autoRefreshRateSwitch = newValue
-            if (newValue) {
-                maybeApplyContentRefreshRate()
-            } else {
-                clearContentRefreshRate()
-            }
+            applyOrClearDisplayMatch()
+        }
+        PlayerDrawerPreference.RESOLUTION_MATCH -> {
+            autoResolutionSwitch = newValue
+            applyOrClearDisplayMatch()
         }
         PlayerDrawerPreference.DECODER_AUTO_FALLBACK -> autoDecoderFallback = newValue
         else -> Unit

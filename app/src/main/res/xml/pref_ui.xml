@@ -17,6 +17,15 @@
 
     <ListPreference
         app:iconSpaceReserved="false"
+        android:defaultValue="100"
+        android:key="ui_scale_percent"
+        android:entries="@array/ui_scale_entries"
+        android:entryValues="@array/ui_scale_values"
+        android:summary="@string/pref_ui_scale_summary"
+        android:title="@string/pref_ui_scale_title" />
+
+    <ListPreference
+        app:iconSpaceReserved="false"
         android:defaultValue="@string/pref_player_controls_timeout_default"
         android:key="player_controls_timeout"
         android:summary="@string/pref_player_controls_timeout_summary"

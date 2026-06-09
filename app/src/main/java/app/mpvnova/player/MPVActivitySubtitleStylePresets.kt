@@ -1,8 +1,8 @@
 package app.mpvnova.player
 
 import android.view.LayoutInflater
-import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import app.mpvnova.player.databinding.DialogSubStyleSavePresetBinding
@@ -32,13 +32,16 @@ internal fun MPVActivity.openSavePresetPrompt() {
     syncNameCount()
     var includeLayout = editing?.includeLayout ?: false
     var overrideAss = editing?.overrideAss ?: subStyleOverrideAss
+    var forceAll = editing?.forceAll ?: subStyleForceAllAss
     fun syncChecks() {
-        view.presetIncludeLayoutCheck.visibility = if (includeLayout) View.VISIBLE else View.INVISIBLE
-        view.presetOverrideAssCheck.visibility = if (overrideAss) View.VISIBLE else View.INVISIBLE
+        view.presetIncludeLayoutCheck.isVisible = includeLayout
+        view.presetOverrideAssCheck.isVisible = overrideAss
+        view.presetForceAllCheck.isVisible = forceAll
     }
     syncChecks()
     view.presetIncludeLayoutRow.setOnClickListener { includeLayout = !includeLayout; syncChecks() }
     view.presetOverrideAssRow.setOnClickListener { overrideAss = !overrideAss; syncChecks() }
+    view.presetForceAllRow.setOnClickListener { forceAll = !forceAll; syncChecks() }
 
     val dialog = with(AlertDialog.Builder(this)) {
         setView(view.root)
@@ -62,6 +65,7 @@ internal fun MPVActivity.openSavePresetPrompt() {
                 originalName = editing?.name,
                 includeLayout = includeLayout,
                 overrideAss = overrideAss,
+                forceAll = forceAll,
             )
             editingSubtitleStylePreset = null
             showToast(toastTitle, name)
@@ -82,9 +86,10 @@ private fun MPVActivity.saveSubtitleStylePreset(
     originalName: String?,
     includeLayout: Boolean,
     overrideAss: Boolean,
+    forceAll: Boolean,
 ) {
     val prefs = getDefaultSharedPreferences(applicationContext)
-    val preset = captureSubtitleStylePreset(name, includeLayout, overrideAss)
+    val preset = captureSubtitleStylePreset(name, includeLayout, overrideAss, forceAll)
     val updated = loadSubtitleStylePresets(prefs).filterNot {
         it.name.equals(name, ignoreCase = true) ||
             originalName?.let { oldName -> it.name.equals(oldName, ignoreCase = true) } == true
@@ -220,6 +225,7 @@ private fun MPVActivity.captureSubtitleStylePreset(
     name: String,
     includeLayout: Boolean,
     overrideAss: Boolean,
+    forceAll: Boolean,
 ) = SubtitleStylePreset(
     name = name,
     textColorId = SUBTITLE_COLOR_OPTIONS[subStyleTextColorIndex].id,
@@ -238,6 +244,7 @@ private fun MPVActivity.captureSubtitleStylePreset(
     spacingIndex = subStyleSpacingIndex,
     justify = subStyleJustify.name,
     overrideAss = overrideAss,
+    forceAll = forceAll,
     includeLayout = includeLayout,
     scaleLevel = subScaleLevel,
     posPct = subPosSteps[subPosLevel],
@@ -260,6 +267,7 @@ private fun MPVActivity.applySubtitleStylePreset(p: SubtitleStylePreset) {
     subStyleSpacingIndex = p.spacingIndex.coerceIn(0, SUBTITLE_SPACING_STEPS.lastIndex)
     subStyleJustify = runCatching { SubtitleJustify.valueOf(p.justify) }.getOrDefault(DEFAULT_SUBTITLE_JUSTIFY)
     subStyleOverrideAss = p.overrideAss
+    subStyleForceAllAss = p.forceAll
     customSubStyleEnabled = true
     if (p.includeLayout) {
         subScaleLevel = p.scaleLevel.coerceIn(0, subScaleSteps.lastIndex)

@@ -60,6 +60,7 @@ private fun MPVActivity.adjustSubtitleValueControl(
         SubtitleStyleDialog.Control.BOLD -> subStyleBold = !subStyleBold
         SubtitleStyleDialog.Control.ITALIC -> subStyleItalic = !subStyleItalic
         SubtitleStyleDialog.Control.OVERRIDE_ASS -> subStyleOverrideAss = !subStyleOverrideAss
+        SubtitleStyleDialog.Control.FORCE_ALL_ASS -> subStyleForceAllAss = !subStyleForceAllAss
         else -> Unit
     }
 }

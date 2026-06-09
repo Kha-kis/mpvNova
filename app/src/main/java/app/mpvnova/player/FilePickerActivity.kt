@@ -42,6 +42,10 @@ import java.io.FileFilter
 
 @Suppress("TooManyFunctions")
 class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFilePickedListener {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(UiScale.wrap(newBase))
+    }
+
     internal lateinit var binding: ActivityFilepickerBinding
     internal var fragment: MPVFilePickerFragment? = null
     internal var fragment2: MPVDocumentPickerFragment? = null

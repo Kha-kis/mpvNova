@@ -6,12 +6,18 @@ import androidx.core.view.WindowCompat
 import app.mpvnova.player.preferences.AppUpdateManager
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(UiScale.wrap(newBase))
+    }
+
     private val updateManager by lazy { AppUpdateManager(this) }
     private var checkedForUpdatesThisSession = false
     private var appliedThemeValue = AppearanceTheme.DEFAULT_VALUE
+    private var appliedUiScale = UiScale.DEFAULT_SCALE_PERCENT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         appliedThemeValue = AppearanceTheme.currentValue(this)
+        appliedUiScale = UiScale.currentScalePercent(this)
         AppearanceTheme.applyFilePicker(this)
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -29,7 +35,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onResume() {
         super.onResume()
-        if (AppearanceTheme.currentValue(this) != appliedThemeValue) {
+        if (AppearanceTheme.currentValue(this) != appliedThemeValue ||
+            UiScale.currentScalePercent(this) != appliedUiScale) {
             recreate()
             return
         }

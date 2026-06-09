@@ -124,6 +124,13 @@ internal enum class PlayerDrawerPreference(
         "auto_refresh_rate_switch",
         false,
     ),
+    RESOLUTION_MATCH(
+        PlayerDrawerPreferenceGroup.VIDEO,
+        R.string.pref_resolution_match_title,
+        R.string.pref_resolution_match_summary,
+        "auto_resolution_switch",
+        false,
+    ),
     DECODER_AUTO_FALLBACK(
         PlayerDrawerPreferenceGroup.VIDEO,
         R.string.pref_decoder_auto_fallback_title,
@@ -191,6 +198,7 @@ private fun MPVActivity.addVideoRows(rows: MutableList<PlayerDrawerRow>) {
     rows.addButton(PlayerDrawerAction.SCREENSHOT, R.string.btn_screenshot)
     rows.add(PlayerDrawerRow.Spacer(DRAWER_SECTION_SPACER_DP))
     rows.addPref(PlayerDrawerPreference.AUTO_REFRESH_RATE)
+    rows.addPref(PlayerDrawerPreference.RESOLUTION_MATCH)
     rows.addPref(PlayerDrawerPreference.DECODER_AUTO_FALLBACK)
 }
 

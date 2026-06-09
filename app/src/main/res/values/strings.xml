@@ -254,6 +254,8 @@
     <string name="sub_style_preset_name_required">Enter a name for the preset.</string>
     <string name="sub_style_override_ass">Apply to advanced (ASS) subtitles</string>
     <string name="sub_style_override_ass_summary">Force this style onto ASS/SSA subtitles. May change signs and typesetting.</string>
+    <string name="sub_style_force_all_ass">Force on all subtitles</string>
+    <string name="sub_style_force_all_ass_summary">Strips the subtitle\'s own styling so your style applies everywhere. Use if Apply doesn\'t change them. Removes signs and positioning.</string>
 
     <!-- App chrome -->
     <string name="tv_brand">mpvNova</string>
@@ -395,6 +397,8 @@
 
     <string name="pref_bottom_controls_title">Show controls at bottom of screen</string>
     <string name="pref_bottom_controls_summary">When on, the player controls dock to the bottom of the screen. When off, they float as a centered overlay above the bottom edge.</string>
+    <string name="pref_ui_scale_title">UI scale</string>
+    <string name="pref_ui_scale_summary">Size of the on-screen interface. Lower is smaller, higher is bigger. Applies on every device regardless of its display density.</string>
     <string name="pref_player_controls_timeout_title">Auto-hide player controls</string>
     <string name="pref_player_controls_timeout_summary">Choose how long controls stay visible after player UI activity.</string>
     <string name="pref_player_controls_timeout_default" translatable="false">5000</string>
@@ -524,6 +528,8 @@
 
     <string name="pref_auto_refresh_rate_title">Match display refresh rate</string>
     <string name="pref_auto_refresh_rate_summary">On Android TV, switch the display refresh rate to match the playing video (e.g., 23.976 fps content drives a 23.976 Hz mode). Eliminates 3:2 pulldown judder on 60 Hz panels. Reverts to the system default when playback ends.</string>
+    <string name="pref_resolution_match_title">Match display resolution</string>
+    <string name="pref_resolution_match_summary">On Android TV, switch the display output to the closest resolution for the playing video (e.g., 1080p content on a 4K panel), so the TV handles upscaling. Combine with refresh-rate matching for both. Reverts to the system default when playback ends.</string>
 
     <string name="pref_dpad_up_jumps_top_title">D-pad up jumps to top controls</string>
     <string name="pref_dpad_up_jumps_top_summary">When on, pressing Up from the seekbar jumps to the top-right PiP / Settings icons instead of hiding the overlay. When off (default), pressing Up from the seekbar hides the overlay.</string>

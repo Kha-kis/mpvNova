@@ -48,7 +48,8 @@ private val THEME_RECREATE_KEYS = setOf(
     "material_you_theming",
     AppearanceTheme.PREF_KEY,
     AppearanceTheme.PREF_AMOLED_MODE,
-    AppearanceTheme.PREF_PURE_BLACK_SURFACES
+    AppearanceTheme.PREF_PURE_BLACK_SURFACES,
+    app.mpvnova.player.UiScale.PREF_KEY
 )
 
 // Visual margin inside the listView. The right offset that separates the
@@ -126,6 +127,10 @@ private const val STATE_HERO_SUBTITLE = "hero_subtitle"
 class PreferenceActivity : AppCompatActivity(),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
     SharedPreferences.OnSharedPreferenceChangeListener, FragmentManager.OnBackStackChangedListener {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(app.mpvnova.player.UiScale.wrap(newBase))
+    }
+
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var preferences: SharedPreferences
     private val updateManager by lazy { AppUpdateManager(this) }

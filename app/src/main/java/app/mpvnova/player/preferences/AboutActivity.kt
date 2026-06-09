@@ -19,6 +19,10 @@ import app.mpvnova.player.mpvInit
 import app.mpvnova.player.removeMpvLogObserver
 
 class AboutActivity : AppCompatActivity(), MpvLogObserver {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(app.mpvnova.player.UiScale.wrap(newBase))
+    }
+
     private lateinit var binding: ActivityAboutBinding
     private var logs = ""
     private var mpvDestroyed = true

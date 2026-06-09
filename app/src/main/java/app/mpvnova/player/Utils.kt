@@ -265,8 +265,12 @@ internal object Utils {
         val names = assetManager.list("fonts") ?: return
         for (name in names) {
             val dest = File(fontsDir, name)
-            // Don't clobber on every launch (also leaves user-imported fonts alone).
-            if (!dest.exists())
+            // Copy when missing, or re-copy when the bundled asset changed (size differs)
+            // so a fixed font replaces a stale/broken copy. User-imported fonts are untouched.
+            val assetLen = runCatching {
+                assetManager.open("fonts/$name").use { it.available().toLong() }
+            }.getOrDefault(-1L)
+            if (!dest.exists() || (assetLen > 0L && dest.length() != assetLen))
                 AssetCopier.copyFile(assetManager, "fonts/$name", dest)
         }
     }

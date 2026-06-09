@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- UI scale options (percent of the design scale; 100 = default) -->
+    <string-array name="ui_scale_entries">
+        <item>70%</item>
+        <item>80%</item>
+        <item>90%</item>
+        <item>100% (default)</item>
+        <item>110%</item>
+        <item>125%</item>
+        <item>140%</item>
+        <item>160%</item>
+    </string-array>
+    <string-array name="ui_scale_values" translatable="false">
+        <item>70</item>
+        <item>80</item>
+        <item>90</item>
+        <item>100</item>
+        <item>110</item>
+        <item>125</item>
+        <item>140</item>
+        <item>160</item>
+    </string-array>
+
     <!-- Arrays used by the UI -->
     <string-array name="aspect_ratio_names">
         <item>Original</item>
