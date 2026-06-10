@@ -18,7 +18,11 @@ internal fun MPVActivity.decoderRawItems(currentMode: String): MutableList<Pair<
 }
 
 private fun MPVActivity.decoderItem(mode: String, currentMode: String): Pair<CharSequence, String> {
-    return decoderMenuLabel(mode, mode == currentMode) to mode
+    // Shield Hi10P rides a gpu-next path underneath — keep the G-NEXT row's
+    // active-path word lit while Shield mode is current, without selecting it.
+    val highlightLabel = mode == currentMode ||
+        (mode == MPVView.DECODER_MODE_GNEXT && currentMode == MPVView.DECODER_MODE_SHIELD_H10P)
+    return decoderMenuLabel(mode, highlightLabel) to mode
 }
 
 internal fun List<Pair<CharSequence, String>>.toDecoderPickerItems(
@@ -33,7 +37,7 @@ internal fun currentGpuNextPathLabel(
     activeHwdec: String
 ): String {
     val effectiveHwdec = when {
-        useActivePath && activeHwdec.isNotBlank() && activeHwdec != "no" -> activeHwdec
+        useActivePath && activeHwdec.isNotBlank() -> activeHwdec
         useActivePath && requestedHwdec == "no" -> "no"
         requestedHwdec.isNotBlank() -> requestedHwdec
         else -> activeHwdec

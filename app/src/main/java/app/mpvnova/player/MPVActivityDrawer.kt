@@ -147,6 +147,13 @@ internal fun MPVActivity.selectDrawerTab(
     resetDrawerContentPosition(binding, revealScrollbar)
 }
 
+internal fun MPVActivity.refreshDrawerRowsIfVisible(tab: DrawerTab? = null) {
+    val binding = drawerBinding ?: return
+    if (currentDrawerDialog?.isShowing == true && (tab == null || lastDrawerTab == tab)) {
+        selectDrawerTab(binding, lastDrawerTab, revealScrollbar = false)
+    }
+}
+
 private fun drawerTabButton(binding: DialogPlayerDrawerBinding, tab: DrawerTab): Button = when (tab) {
     DrawerTab.VIDEO -> binding.tabBtnVideo
     DrawerTab.AUDIO -> binding.tabBtnAudio

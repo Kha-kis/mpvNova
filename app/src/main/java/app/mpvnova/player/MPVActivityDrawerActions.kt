@@ -26,6 +26,12 @@ private fun MPVActivity.handleVideoDrawerAction(
         PlayerDrawerAction.DECODER -> {
             dismissDrawerExpectingReopen(dismiss); pickDecoder()
         }
+        PlayerDrawerAction.PREFERRED_DECODER -> {
+            dismissDrawerExpectingReopen(dismiss); pickPreferredDecoderMode()
+        }
+        PlayerDrawerAction.SHIELD_FALLBACK -> {
+            dismissDrawerExpectingReopen(dismiss); pickShieldDecoderFallback()
+        }
         PlayerDrawerAction.ASPECT -> {
             dismissDrawerExpectingReopen(dismiss)
             openAspectMenu { /* aspect dialog owns its restore via pauseForDialog */ }

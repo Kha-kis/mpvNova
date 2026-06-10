@@ -15,22 +15,35 @@ import androidx.media.AudioManagerCompat
  */
 internal fun MPVActivity.handleAudioFocus() {
     if ((psc.pause && !psc.cachePause) || !isPlayingAudio) {
-        if (becomingNoisyReceiverRegistered)
-            unregisterReceiver(becomingNoisyReceiver)
-        becomingNoisyReceiverRegistered = false
+        setNoisyReceiverRegistered(false)
     } else {
-        if (!becomingNoisyReceiverRegistered)
-            registerReceiver(
-                becomingNoisyReceiver,
-                IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-            )
-        becomingNoisyReceiverRegistered = true
+        setNoisyReceiverRegistered(true)
         // Re-requests on every unpause — see discussion in #1066.
         if (requestAudioFocus()) {
             onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN, "request")
         } else {
             onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS, "request")
         }
+    }
+}
+
+/**
+ * Synchronized: handleAudioFocus toggles this from the mpv event thread while
+ * onDestroy unregisters from the UI thread; an unguarded flag can double-unregister
+ * (IllegalArgumentException) or re-register after destroy.
+ */
+internal fun MPVActivity.setNoisyReceiverRegistered(register: Boolean) {
+    synchronized(becomingNoisyReceiver) {
+        if (register == becomingNoisyReceiverRegistered)
+            return
+        if (register)
+            registerReceiver(
+                becomingNoisyReceiver,
+                IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+            )
+        else
+            unregisterReceiver(becomingNoisyReceiver)
+        becomingNoisyReceiverRegistered = register
     }
 }
 

@@ -154,9 +154,25 @@ class MPVActivity : AppCompatActivity() {
     }
 
     internal var becomingNoisyReceiverRegistered = false
+    // Set when we change the display mode (resolution/refresh match) so the
+    // noisy receiver can tell an HDMI re-sync from real headphone unplugging.
+    internal var lastDisplayModeSwitchMs = 0L
+    // The Hi10P fallback tunings force a full display match even when the
+    // user toggles are off. forced = active for the current file (the plain
+    // toggle pass must not regress it); needsRevert = carried into the next
+    // file so a non-Hi10P file can undo the forced mode.
+    internal var displayModeForcedByFallback = false
+    internal var displayModeNeedsRevert = false
     internal val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
+                val sinceModeSwitchMs =
+                    android.os.SystemClock.uptimeMillis() - lastDisplayModeSwitchMs
+                if (sinceModeSwitchMs < DISPLAY_MODE_SWITCH_GRACE_MS) {
+                    Log.v(MPV_ACTIVITY_TAG, "display-match: ignoring becoming-noisy " +
+                        "${sinceModeSwitchMs}ms after mode switch")
+                    return
+                }
                 onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS, "noisy")
             }
         }
@@ -223,6 +239,14 @@ class MPVActivity : AppCompatActivity() {
             .withEndAction { binding.seekOverlay.visibility = View.GONE }
     }
 
+    internal val displayModeSwitchCoverHideRunnable = Runnable {
+        binding.displayModeSwitchCover.animate()
+            .alpha(0f)
+            .setDuration(LOADING_OVERLAY_FADE_MS)
+            .withLayer()
+            .withEndAction { binding.displayModeSwitchCover.visibility = View.GONE }
+    }
+
     internal val stopServiceRunnable = Runnable {
         val intent = Intent(this, BackgroundPlaybackService::class.java)
         applicationContext.stopService(intent)
@@ -267,6 +291,7 @@ class MPVActivity : AppCompatActivity() {
     internal var audioPickerDialog: MediaPickerDialog? = null
     internal var subtitlePickerDialog: MediaPickerDialog? = null
     internal var decoderPickerDialog: MediaPickerDialog? = null
+    internal var preferredDecoderPickerDialog: MediaPickerDialog? = null
     internal var subtitleStyleDialog: SubtitleStyleDialog? = null
     internal var playlistDialog: PlaylistDialog? = null
     internal val videoAdjustmentDialogs = mutableMapOf<String, VideoAdjustmentDialog>()
@@ -304,11 +329,11 @@ class MPVActivity : AppCompatActivity() {
 
     internal var persistAudioFilters = false
     internal var persistSubFilters = false
-    // subScaleSteps index; default=1.0 at index 3
+    // subScaleSteps index; default=1.0 at index 10
     internal var subScaleLevel = DEFAULT_SUB_SCALE_INDEX
-    // subPosSteps index; default=100% at index 25 (the array spans -25%..125%)
+    // subPosSteps index; default=100% at index 125 (the array spans -25%..125%)
     internal var subPosLevel = DEFAULT_SUB_POSITION_INDEX
-    // secondaryPosSteps index; default=0% at index 5
+    // secondaryPosSteps index; default=0% at index 25
     internal var secondaryPosLevel = DEFAULT_SECONDARY_SUB_POSITION_INDEX
     // The custom sub look is always saved, but only applied while the toggle is on.
     internal var customSubStyleEnabled = false
@@ -380,6 +405,7 @@ class MPVActivity : AppCompatActivity() {
     override fun onCreate(icicle: Bundle?) {
         AppearanceTheme.applyPlayer(this)
         super.onCreate(icicle)
+        suppressPlayerActivityTransition()
         lifecycle.addObserver(lifecycleObserver)
 
         // Launched directly from a file browser → re-run MainActivity's one-time setup.
@@ -420,16 +446,19 @@ class MPVActivity : AppCompatActivity() {
         Log.v(MPV_ACTIVITY_TAG, "Exiting.")
         activityIsForeground = false
         cancelAllScheduledWork()
-        if (becomingNoisyReceiverRegistered) {
-            unregisterReceiver(becomingNoisyReceiver)
-            becomingNoisyReceiverRegistered = false
-        }
+        setNoisyReceiverRegistered(false)
         releaseMediaAndAudioFocus()
         stopServiceRunnable.run()
         player.removeObserver(mpvEventObserver)
         removeMpvLogObserver(mpvLogObserver)
         player.destroy()
         super.onDestroy()
+    }
+
+    override fun finish() {
+        showDisplayModeSwitchCoverForExit()
+        super.finish()
+        suppressPlayerActivityTransition()
     }
 
     override fun onNewIntent(intent: Intent?) {

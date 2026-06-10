@@ -18,6 +18,9 @@ qa-artifacts/
 .claude/
 .codex/
 .codex_tmp/
+.analysis/
+.tools/
+CLAUDE.md
 AUDIO_FILTERS.txt
 
 keystore.properties

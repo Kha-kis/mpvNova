@@ -38,6 +38,9 @@ internal fun MPVActivity.pickDecoder() {
         setOnDismissListener { restore(); reopenDrawerIfPending() }
         create()
     }
+    dialog.setOnShowListener {
+        dialog.window?.decorView?.post { impl.focusInitialSelection() }
+    }
     showWidePlayerDialog(
         dialog,
         PlayerDialogLayout(
@@ -98,6 +101,9 @@ internal fun MPVActivity.currentGpuNextBadge(): String {
     val effectiveHwdec = when {
         activeHwdec == "mediacodec-copy" -> "mediacodec-copy"
         activeHwdec == "mediacodec" -> "mediacodec"
+        // hwdec was requested but the decoder actually fell back to software
+        // (Hi10P — MediaCodec rejects 10-bit H.264): report what's running.
+        activeHwdec == "no" -> "no"
         requestedHwdec == "no" -> "no"
         requestedHwdec.isNotBlank() -> requestedHwdec
         else -> activeHwdec

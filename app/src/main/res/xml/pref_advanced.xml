@@ -29,16 +29,11 @@
         android:summary="@string/pref_shield_decoder_mode_summary"
         android:title="@string/pref_shield_decoder_mode_title" />
 
-    <ListPreference
-        android:defaultValue="g_next_copy"
+    <app.mpvnova.player.preferences.ShieldFallbackDialogPreference
         android:dependency="shield_decoder_mode"
-        android:entries="@array/shield_decoder_fallback_entries"
-        android:entryValues="@array/shield_decoder_fallback_values"
         android:key="shield_decoder_fallback"
-        android:summary="@string/pref_shield_decoder_fallback_summary"
         android:title="@string/pref_shield_decoder_fallback_title"
-        app:iconSpaceReserved="false"
-        app:useSimpleSummaryProvider="true" />
+        app:iconSpaceReserved="false" />
 
     <ListPreference
         android:defaultValue=""

@@ -1,24 +1,25 @@
 package app.mpvnova.player
 
 private const val REPEAT_NONE = 0
-private const val REPEAT_FILE = 1
-private const val REPEAT_PLAYLIST = 2
+private const val REPEAT_PLAYLIST = 1
+private const val REPEAT_FILE = 2
 
 internal fun MPVView.getRepeat(): Int {
     return when (mpvGetPropertyString("loop-playlist") + mpvGetPropertyString("loop-file")) {
-        "noinf" -> REPEAT_PLAYLIST
-        "infno" -> REPEAT_FILE
+        "noinf" -> REPEAT_FILE
+        "infno" -> REPEAT_PLAYLIST
         else -> REPEAT_NONE
     }
 }
 
+// Cycle: none → playlist → file → none.
 internal fun MPVView.cycleRepeat() {
     when (val state = getRepeat()) {
-        REPEAT_NONE, REPEAT_FILE -> {
-            mpvSetPropertyString("loop-playlist", if (state == REPEAT_FILE) "no" else "inf")
-            mpvSetPropertyString("loop-file", if (state == REPEAT_FILE) "inf" else "no")
+        REPEAT_NONE, REPEAT_PLAYLIST -> {
+            mpvSetPropertyString("loop-playlist", if (state == REPEAT_PLAYLIST) "no" else "inf")
+            mpvSetPropertyString("loop-file", if (state == REPEAT_PLAYLIST) "inf" else "no")
         }
-        REPEAT_PLAYLIST -> mpvSetPropertyString("loop-file", "no")
+        REPEAT_FILE -> mpvSetPropertyString("loop-file", "no")
     }
 }
 

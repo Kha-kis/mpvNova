@@ -28,9 +28,6 @@ internal fun MPVActivity.listTrackMeta(type: String): List<TrackMeta> {
 // Thin MPVActivity-receiver wrappers around the pure helpers in
 // TrackTitleMatching.kt — keeps call sites unchanged while the actual
 // logic is testable without an Activity.
-internal fun MPVActivity.normalizeTitleTokens(title: String): Set<String> =
-    normalizeTrackTitleTokens(title)
-
 internal fun MPVActivity.titleSimilarity(saved: String, candidate: String): Double =
     titleSimilarityScore(saved, candidate)
 

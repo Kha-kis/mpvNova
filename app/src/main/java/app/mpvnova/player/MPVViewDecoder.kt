@@ -13,7 +13,7 @@ internal val MPVView.currentDecoderMode: String
             else -> hwdecActive.trim().lowercase()
         }
         return when {
-            isShieldH10pSoftwareModeActive() -> MPVView.DECODER_MODE_SHIELD_H10P
+            isShieldH10pCopyModeActive() -> MPVView.DECODER_MODE_SHIELD_H10P
             requestedVo.startsWith(MPV_VIEW_VO_GPU_NEXT) &&
                 requestedHwdec == MPV_VIEW_HWDEC_MEDIACODEC_COPY -> MPVView.DECODER_MODE_GNEXT
             requestedHwdec == MPV_VIEW_HWDEC_MEDIACODEC -> MPVView.DECODER_MODE_HW_PLUS

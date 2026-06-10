@@ -1,7 +1,7 @@
 package app.mpvnova.player.preferences
 
 import android.Manifest
-import android.annotation.TargetApi
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ClipData
@@ -18,6 +18,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -115,7 +116,7 @@ object SupportActions {
         val shieldDecoder = prefs.getBoolean("shield_decoder_mode", true)
         val shieldDecoderFallback = prefs.getString(
             "shield_decoder_fallback",
-            MPVView.SHIELD_DECODER_FALLBACK_COPY,
+            MPVView.SHIELD_DECODER_FALLBACK_DEFAULT,
         ).toShieldDecoderFallback()
         val preferredDecoder = prefs.getString("preferred_decoder_mode", null)
             ?.takeIf { it.isNotBlank() }
@@ -234,18 +235,22 @@ private fun buildStorageReport(context: Context): String {
         }
         appendLine()
         appendLine("mpvNova detected storage volumes")
-        runCatching {
-            Utils.getStorageVolumes(context)
-        }.onSuccess { volumes ->
-            if (volumes.isEmpty()) {
-                appendLine("No readable volumes detected.")
-            } else {
-                volumes.forEachIndexed { index, volume ->
-                    appendLine("$index: ${volume.description} -> ${volume.path.describeStoragePath()}")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            runCatching {
+                Utils.getStorageVolumes(context)
+            }.onSuccess { volumes ->
+                if (volumes.isEmpty()) {
+                    appendLine("No readable volumes detected.")
+                } else {
+                    volumes.forEachIndexed { index, volume ->
+                        appendLine("$index: ${volume.description} -> ${volume.path.describeStoragePath()}")
+                    }
                 }
+            }.onFailure { error ->
+                appendLine("Storage volume detection failed: ${error.javaClass.name}: ${error.message}")
             }
-        }.onFailure { error ->
-            appendLine("Storage volume detection failed: ${error.javaClass.name}: ${error.message}")
+        } else {
+            appendLine("Volume detection requires Android 7+.")
         }
         appendLine()
         appendLine("/proc/mounts storage entries")
@@ -348,7 +353,7 @@ private class SupportBundleExportFlow(
             ) != PackageManager.PERMISSION_GRANTED
     }
 
-    @TargetApi(Build.VERSION_CODES.Q)
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun saveBundleToDownloadsMediaStore(): String {
         val resolver = activity.contentResolver
         val values = ContentValues().apply {
@@ -507,7 +512,20 @@ fun handleSupportExportPermissionResult(
     }
 }
 
+/**
+ * Drop a pending export flow when its host activity is destroyed; the flow holds
+ * that activity, so leaving it parked here across a recreate leaks the instance.
+ */
+fun clearPendingSupportExportFlow() {
+    pendingLegacyDownloadsFlow = null
+}
+
 private const val LOCALSEND_PACKAGE = "org.localsend.localsend_app"
 private const val SUPPORT_BUNDLE_MIME_TYPE = "application/zip"
 private const val REQUEST_WRITE_DOWNLOADS = 24061
+
+// Bridges the permission-result round-trip, which has no instance to hang state
+// off. Cleared by the result handler and by PreferenceActivity.onDestroy, so the
+// activity inside the flow can't outlive its host.
+@SuppressLint("StaticFieldLeak")
 private var pendingLegacyDownloadsFlow: SupportBundleExportFlow? = null

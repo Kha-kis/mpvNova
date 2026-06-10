@@ -72,6 +72,7 @@ internal fun MPVActivity.writeSettings() {
 
         putBoolean("persist_sub_filters", persistSubFilters)
         putInt("sub_scale_level", persistedSubFilterLevel(subScaleLevel, DEFAULT_SUB_SCALE_INDEX))
+        putInt("sub_scale_steps_version", SUB_SCALE_STEPS_VERSION)
         putInt(
             "sub_pos_pct",
             persistedSubPositionLevel(subPosSteps[subPosLevel], DEFAULT_SUB_POSITION_PERCENT)

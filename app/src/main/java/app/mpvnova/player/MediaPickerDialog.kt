@@ -2,6 +2,7 @@ package app.mpvnova.player
 
 import app.mpvnova.player.databinding.DialogMediaPickerBinding
 import android.content.res.ColorStateList
+import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.roundToInt
 
@@ -102,6 +102,8 @@ internal class MediaPickerDialog {
     private var secondaryPosState = ValueState("", false)
     private var secondarySubState = ValueState("", false)
     private var persistSubFiltersEnabled = false
+    var focusInitialSelection: () -> Unit = {}
+        private set
 
     /** Called when the user clicks a row. Index into [items]. */
     var onItemClick: ((Int) -> Unit)? = null
@@ -146,7 +148,11 @@ internal class MediaPickerDialog {
         binding.configureDelay(options, onDelayClick)
         configureAudioFilters(options)
         configureSubtitleFilters(options)
-        binding.requestInitialFocus(options)
+        focusInitialSelection = {
+            if (::binding.isInitialized)
+                binding.requestInitialFocus(options)
+        }
+        binding.root.post { focusInitialSelection() }
 
         return binding.root
     }
@@ -154,6 +160,8 @@ internal class MediaPickerDialog {
     private fun configureList(options: Options) {
         val hasFilters = options.showFilters || options.showSubFilters
         val listMinHeight = Utils.convertDp(binding.root.context, TRACK_LIST_MIN_HEIGHT_DP)
+        binding.list.stopScroll()
+        binding.list.clearFocus()
         binding.list.layoutParams = binding.list.layoutParams.apply {
             height = if (hasFilters) 0 else listMinHeight
             if (this is android.widget.LinearLayout.LayoutParams) {
@@ -174,10 +182,10 @@ internal class MediaPickerDialog {
                     weight = 0f
                 }
         }
-        updateItems(options.items)
         if (binding.list.adapter == null) {
             binding.list.adapter = Adapter(this)
         }
+        updateItems(options.items)
     }
 
     private fun configureAudioFilters(options: Options) {
@@ -528,14 +536,57 @@ private fun DialogMediaPickerBinding.requestInitialFocus(options: MediaPickerDia
 
 private fun DialogMediaPickerBinding.focusListItem(position: Int) {
     if (position < 0) return
-    (list.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(position, 0)
+    list.stopScroll()
+    list.clearFocus()
+    if (list.layoutManager == null) {
+        return
+    }
+    if (!list.isAttachedToWindow || !list.isLaidOut) {
+        focusAfterNextLayout(position)
+    } else {
+        focusLaidOutListItem(position)
+    }
+}
+
+private fun DialogMediaPickerBinding.focusAfterNextLayout(position: Int) {
+    list.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+        override fun onLayoutChange(
+            v: View,
+            left: Int,
+            top: Int,
+            right: Int,
+            bottom: Int,
+            oldLeft: Int,
+            oldTop: Int,
+            oldRight: Int,
+            oldBottom: Int
+        ) {
+            list.removeOnLayoutChangeListener(this)
+            focusListItem(position)
+        }
+    })
+}
+
+private fun DialogMediaPickerBinding.focusLaidOutListItem(position: Int) {
+    list.scrollToPosition(position)
     list.post {
         val holder = list.findViewHolderForAdapterPosition(position)
         if (holder != null) {
-            holder.itemView.requestFocus()
+            holder.itemView.apply {
+                requestFocus()
+                parent?.requestChildFocus(this, this)
+                requestRectangleOnScreen(Rect(0, 0, width, height), true)
+            }
         } else {
             list.postDelayed({
-                list.findViewHolderForAdapterPosition(position)?.itemView?.requestFocus()
+                list.scrollToPosition(position)
+                list.post {
+                    list.findViewHolderForAdapterPosition(position)?.itemView?.apply {
+                        requestFocus()
+                        parent?.requestChildFocus(this, this)
+                        requestRectangleOnScreen(Rect(0, 0, width, height), true)
+                    }
+                }
             }, FOCUS_RETRY_DELAY_MS)
         }
     }

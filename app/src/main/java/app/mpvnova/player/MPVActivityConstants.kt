@@ -80,6 +80,19 @@ internal const val GPU_NEXT_FALLBACK_TOAST_MS = 5_200L
 // Wait for decoder + VO to settle after the Shield Hi10p fallback before
 // firing the resync seek.
 internal const val SHIELD_FALLBACK_RESYNC_DELAY_MS = 900L
+// Our own display-mode switches make HDMI re-negotiate, which interrupts the
+// audio device and fires ACTION_AUDIO_BECOMING_NOISY — ignore that broadcast
+// for this long after a switch so it doesn't pause playback at file load.
+internal const val DISPLAY_MODE_SWITCH_GRACE_MS = 5_000L
+// Render errors during the HDMI blank itself shouldn't count toward the
+// gpu-next fallback. Kept short: on a genuinely broken render path the
+// fallback rescue must not be delayed much past the blank.
+internal const val DISPLAY_MODE_FALLBACK_GRACE_MS = 2_500L
+// Long enough to still be readable after the 1-2s HDMI blank.
+internal const val DISPLAY_MODE_TOAST_MS = 4_500L
+// Covers the one-frame window resize/scaling flash around HDMI display-mode
+// handoff without keeping the video hidden for the full audio grace window.
+internal const val DISPLAY_MODE_SWITCH_COVER_MS = 1_600L
 internal const val DEFAULT_AUDIO_SAMPLE_RATE = 48_000
 internal const val DB_TO_LINEAR_BASE = 10.0
 internal const val DB_POWER_DIVISOR = 20.0
@@ -89,15 +102,16 @@ internal const val MIN_PLAYER_SCREEN_BRIGHTNESS_PERCENT = 1
 internal const val MAX_PLAYER_SCREEN_BRIGHTNESS_PERCENT = 100
 internal const val DEFAULT_PLAYER_SCREEN_BRIGHTNESS_PERCENT = 100
 internal const val MAX_PLAYER_BRIGHTNESS_DIM_ALPHA = 0.99f
-internal const val DEFAULT_SUB_SCALE_INDEX = 3
-internal const val DEFAULT_SUB_POSITION_INDEX = 25
-internal const val DEFAULT_SECONDARY_SUB_POSITION_INDEX = 5
 internal const val DEFAULT_SUB_SCALE = 1.0
 internal const val DEFAULT_SUB_POSITION_PERCENT = 100
 internal const val DEFAULT_SECONDARY_SUB_POSITION_PERCENT = 0
+internal const val DEFAULT_SUB_SCALE_INDEX = 10
+internal const val DEFAULT_SUB_POSITION_INDEX = 125
+internal const val DEFAULT_SECONDARY_SUB_POSITION_INDEX = 25
+internal const val SUB_SCALE_STEPS_VERSION = 2
 internal const val SUB_POSITION_MIN_PERCENT = -25
 internal const val SUB_POSITION_MAX_PERCENT = 125
-internal const val SUB_POSITION_STEP_PERCENT = 5
+internal const val SUB_POSITION_STEP_PERCENT = 1
 internal const val PLAYER_TITLE_HORIZONTAL_MARGIN_DP = 64f
 internal const val PLAYER_TITLE_MIN_WIDTH_DP = 260f
 internal const val PLAYER_TITLE_MAX_WIDTH_DP = 980f
@@ -148,13 +162,8 @@ internal const val VOLUME_BOOST_STEP_MAX_SAFE_DB = 15
 internal const val VOLUME_BOOST_STEP_EXTRA_DB = 18
 internal const val VOLUME_BOOST_STEP_EXTREME_DB = 21
 internal const val SUB_SCALE_MIN = 0.5
-internal const val SUB_SCALE_SMALL = 0.65
-internal const val SUB_SCALE_LOW = 0.8
-internal const val SUB_SCALE_HIGH = 1.15
-internal const val SUB_SCALE_LARGE = 1.3
-internal const val SUB_SCALE_XL = 1.5
-internal const val SUB_SCALE_XXL = 1.75
 internal const val SUB_SCALE_MAX = 2.0
+internal const val SUB_SCALE_STEP_HUNDREDTHS = 5
 internal val VLC_TITLE_EXTRA_KEYS = arrayOf(
     "title",
     Intent.EXTRA_TITLE,
@@ -172,17 +181,10 @@ internal val VOLUME_BOOST_STEPS_DB = intArrayOf(
     VOLUME_BOOST_STEP_EXTRA_DB,
     VOLUME_BOOST_STEP_EXTREME_DB,
 )
-internal val SUB_SCALE_STEPS = doubleArrayOf(
-    SUB_SCALE_MIN,
-    SUB_SCALE_SMALL,
-    SUB_SCALE_LOW,
-    DEFAULT_SUB_SCALE,
-    SUB_SCALE_HIGH,
-    SUB_SCALE_LARGE,
-    SUB_SCALE_XL,
-    SUB_SCALE_XXL,
-    SUB_SCALE_MAX,
-)
+internal val SUB_SCALE_STEPS =
+    ((SUB_SCALE_MIN * 100).toInt()..(SUB_SCALE_MAX * 100).toInt() step SUB_SCALE_STEP_HUNDREDTHS)
+        .map { it / PERCENT_SCALE_DOUBLE }
+        .toDoubleArray()
 internal val SUB_POSITION_STEPS =
     (SUB_POSITION_MIN_PERCENT..SUB_POSITION_MAX_PERCENT step SUB_POSITION_STEP_PERCENT)
         .toList()

@@ -35,21 +35,6 @@ internal fun MPVActivity.firstControlButtonIndex(controls: List<View>): Int {
     return if (firstNonSeekbar >= 0) firstNonSeekbar else 0
 }
 
-internal fun MPVActivity.firstControlButtonView(): View? {
-    findFirstFocusableChild(binding.controlsButtonGroup)?.let { return it }
-    return findFirstFocusableChild(binding.topControls)
-}
-
-private fun findFirstFocusableChild(group: ViewGroup): View? {
-    for (i in 0 until group.childCount) {
-        val child = group.getChildAt(i)
-        if (child.isEnabled && child.isVisible && child.isFocusable) {
-            return child
-        }
-    }
-    return null
-}
-
 internal fun MPVActivity.interceptDpad(ev: KeyEvent): Boolean {
     val controls = dpadButtons()
     return when {

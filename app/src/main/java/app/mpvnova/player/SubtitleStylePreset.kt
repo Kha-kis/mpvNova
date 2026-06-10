@@ -65,6 +65,7 @@ private fun presetToJson(p: SubtitleStylePreset): JSONObject = JSONObject().appl
     put("forceAll", p.forceAll)
     put("includeLayout", p.includeLayout)
     put("scaleLevel", p.scaleLevel)
+    put("scaleStepsVersion", SUB_SCALE_STEPS_VERSION)
     put("posPct", p.posPct)
 }
 
@@ -90,7 +91,10 @@ private fun presetFromJson(o: JSONObject): SubtitleStylePreset? {
         overrideAss = o.optBoolean("overrideAss", false),
         forceAll = o.optBoolean("forceAll", false),
         includeLayout = o.optBoolean("includeLayout", false),
-        scaleLevel = o.optInt("scaleLevel", DEFAULT_SUB_SCALE_INDEX),
+        scaleLevel = migrateSubScaleLevel(
+            o.optInt("scaleLevel", DEFAULT_SUB_SCALE_INDEX),
+            o.optInt("scaleStepsVersion", 1),
+        ),
         posPct = o.optInt("posPct", DEFAULT_SUB_POSITION_PERCENT),
     )
 }

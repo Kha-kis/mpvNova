@@ -374,7 +374,11 @@
     <string name="pref_shield_decoder_mode_title">Shield decoder mode</string>
     <string name="pref_shield_decoder_mode_summary">Use a Shield-specific fallback for Hi10P H.264. Turn off to keep the normal decoder modes only.</string>
     <string name="pref_shield_decoder_fallback_title">Shield Hi10P fallback</string>
-    <string name="pref_shield_decoder_fallback_summary">Choose the path Shield decoder mode uses for Hi10P H.264 videos. Copy = MediaCodec-copy with default tuning (smoother on most Shields). SW = pure software with aggressive frame-dropping (use if Copy can\'t keep up).</string>
+    <string name="pref_shield_decoder_fallback_summary">All options software-decode Hi10P H.264 — no hardware can decode it — they differ only in how far the tuning goes.</string>
+    <string name="shield_fallback_default_title">G-NEXT SW — no tuning</string>
+    <string name="shield_fallback_default_desc">Strictly stock playback: software decode through the standard G-NEXT path with no extra tweaks.</string>
+    <string name="shield_fallback_light_title">G-NEXT SW — light tuning</string>
+    <string name="shield_fallback_light_desc">Skips the deblocking filter on non-reference frames (big CPU saving, minor quality cost), uses a 1-second audio buffer, switches the display to the video\'s resolution, and upscales with Lanczos sharp.</string>
     <string name="pref_autopause_controls_overlay_title">Pause when controls show</string>
     <string name="pref_autopause_controls_overlay_summary">Automatically pause playback while the controls overlay is visible, so navigating doesn\'t fight the decoder for CPU. Applies to every file.</string>
     <string name="pref_autopause_shield_hi10p_title">Pause Hi10P on Shield</string>
@@ -530,6 +534,8 @@
     <string name="pref_auto_refresh_rate_summary">On Android TV, switch the display refresh rate to match the playing video (e.g., 23.976 fps content drives a 23.976 Hz mode). Eliminates 3:2 pulldown judder on 60 Hz panels. Reverts to the system default when playback ends.</string>
     <string name="pref_resolution_match_title">Match display resolution</string>
     <string name="pref_resolution_match_summary">On Android TV, switch the display output to the closest resolution for the playing video (e.g., 1080p content on a 4K panel), so the TV handles upscaling. Combine with refresh-rate matching for both. Reverts to the system default when playback ends.</string>
+    <string name="toast_display_mode_title">Display mode</string>
+    <string name="toast_display_mode_detail">%1$d × %2$d @ %3$s Hz</string>
 
     <string name="pref_dpad_up_jumps_top_title">D-pad up jumps to top controls</string>
     <string name="pref_dpad_up_jumps_top_summary">When on, pressing Up from the seekbar jumps to the top-right PiP / Settings icons instead of hiding the overlay. When off (default), pressing Up from the seekbar hides the overlay.</string>

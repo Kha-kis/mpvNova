@@ -1,6 +1,5 @@
 package app.mpvnova.player
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.AssetManager
@@ -21,6 +20,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
@@ -114,7 +114,7 @@ private fun twoDigits(value: Int): String {
     return if (value in 0..MAX_SINGLE_DIGIT) "0$value" else value.toString()
 }
 
-@SuppressLint("NewApi")
+@RequiresApi(Build.VERSION_CODES.N)
 private object StorageVolumeResolver {
     @Suppress("DEPRECATION")
     fun collectCandidates(context: Context): List<String> {
@@ -226,7 +226,7 @@ fun handleInsetsAsPadding(view: View) {
     }
 }
 
-@SuppressLint("NewApi")
+@RequiresApi(Build.VERSION_CODES.N)
 private fun storageVolumeDisplayName(volume: StorageVolume, context: Context, root: File): String {
     val label = runCatching {
         volume.getDescription(context).trim()
@@ -330,12 +330,9 @@ internal object Utils {
 
     data class StoragePath(val path: File, val description: String)
 
-    @SuppressLint("NewApi")
-    @Suppress("DEPRECATION")
+    @RequiresApi(Build.VERSION_CODES.N)
     fun getStorageVolumes(context: Context): List<StoragePath> {
         val list = mutableListOf<StoragePath>()
-        assert(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-
         val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
 
         for (path in StorageVolumeResolver.collectCandidates(context)) {

@@ -8,6 +8,8 @@ internal enum class PlayerDrawerActionGroup { VIDEO, AUDIO_SUBTITLE, PLAYBACK, S
 
 internal enum class PlayerDrawerAction(val group: PlayerDrawerActionGroup) {
     DECODER(PlayerDrawerActionGroup.VIDEO),
+    PREFERRED_DECODER(PlayerDrawerActionGroup.VIDEO),
+    SHIELD_FALLBACK(PlayerDrawerActionGroup.VIDEO),
     ASPECT(PlayerDrawerActionGroup.VIDEO),
     CONTRAST(PlayerDrawerActionGroup.VIDEO),
     BRIGHTNESS(PlayerDrawerActionGroup.VIDEO),
@@ -138,6 +140,13 @@ internal enum class PlayerDrawerPreference(
         "decoder_auto_fallback",
         true,
     ),
+    SHIELD_DECODER_MODE(
+        PlayerDrawerPreferenceGroup.VIDEO,
+        R.string.pref_shield_decoder_mode_title,
+        R.string.pref_shield_decoder_mode_summary,
+        "shield_decoder_mode",
+        true,
+    ),
     SAVE_POSITION(
         PlayerDrawerPreferenceGroup.PLAYBACK,
         R.string.pref_save_position_title,
@@ -159,6 +168,23 @@ internal data class PlayerDrawerButtonSpec(
     val textRes: Int,
 )
 
+internal enum class PlayerDrawerOption(
+    val action: PlayerDrawerAction,
+    val titleRes: Int,
+    val summaryRes: Int,
+) {
+    PREFERRED_DECODER(
+        PlayerDrawerAction.PREFERRED_DECODER,
+        R.string.pref_preferred_decoder_mode_title,
+        R.string.pref_preferred_decoder_mode_summary,
+    ),
+    SHIELD_FALLBACK(
+        PlayerDrawerAction.SHIELD_FALLBACK,
+        R.string.pref_shield_decoder_fallback_title,
+        R.string.pref_shield_decoder_fallback_summary,
+    ),
+}
+
 internal sealed class PlayerDrawerRow {
     data class Button(val button: PlayerDrawerButtonSpec) : PlayerDrawerRow()
     data class ButtonPair(
@@ -167,6 +193,7 @@ internal sealed class PlayerDrawerRow {
     ) : PlayerDrawerRow()
     object Stats : PlayerDrawerRow()
     data class Preference(val preference: PlayerDrawerPreference) : PlayerDrawerRow()
+    data class Option(val option: PlayerDrawerOption) : PlayerDrawerRow()
     data class Spacer(val heightDp: Int) : PlayerDrawerRow()
 }
 
@@ -200,6 +227,13 @@ private fun MPVActivity.addVideoRows(rows: MutableList<PlayerDrawerRow>) {
     rows.addPref(PlayerDrawerPreference.AUTO_REFRESH_RATE)
     rows.addPref(PlayerDrawerPreference.RESOLUTION_MATCH)
     rows.addPref(PlayerDrawerPreference.DECODER_AUTO_FALLBACK)
+    if (!autoDecoderFallback) {
+        rows.addOption(PlayerDrawerOption.PREFERRED_DECODER)
+    }
+    rows.addPref(PlayerDrawerPreference.SHIELD_DECODER_MODE)
+    if (shieldDecoderModeEnabled) {
+        rows.addOption(PlayerDrawerOption.SHIELD_FALLBACK)
+    }
 }
 
 private fun MPVActivity.addAudioRows(rows: MutableList<PlayerDrawerRow>) {
@@ -270,4 +304,8 @@ private fun MutableList<PlayerDrawerRow>.addPair(
 
 private fun MutableList<PlayerDrawerRow>.addPref(preference: PlayerDrawerPreference) {
     add(PlayerDrawerRow.Preference(preference))
+}
+
+private fun MutableList<PlayerDrawerRow>.addOption(option: PlayerDrawerOption) {
+    add(PlayerDrawerRow.Option(option))
 }

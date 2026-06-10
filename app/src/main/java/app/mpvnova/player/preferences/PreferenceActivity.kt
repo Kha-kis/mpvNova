@@ -42,6 +42,9 @@ import com.google.android.material.color.DynamicColors
 import app.mpvnova.player.AppearanceTheme
 import app.mpvnova.player.R
 import app.mpvnova.player.TvScrollbars
+import app.mpvnova.player.decoderModeDescriptionRes
+import app.mpvnova.player.defaultPreferredDecoderMode
+import app.mpvnova.player.preferredDecoderModeOptions
 import app.mpvnova.player.databinding.ActivitySettingsBinding
 
 private val THEME_RECREATE_KEYS = setOf(
@@ -124,6 +127,7 @@ private const val THEME_LABEL_CHANNEL = 188
 private const val STATE_HERO_TITLE = "hero_title"
 private const val STATE_HERO_SUBTITLE = "hero_subtitle"
 
+@Suppress("TooManyFunctions") // mostly Activity lifecycle overrides
 class PreferenceActivity : AppCompatActivity(),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
     SharedPreferences.OnSharedPreferenceChangeListener, FragmentManager.OnBackStackChangedListener {
@@ -144,7 +148,6 @@ class PreferenceActivity : AppCompatActivity(),
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
         preferences.registerOnSharedPreferenceChangeListener(this)
-        supportFragmentManager.addOnBackStackChangedListener(this)
         if (preferences.getBoolean("material_you_theming", false))
             DynamicColors.applyToActivityIfAvailable(this)
         enableEdgeToEdge()
@@ -206,7 +209,18 @@ class PreferenceActivity : AppCompatActivity(),
         super.onSaveInstanceState(outState)
         outState.putCharSequence(STATE_HERO_TITLE, currentTitle)
         outState.putCharSequence(STATE_HERO_SUBTITLE, currentSubtitle)
+    }
+
+    // Registered start/stop (not create/save) so the hero title and focus
+    // restore keep working after a Home-and-return without recreation.
+    override fun onStart() {
+        super.onStart()
+        supportFragmentManager.addOnBackStackChangedListener(this)
+    }
+
+    override fun onStop() {
         supportFragmentManager.removeOnBackStackChangedListener(this)
+        super.onStop()
     }
 
     override fun onResume() {
@@ -226,6 +240,7 @@ class PreferenceActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
         preferences.unregisterOnSharedPreferenceChangeListener(this)
+        clearPendingSupportExportFlow()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
@@ -659,50 +674,14 @@ class PreferenceActivity : AppCompatActivity(),
         private fun buildDecoderPreferenceOptions(
             includeShieldMode: Boolean
         ): Pair<Array<CharSequence>, Array<CharSequence>> {
-            val entries = mutableListOf<CharSequence>()
-            val values = mutableListOf<CharSequence>()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                entries.add(getString(R.string.decoder_mode_hw_plus_settings))
-                values.add(app.mpvnova.player.MPVView.DECODER_MODE_HW_PLUS)
-            }
-            entries.add(getString(R.string.decoder_mode_hw_settings))
-            values.add(app.mpvnova.player.MPVView.DECODER_MODE_HW)
-            entries.add(getString(R.string.decoder_mode_sw_settings))
-            values.add(app.mpvnova.player.MPVView.DECODER_MODE_SW)
-            entries.add(getString(R.string.decoder_mode_gnext_settings))
-            values.add(app.mpvnova.player.MPVView.DECODER_MODE_GNEXT)
-            entries.add(getString(R.string.decoder_mode_mpv_conf_settings))
-            values.add(app.mpvnova.player.MPVView.DECODER_MODE_MPV_CONF)
-            if (includeShieldMode) {
-                entries.add(getString(R.string.decoder_mode_shield_h10p_settings))
-                values.add(app.mpvnova.player.MPVView.DECODER_MODE_SHIELD_H10P)
-            }
-            return Pair(entries.toTypedArray(), values.toTypedArray())
+            val options = preferredDecoderModeOptions(includeShieldMode)
+            val entries = options.map { getString(it.titleRes) as CharSequence }.toTypedArray()
+            val values = options.map { it.value as CharSequence }.toTypedArray()
+            return Pair(entries, values)
         }
 
         private fun decoderModeDescription(mode: String?): String {
-            return when (mode) {
-                app.mpvnova.player.MPVView.DECODER_MODE_HW_PLUS ->
-                    getString(R.string.decoder_mode_hw_plus_description)
-                app.mpvnova.player.MPVView.DECODER_MODE_HW ->
-                    getString(R.string.decoder_mode_hw_description)
-                app.mpvnova.player.MPVView.DECODER_MODE_SW ->
-                    getString(R.string.decoder_mode_sw_description)
-                app.mpvnova.player.MPVView.DECODER_MODE_GNEXT ->
-                    getString(R.string.decoder_mode_gnext_description)
-                app.mpvnova.player.MPVView.DECODER_MODE_SHIELD_H10P ->
-                    getString(R.string.decoder_mode_shield_h10p_description)
-                app.mpvnova.player.MPVView.DECODER_MODE_MPV_CONF ->
-                    getString(R.string.decoder_mode_mpv_conf_description)
-                else -> getString(R.string.pref_preferred_decoder_mode_summary)
-            }
-        }
-
-        private fun defaultPreferredDecoderMode(): String {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                app.mpvnova.player.MPVView.DECODER_MODE_HW_PLUS
-            else
-                app.mpvnova.player.MPVView.DECODER_MODE_HW
+            return getString(decoderModeDescriptionRes(mode))
         }
     }
 

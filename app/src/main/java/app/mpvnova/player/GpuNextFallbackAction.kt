@@ -28,10 +28,13 @@ internal fun MPVActivity.canApplyGpuNextRenderFallback(level: Int): Boolean {
         level <= MpvLogLevel.MPV_LOG_LEVEL_ERROR &&
         player.requestedVideoOutput.trim().lowercase(Locale.US).startsWith("gpu-next") &&
         !userPickedGpuNextMode
-    if (!gatesPassed) return false
+    val now = SystemClock.uptimeMillis()
+    // Errors during the HDMI blank of a display-mode switch are transition
+    // noise, not a broken render path — don't count them toward fallback.
+    val withinModeSwitchGrace = now - lastDisplayModeSwitchMs < DISPLAY_MODE_FALLBACK_GRACE_MS
+    if (!gatesPassed || withinModeSwitchGrace) return false
     // Sliding window: ≥THRESHOLD errors inside WINDOW_MS = sustained failure.
     // Single OSD blips (common on Tegra) don't trip the rebuild.
-    val now = SystemClock.uptimeMillis()
     if (now - gpuNextErrorWindowStartMs > GPU_NEXT_ERROR_WINDOW_MS) {
         gpuNextErrorWindowStartMs = now
         gpuNextErrorWindowCount = 0

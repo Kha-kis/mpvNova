@@ -45,6 +45,10 @@ private fun MPVActivity.handleMpvStartFile() {
     pendingShieldFallbackResync = false
     shieldFallbackResumeAfter = false
     controlsOverlayAutoPaused = false
+    // The force is per-file; carry it as a pending revert for the new file.
+    displayModeNeedsRevert = displayModeNeedsRevert || displayModeForcedByFallback
+    displayModeForcedByFallback = false
+    refreshDrawerRowsIfVisible(DrawerTab.VIDEO)
     cachedChapters = emptyList()
     pendingChapterSeekTime = null
     currentItemTitle = pendingItemTitle
@@ -117,7 +121,8 @@ private fun MPVActivity.showResumeToastIfNeeded() {
 }
 
 private fun MPVActivity.anyAudioFilterOn(): Boolean =
-    isVoiceBoostOn() || isVolumeBoostOn() || isNightModeOn() || isAudioNormOn() || isCenterBoostOn()
+    isVoiceBoostOn() || isVolumeBoostOn() || isNightModeOn() || isAudioNormOn() ||
+        isDownmixOn() || isCenterBoostOn()
 
 private fun MPVActivity.refreshAudioFiltersAfterFileLoad() {
     if (persistAudioFilters) {
@@ -128,6 +133,7 @@ private fun MPVActivity.refreshAudioFiltersAfterFileLoad() {
         volumeBoostDb = 0
         nightModeLevel = 0
         audioNormLevel = 0
+        downmixLevel = 0
         centerBoostLevel = 0
         rebuildAudioFilters()
         eventUiHandler.post { refreshAllFilterTints() }

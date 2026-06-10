@@ -1,5 +1,7 @@
 package app.mpvnova.player
 
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
+
 internal fun MPVActivity.handleDrawerPreferenceChange(
     preference: PlayerDrawerPreference,
     newValue: Boolean,
@@ -74,8 +76,44 @@ private fun MPVActivity.handleDrawerVideoPreference(
             autoResolutionSwitch = newValue
             applyOrClearDisplayMatch()
         }
-        PlayerDrawerPreference.DECODER_AUTO_FALLBACK -> autoDecoderFallback = newValue
+        PlayerDrawerPreference.DECODER_AUTO_FALLBACK -> handleDrawerAutoFallbackChange(newValue)
+        PlayerDrawerPreference.SHIELD_DECODER_MODE -> handleDrawerShieldDecoderModeChange(newValue)
         else -> Unit
+    }
+    if (preference == PlayerDrawerPreference.DECODER_AUTO_FALLBACK ||
+        preference == PlayerDrawerPreference.SHIELD_DECODER_MODE) {
+        refreshDrawerRowsIfVisible(DrawerTab.VIDEO)
+    }
+}
+
+private fun MPVActivity.handleDrawerAutoFallbackChange(enabled: Boolean) {
+    autoDecoderFallback = enabled
+    if (enabled)
+        return
+    preferredDecoderMode = normalizedPreferredDecoderMode(preferredDecoderMode, shieldDecoderModeEnabled)
+    getDefaultSharedPreferences(applicationContext)
+        .edit()
+        .putString("preferred_decoder_mode", preferredDecoderMode)
+        .apply()
+    sessionDecoderMode = preferredDecoderMode
+    player.applyDecoderMode(preferredDecoderMode)
+    updateDecoderButton()
+}
+
+private fun MPVActivity.handleDrawerShieldDecoderModeChange(enabled: Boolean) {
+    shieldDecoderModeEnabled = enabled
+    if (enabled || preferredDecoderMode != MPVView.DECODER_MODE_SHIELD_H10P)
+        return
+
+    preferredDecoderMode = defaultPreferredDecoderMode()
+    getDefaultSharedPreferences(applicationContext)
+        .edit()
+        .putString("preferred_decoder_mode", preferredDecoderMode)
+        .apply()
+    if (!autoDecoderFallback) {
+        sessionDecoderMode = preferredDecoderMode
+        player.applyDecoderMode(preferredDecoderMode)
+        updateDecoderButton()
     }
 }
 

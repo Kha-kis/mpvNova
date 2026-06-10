@@ -1,10 +1,13 @@
 package app.mpvnova.player
 
+import android.os.Build
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import java.io.File
 
+@RequiresApi(Build.VERSION_CODES.N)
 internal fun FilePickerActivity.openFilePickerAtStorageVolume(
     activeFragment: MPVFilePickerFragment,
     defaultPath: File,
@@ -30,6 +33,7 @@ internal fun FilePickerActivity.openFilePickerAtStorageVolume(
         FilePickerMenuActions.showInitialStoragePicker(this, activeFragment, volumes)
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 private fun FilePickerActivity.loadStorageVolumes(): List<Utils.StoragePath> {
     return runCatching {
         Utils.getStorageVolumes(this)

@@ -79,29 +79,53 @@ internal fun MPVActivity.toggleStatsOverlay() {
     mpvCommand(arrayOf("script-binding", "stats/display-stats-toggle"))
 }
 
-internal fun MPVActivity.maybeApplyShieldHi10pFallback() {
-    val currentMode = player.currentDecoderMode
-    val shouldFallback = autoDecoderFallback &&
+private fun MPVActivity.shouldApplyShieldHi10pFallback(currentMode: String): Boolean {
+    return autoDecoderFallback &&
         shieldDecoderModeEnabled &&
         isNvidiaShieldDevice() &&
         player.isHi10pH264Video() &&
         (
             currentMode == MPVView.DECODER_MODE_HW ||
-                currentMode == MPVView.DECODER_MODE_HW_PLUS
+                currentMode == MPVView.DECODER_MODE_HW_PLUS ||
+                // gpu-next sessions read as G-NEXT (copy). MediaCodec rejects
+                // 10-bit H.264 there too, so Hi10P still needs the tuned
+                // fallback — otherwise lavc silently software-decodes with
+                // standard tuning and the user's fallback choice never applies.
+                currentMode == MPVView.DECODER_MODE_GNEXT
         )
-    if (!shouldFallback) return
+}
+
+internal fun MPVActivity.maybeApplyShieldHi10pFallback() {
+    val currentMode = player.currentDecoderMode
+    if (!shouldApplyShieldHi10pFallback(currentMode)) return
+
+    val fromGnext = currentMode == MPVView.DECODER_MODE_GNEXT
+    // Strictly-default flavor from a gpu-next session: nothing to change —
+    // the session already runs the standard G-NEXT path.
+    if (fromGnext && shieldDecoderFallback == MPVView.SHIELD_DECODER_FALLBACK_DEFAULT)
+        return
+
+    // From a G-NEXT session both flavors keep hwdec at mediacodec-copy — no
+    // decoder teardown to pause around, and the playback-restart event the
+    // resync waits on may never fire. From HW/HW+ the hwdec swaps to copy.
+    val hwdecWillChange = !fromGnext
 
     // Pause around the swap so audio can't drain → no underrun → no drift.
     val wasPlaying = player.paused == false
-    if (wasPlaying) {
+    if (hwdecWillChange && wasPlaying) {
         shieldFallbackResumeAfter = true
         mpvSetPropertyBoolean("pause", true)
     }
     player.applyShieldHi10pFallback(shieldDecoderFallback)
     updateDecoderButton()
+    // Light pairs the tuning with a resolution match so the panel/TV does the
+    // upscaling. Refresh matching stays the user's own toggle choice.
+    if (shieldDecoderFallback == MPVView.SHIELD_DECODER_FALLBACK_COPY)
+        maybeApplyContentDisplayMode(forceResolutionMatch = true)
     // Wait for playback-restart — fixed delay can't cover Shield's 3+s
     // MediaCodec retry cascade.
-    pendingShieldFallbackResync = true
+    if (hwdecWillChange)
+        pendingShieldFallbackResync = true
 }
 
 internal fun MPVActivity.applySessionDecoderModeIfNeeded() {
@@ -120,7 +144,8 @@ internal fun MPVActivity.applySessionDecoderModeIfNeeded() {
     }
 }
 
-internal fun MPVActivity.isNvidiaShieldDevice(): Boolean {
+// Top-level (not an MPVActivity extension): MPVView's startup options need it too.
+internal fun isNvidiaShieldDevice(): Boolean {
     return Build.MANUFACTURER.contains("NVIDIA", ignoreCase = true) ||
             Build.MODEL.contains("SHIELD", ignoreCase = true) ||
             Build.PRODUCT.contains("shield", ignoreCase = true)
@@ -132,4 +157,6 @@ internal fun MPVActivity.updateSpeedButton() {
         return
     lastDisplayedSpeed = speed
     binding.cycleSpeedBtn.setTextIfChanged(getString(R.string.ui_speed, speed))
+    if (binding.timeInfoPanel.visibility == View.VISIBLE)
+        updateClockInfo(force = true)
 }

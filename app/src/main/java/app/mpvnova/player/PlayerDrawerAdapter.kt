@@ -20,6 +20,7 @@ private const val VIEW_TYPE_BUTTON_PAIR = 1
 private const val VIEW_TYPE_STATS = 2
 private const val VIEW_TYPE_PREFERENCE = 3
 private const val VIEW_TYPE_SPACER = 4
+private const val VIEW_TYPE_OPTION = 5
 private const val PREF_ROW_OFF_ALPHA = 0.55f
 private const val PREF_ROW_DISABLED_ALPHA = 0.4f
 
@@ -61,6 +62,7 @@ internal class PlayerDrawerAdapter(
         is PlayerDrawerRow.ButtonPair -> VIEW_TYPE_BUTTON_PAIR
         PlayerDrawerRow.Stats -> VIEW_TYPE_STATS
         is PlayerDrawerRow.Preference -> VIEW_TYPE_PREFERENCE
+        is PlayerDrawerRow.Option -> VIEW_TYPE_OPTION
         is PlayerDrawerRow.Spacer -> VIEW_TYPE_SPACER
     }
 
@@ -71,6 +73,7 @@ internal class PlayerDrawerAdapter(
             VIEW_TYPE_BUTTON_PAIR -> ButtonPairHolder(DrawerRowTwoButtonsBinding.inflate(inflater, parent, false))
             VIEW_TYPE_STATS -> StatsHolder(DrawerRowStatsBinding.inflate(inflater, parent, false))
             VIEW_TYPE_PREFERENCE -> PreferenceHolder(DrawerPrefRowBinding.inflate(inflater, parent, false))
+            VIEW_TYPE_OPTION -> OptionHolder(DrawerPrefRowBinding.inflate(inflater, parent, false))
             else -> SpacerHolder(DrawerRowSpacerBinding.inflate(inflater, parent, false))
         }
     }
@@ -81,6 +84,7 @@ internal class PlayerDrawerAdapter(
             is PlayerDrawerRow.ButtonPair -> (holder as ButtonPairHolder).bind(row)
             PlayerDrawerRow.Stats -> (holder as StatsHolder).bind()
             is PlayerDrawerRow.Preference -> (holder as PreferenceHolder).bind(row.preference)
+            is PlayerDrawerRow.Option -> (holder as OptionHolder).bind(row.option)
             is PlayerDrawerRow.Spacer -> (holder as SpacerHolder).bind(row)
         }
     }
@@ -148,18 +152,31 @@ internal class PlayerDrawerAdapter(
         fun bind(preference: PlayerDrawerPreference) = with(binding) {
             prefRowTitle.setText(preference.titleRes)
             prefRowSummary.setText(preference.summaryRes)
-            refreshPrefRowValue(prefRowValue, prefs.currentValue(preference))
+            refreshPrefRowValue(prefRowValue, prefs.effectiveValue(activity, preference))
             val disabled = preference.disabledWhenOnKey?.let { prefs.getBoolean(it, false) } == true
             root.alpha = if (disabled) PREF_ROW_DISABLED_ALPHA else 1f
             root.setOnClickListener {
                 if (disabled)
                     return@setOnClickListener
-                val newValue = !prefs.currentValue(preference)
+                val newValue = !prefs.rawValue(preference)
                 prefs.edit().putBoolean(preference.key, newValue).apply()
-                refreshPrefRowValue(prefRowValue, newValue)
+                refreshPrefRowValue(prefRowValue, prefs.effectiveValue(activity, preference))
                 activity.handleDrawerPreferenceChange(preference, newValue)
                 refreshRowsDisabledBy(preference.key)
             }
+        }
+    }
+
+    private inner class OptionHolder(
+        private val binding: DrawerPrefRowBinding,
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(option: PlayerDrawerOption) = with(binding) {
+            prefRowTitle.setText(option.titleRes)
+            prefRowSummary.setText(option.summaryRes)
+            prefRowValue.text = activity.drawerOptionValue(option)
+            prefRowValue.alpha = 1f
+            root.alpha = 1f
+            root.setOnClickListener { activity.handleDrawerAction(option.action, dismiss) }
         }
     }
 
@@ -247,6 +264,13 @@ private fun PlayerDrawerRow.inflateMeasureRow(parent: RecyclerView, inflater: La
                 it.prefRowValue.setText(R.string.status_on)
             }
             .root
+        is PlayerDrawerRow.Option -> DrawerPrefRowBinding.inflate(inflater, parent, false)
+            .also {
+                it.prefRowTitle.setText(option.titleRes)
+                it.prefRowSummary.setText(option.summaryRes)
+                it.prefRowValue.text = "HW+"
+            }
+            .root
         is PlayerDrawerRow.Spacer -> DrawerRowSpacerBinding.inflate(inflater, parent, false)
             .also { binding ->
                 val density = parent.resources.displayMetrics.density
@@ -275,8 +299,19 @@ private fun drawerStableScrollOffset(
     }
 }
 
-private fun SharedPreferences.currentValue(preference: PlayerDrawerPreference): Boolean {
+private fun SharedPreferences.rawValue(preference: PlayerDrawerPreference): Boolean {
     return getBoolean(preference.key, preference.defaultValue)
+}
+
+private fun SharedPreferences.effectiveValue(
+    activity: MPVActivity,
+    preference: PlayerDrawerPreference,
+): Boolean {
+    val raw = rawValue(preference)
+    return when (preference) {
+        PlayerDrawerPreference.RESOLUTION_MATCH -> raw || activity.displayModeForcedByFallback
+        else -> raw
+    }
 }
 
 private fun refreshPrefRowValue(valueView: TextView, on: Boolean) {

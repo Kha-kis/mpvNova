@@ -128,7 +128,7 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (fragment == null)
             return
-        if (permissions.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
             initFilePicker()
         }
     }
@@ -289,6 +289,7 @@ internal object FilePickerMenuActions {
         activity.saveFilterState(showMediaFiles)
     }
 
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.N)
     private fun showExternalStoragePicker(
         activity: FilePickerActivity,
         currentFragment: MPVFilePickerFragment,

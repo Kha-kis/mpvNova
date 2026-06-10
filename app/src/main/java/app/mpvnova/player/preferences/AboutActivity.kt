@@ -65,6 +65,10 @@ class AboutActivity : AppCompatActivity(), MpvLogObserver {
 
     override fun onDestroy() {
         super.onDestroy()
+        // logMessage removes the observer once the features line arrives, but the
+        // user can back out before that — without this the destroyed activity
+        // stays registered as a log observer for the rest of the process.
+        removeMpvLogObserver(this)
         if (!mpvDestroyed) {
             mpvDestroy()
             mpvDestroyed = true

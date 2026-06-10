@@ -52,7 +52,7 @@ internal fun MPVActivity.readPlaybackSettings(
     shieldDecoderModeEnabled = prefs.getBoolean("shield_decoder_mode", true)
     shieldDecoderFallback = prefs.getString(
         "shield_decoder_fallback",
-        MPVView.SHIELD_DECODER_FALLBACK_COPY,
+        MPVView.SHIELD_DECODER_FALLBACK_DEFAULT,
     ).toShieldDecoderFallback()
     preferredDecoderMode = prefs.getString("preferred_decoder_mode", "") ?: ""
     autoPauseControlsOverlayEnabled = prefs.getBoolean("autopause_controls_overlay", false)
@@ -102,9 +102,18 @@ internal fun MPVActivity.persistedAudioLevel(
 }
 
 internal fun MPVActivity.readSubFilterSettings(prefs: SharedPreferences) {
+    val storedScaleVersion = prefs.getInt("sub_scale_steps_version", 1)
+    val storedScaleLevel = prefs.getInt("sub_scale_level", DEFAULT_SUB_SCALE_INDEX)
+    val migratedScaleLevel = migrateSubScaleLevel(storedScaleLevel, storedScaleVersion)
+    if (storedScaleVersion < SUB_SCALE_STEPS_VERSION) {
+        prefs.edit()
+            .putInt("sub_scale_level", migratedScaleLevel)
+            .putInt("sub_scale_steps_version", SUB_SCALE_STEPS_VERSION)
+            .apply()
+    }
     persistSubFilters = prefs.getBoolean("persist_sub_filters", false)
     if (persistSubFilters) {
-        subScaleLevel = prefs.getInt("sub_scale_level", DEFAULT_SUB_SCALE_INDEX)
+        subScaleLevel = migratedScaleLevel
         subPosLevel = nearestSubPositionIndex(
             subPosSteps,
             prefs.getInt("sub_pos_pct", DEFAULT_SUB_POSITION_PERCENT)

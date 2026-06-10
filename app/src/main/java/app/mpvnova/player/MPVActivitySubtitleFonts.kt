@@ -100,5 +100,7 @@ private fun MPVActivity.fontDisplayName(uri: Uri): String? {
 private fun isFontFileName(name: String): Boolean =
     name.substringAfterLast('.', "").lowercase(Locale.ROOT) in FONT_EXTENSIONS
 
+private val FONT_NAME_UNSAFE = Regex("[^A-Za-z0-9._-]")
+
 private fun sanitizeFontFileName(name: String): String =
-    name.substringAfterLast('/').replace(Regex("[^A-Za-z0-9._-]"), "_")
+    name.substringAfterLast('/').replace(FONT_NAME_UNSAFE, "_")

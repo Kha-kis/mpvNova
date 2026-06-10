@@ -42,7 +42,9 @@ internal fun MPVActivity.updateClockInfo(force: Boolean = false) {
 
     val remainingSeconds = (psc.durationSec - psc.positionSec).coerceAtLeast(0)
     if (psc.durationSec > 0 && remainingSeconds > 0) {
-        val endTimeMillis = now + (remainingSeconds * MILLIS_PER_SECOND_LONG)
+        val playbackSpeed = psc.speed.takeIf { it > 0f } ?: 1f
+        val wallClockRemainingMs = (remainingSeconds * MILLIS_PER_SECOND_LONG / playbackSpeed).toLong()
+        val endTimeMillis = now + wallClockRemainingMs
         val endsAtText = getString(
             R.string.player_ends_at,
             formatter.format(Date(endTimeMillis))

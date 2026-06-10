@@ -25,6 +25,12 @@ internal fun MPVActivity.setupRootView() {
     hideControls()
 }
 
+@Suppress("DEPRECATION")
+internal fun MPVActivity.suppressPlayerActivityTransition() {
+    window.setWindowAnimations(0)
+    overridePendingTransition(0, 0)
+}
+
 internal fun MPVActivity.setupImmersiveWindow() {
     WindowCompat.setDecorFitsSystemWindows(window, false)
     val insetsController = WindowCompat.getInsetsController(window, window.decorView)
@@ -63,11 +69,12 @@ private fun MPVActivity.setupAudioSessionId() {
 /** onDestroy: drop scheduled callbacks + clear coalescing flags. */
 internal fun MPVActivity.cancelAllScheduledWork() {
     periodicSaveHandler.removeCallbacks(periodicSaveRunnable)
-    eventUiHandler.removeCallbacks(commitSeekbarSeekRunnable)
-    eventUiHandler.removeCallbacks(timePosUiRunnable)
-    eventUiHandler.removeCallbacks(metadataUiRunnable)
-    eventUiHandler.removeCallbacks(mediaSessionUpdateRunnable)
-    eventUiHandler.removeCallbacks(shieldFallbackResyncRunnable)
+    eventUiHandler.removeCallbacksAndMessages(null)
+    fadeHandler.removeCallbacksAndMessages(null)
+    // Self-reposting — if controls are visible at destroy it would otherwise
+    // tick (and pin the activity) for the rest of the process lifetime.
+    clockHandler.removeCallbacks(clockRunnable)
+    stopServiceHandler.removeCallbacks(stopServiceRunnable)
     timePosUiPending = false
     metadataUiPending = false
     mediaSessionUpdatePending = false

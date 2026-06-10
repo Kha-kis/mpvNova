@@ -944,6 +944,7 @@
             <!-- Add a user font -->
             <LinearLayout
                 android:id="@+id/addFontRow"
+                android:baselineAligned="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -1002,6 +1003,7 @@
             <!-- Remove a user font -->
             <LinearLayout
                 android:id="@+id/removeFontRow"
+                android:baselineAligned="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -1060,6 +1062,7 @@
             <!-- Save as preset -->
             <LinearLayout
                 android:id="@+id/savePresetRow"
+                android:baselineAligned="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -1118,6 +1121,7 @@
             <!-- Apply preset -->
             <LinearLayout
                 android:id="@+id/applyPresetRow"
+                android:baselineAligned="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -1176,6 +1180,7 @@
             <!-- Edit preset -->
             <LinearLayout
                 android:id="@+id/editPresetRow"
+                android:baselineAligned="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -1234,6 +1239,7 @@
             <!-- Delete preset -->
             <LinearLayout
                 android:id="@+id/deletePresetRow"
+                android:baselineAligned="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
