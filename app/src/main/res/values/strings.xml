@@ -44,6 +44,17 @@
     <string name="btn_audio_norm_summary">Even quiet and loud passages in real time.</string>
     <string name="btn_next_chapter">Next chapter</string>
     <string name="dialog_title_chapter">Go to chapter</string>
+    <string name="stats_picker_eyebrow">Stats</string>
+    <string name="dialog_title_stats">Choose stats</string>
+    <string name="stats_page_1_number" translatable="false">1</string>
+    <string name="stats_page_1_title">General</string>
+    <string name="stats_page_1_summary">Playback, decoder, video, and audio state.</string>
+    <string name="stats_page_2_number" translatable="false">2</string>
+    <string name="stats_page_2_title">Timing</string>
+    <string name="stats_page_2_summary">Frame pacing, sync, scaling, and render timing.</string>
+    <string name="stats_page_3_number" translatable="false">3</string>
+    <string name="stats_page_3_title">Cache</string>
+    <string name="stats_page_3_summary">Buffering, demuxer, and read-ahead state.</string>
     <string name="toast_next_chapter_detail">Skipped to %1$s - %2$s</string>
     <string name="toast_no_next_chapter">No next chapter</string>
     <string name="toast_no_previous_chapter">No previous chapter</string>

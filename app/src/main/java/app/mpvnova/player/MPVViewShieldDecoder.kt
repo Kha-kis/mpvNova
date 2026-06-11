@@ -3,11 +3,9 @@ package app.mpvnova.player
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 
-// Shield MediaCodec can't decode 10-bit H.264. Two fallback flavors:
-//   DEFAULT: the standard G-NEXT path (gpu-next + mediacodec-copy) with zero
-//     tweaks — lavc software-decodes when the codec rejects the stream.
-//   COPY ("light tuning"): same path plus skiploopfilter=nonref, a 1 s audio
-//     buffer, an EWA Lanczos-sharp upscale, and a forced full display match.
+// Shield MediaCodec can't decode 10-bit H.264. Both fallback flavors keep the
+// G-NEXT renderer but skip MediaCodec so Hi10P starts on lavc software decode.
+// DEFAULT keeps the standard G-NEXT tuning; COPY adds the light tuning below.
 internal fun MPVView.applyShieldHi10pFallback(fallback: String) {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     applyShieldHi10pFallback(sharedPreferences, fallback)
@@ -30,16 +28,14 @@ private fun MPVView.applyShieldHi10pFallback(sharedPreferences: SharedPreference
     }
 }
 
-// Strictly stock: the standard G-NEXT path with zero extra tweaks. MediaCodec
-// rejects Hi10P so lavc software-decodes, exactly as a plain G-NEXT session would.
 private fun MPVView.applyShieldHi10pDefaultFallback(sharedPreferences: SharedPreferences) {
+    setRuntimeOption("hwdec", MPV_VIEW_HWDEC_NONE)
     applyStandardDecoderTuning(sharedPreferences, MPV_VIEW_VO_GPU_NEXT)
-    setRuntimeOption("hwdec", MPV_VIEW_HWDEC_MEDIACODEC_COPY)
 }
 
 private fun MPVView.applyShieldHi10pCopyFallback(sharedPreferences: SharedPreferences) {
+    setRuntimeOption("hwdec", MPV_VIEW_HWDEC_NONE)
     applyStandardDecoderTuning(sharedPreferences, MPV_VIEW_VO_GPU_NEXT)
-    setRuntimeOption("hwdec", MPV_VIEW_HWDEC_MEDIACODEC_COPY)
     setRuntimeOption("vd-lavc-skiploopfilter", "nonref")
     setRuntimeOption("audio-buffer", "1.0")
     // Sharp upscale for whatever scaling remains after the resolution match
@@ -47,15 +43,20 @@ private fun MPVView.applyShieldHi10pCopyFallback(sharedPreferences: SharedPrefer
     setRuntimeOption("scale", "ewa_lanczossharp")
 }
 
-// The Copy flavor's vo/hwdec are indistinguishable from plain G-NEXT — its
-// Shield-only tunings (nonref loopfilter + 1s audio buffer) are the tell,
-// so the picker can highlight Shield Anime instead of G-NEXT when active.
-internal fun MPVView.isShieldH10pCopyModeActive(): Boolean {
-    return isNvidiaShieldDevice() &&
-        matchesShieldOption("vo", MPV_VIEW_VO_GPU_NEXT) &&
-        matchesShieldOption("hwdec", MPV_VIEW_HWDEC_MEDIACODEC_COPY) &&
+// New builds request hwdec=no directly. Keep the legacy copy-tuning check so
+// an already-running session from the old path still highlights Shield Hi10P.
+internal fun MPVView.isShieldH10pFallbackModeActive(): Boolean {
+    if (!isNvidiaShieldDevice() ||
+        !isHi10pH264Video() ||
+        !matchesShieldOption("vo", MPV_VIEW_VO_GPU_NEXT)
+    ) {
+        return false
+    }
+    val directSoftware = matchesShieldOption("hwdec", MPV_VIEW_HWDEC_NONE)
+    val legacyCopyTuning = matchesShieldOption("hwdec", MPV_VIEW_HWDEC_MEDIACODEC_COPY) &&
         matchesShieldOption("vd-lavc-skiploopfilter", "nonref") &&
         matchesShieldOption("audio-buffer", "1.0", "1.000000", "1")
+    return directSoftware || legacyCopyTuning
 }
 
 private fun MPVView.matchesShieldOption(name: String, vararg expected: String): Boolean {

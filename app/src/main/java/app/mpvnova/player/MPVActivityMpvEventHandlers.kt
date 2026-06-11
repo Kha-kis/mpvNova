@@ -84,6 +84,7 @@ private fun MPVActivity.handleMpvFileLoaded() {
     refreshAudioFiltersAfterFileLoad()
     applyCustomSubtitleStyleOnFileLoad()
     maybeApplyContentDisplayMode()
+    maybeApplyPreloadedShieldHi10pDisplayMatch()
 }
 
 private fun MPVActivity.guardNearEndStartPosition() {

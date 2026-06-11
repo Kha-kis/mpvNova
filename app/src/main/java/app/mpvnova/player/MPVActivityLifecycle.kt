@@ -48,6 +48,7 @@ internal fun MPVActivity.startPlayerForFile(filepath: String) {
     applySavedAudioFilterDefaults()
     applySavedSubFilterDefaults()
     prepareStreamLoading(filepath)
+    prepareDecoderForFileLoad(filepath)
     player.playFile(filepath)
     mediaSession = initMediaSession()
     updateMediaSessionNow()

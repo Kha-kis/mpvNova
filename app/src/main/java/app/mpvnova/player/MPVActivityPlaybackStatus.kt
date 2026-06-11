@@ -75,10 +75,6 @@ internal fun MPVActivity.updateDecoderButton() {
     binding.cycleDecoderBtn.setTextIfChanged(decoderText)
 }
 
-internal fun MPVActivity.toggleStatsOverlay() {
-    mpvCommand(arrayOf("script-binding", "stats/display-stats-toggle"))
-}
-
 private fun MPVActivity.shouldApplyShieldHi10pFallback(currentMode: String): Boolean {
     return autoDecoderFallback &&
         shieldDecoderModeEnabled &&
@@ -99,16 +95,7 @@ internal fun MPVActivity.maybeApplyShieldHi10pFallback() {
     val currentMode = player.currentDecoderMode
     if (!shouldApplyShieldHi10pFallback(currentMode)) return
 
-    val fromGnext = currentMode == MPVView.DECODER_MODE_GNEXT
-    // Strictly-default flavor from a gpu-next session: nothing to change —
-    // the session already runs the standard G-NEXT path.
-    if (fromGnext && shieldDecoderFallback == MPVView.SHIELD_DECODER_FALLBACK_DEFAULT)
-        return
-
-    // From a G-NEXT session both flavors keep hwdec at mediacodec-copy — no
-    // decoder teardown to pause around, and the playback-restart event the
-    // resync waits on may never fire. From HW/HW+ the hwdec swaps to copy.
-    val hwdecWillChange = !fromGnext
+    val hwdecWillChange = normalizedHwdecOption() != MPV_VIEW_HWDEC_NONE
 
     // Pause around the swap so audio can't drain → no underrun → no drift.
     val wasPlaying = player.paused == false

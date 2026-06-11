@@ -34,7 +34,8 @@ internal fun MPVActivity.openSavePresetPrompt() {
     var accepted = false
 
     fun syncChecks() {
-        view.presetOverrideAssCheck.isVisible = overrideAss; view.presetForceAllCheck.isVisible = forceAll
+        view.presetOverrideAssCheck.isVisible = overrideAss
+        view.presetForceAllCheck.isVisible = forceAll
     }
     layoutController.bind()
     syncChecks()

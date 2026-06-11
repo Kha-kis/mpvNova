@@ -17,7 +17,7 @@ internal fun MPVActivity.bindClickListeners() = with(binding) {
         player.cyclePause()
     }
     cycleDecoderBtn.setOnClickListener { pickDecoder() }
-    statsToggleBtn.setOnClickListener { toggleStatsOverlay() }
+    statsToggleBtn.setOnClickListener { showStatsPage(STATS_PAGE_FIRST) }
     cycleSpeedBtn.setOnClickListener { cycleSpeed() }
     voiceBoostBtn.setOnClickListener { adjustVoiceBoost(1, wrap = true) }
     volumeBoostBtn.setOnClickListener { adjustVolumeBoost(1, wrap = true) }
@@ -36,7 +36,7 @@ internal fun MPVActivity.bindLongClickListeners() = with(binding) {
     prevBtn.setOnLongClickListener { openPlaylistMenu(pauseForDialog()); true }
     nextBtn.setOnLongClickListener { openPlaylistMenu(pauseForDialog()); true }
     cycleDecoderBtn.setOnLongClickListener { cycleDecoderMode(); true }
-    statsToggleBtn.setOnLongClickListener { showFirstStatsPage(); true }
+    statsToggleBtn.setOnLongClickListener { showStatsPickerDialog(); true }
     voiceBoostBtn.setOnLongClickListener { adjustVoiceBoost(-1, wrap = true); true }
     volumeBoostBtn.setOnLongClickListener { adjustVolumeBoost(-1, wrap = true); true }
     nightModeBtn.setOnLongClickListener { adjustNightMode(-1, wrap = true); true }
@@ -81,8 +81,4 @@ internal fun MPVActivity.toggleTimeRemainingDisplay() {
     useTimeRemaining = !useTimeRemaining
     updatePlaybackText(psc.positionSec, force = true)
     updatePlaybackDuration(psc.duration)
-}
-
-internal fun MPVActivity.showFirstStatsPage() {
-    mpvCommand(arrayOf("script-binding", "stats/display-page-1"))
 }

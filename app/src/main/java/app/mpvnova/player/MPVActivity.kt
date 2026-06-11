@@ -380,6 +380,7 @@ class MPVActivity : AppCompatActivity() {
     internal var gpuNextRenderFallbackStage = 0
     internal var gpuNextCopyRetryConfirmed = false
     internal var gpuNextCopyRetryDisplayedFrame = false
+    internal var shieldHi10pPreloadApplied = false
     // Sustained-error window for gpu-next — a single transient libplacebo
     // log line must not trip the renderer fallback (that rebuilds the VO
     // mid-playback and desyncs A/V/subs).
@@ -487,6 +488,7 @@ class MPVActivity : AppCompatActivity() {
             applySavedSubFilterDefaults()
             prepareStreamLoading(filepath)
             if (this.newIntentReplace) {
+                prepareDecoderForFileLoad(filepath)
                 mpvCommand(arrayOf("loadfile", filepath, "replace"))
                 showToast(getString(R.string.notice_file_play))
             } else {
@@ -498,6 +500,7 @@ class MPVActivity : AppCompatActivity() {
             applySavedAudioFilterDefaults()
             applySavedSubFilterDefaults()
             prepareStreamLoading(filepath)
+            prepareDecoderForFileLoad(filepath)
             mpvCommand(arrayOf("loadfile", filepath))
         }
     }
