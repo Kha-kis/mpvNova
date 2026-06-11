@@ -24,8 +24,16 @@ internal const val TOAST_TITLED_MAX_MS = 5_600L
 internal const val TOAST_TOP_WITH_TITLE_DP = 96f
 internal const val TOAST_TOP_NO_TITLE_DP = 22f
 internal const val TOAST_OVERLAY_TOP_DP = 28f
-internal const val SAVE_PRESET_WIDTH_FRACTION = 0.6f
-internal const val SAVE_PRESET_MAX_WIDTH_DP = 640f
+internal const val SAVE_PRESET_WIDTH_FRACTION = 0.52f
+internal const val SAVE_PRESET_MAX_WIDTH_DP = 560f
+internal const val SAVE_PRESET_HEIGHT_FRACTION = 0.76f
+internal const val SAVE_PRESET_MAX_HEIGHT_DP = 560f
+internal val SAVE_PRESET_DIALOG_LAYOUT = PlayerDialogLayout(
+    widthFraction = SAVE_PRESET_WIDTH_FRACTION,
+    maxWidthDp = SAVE_PRESET_MAX_WIDTH_DP,
+    heightFraction = SAVE_PRESET_HEIGHT_FRACTION,
+    maxHeightDp = SAVE_PRESET_MAX_HEIGHT_DP,
+)
 internal const val CLOCK_TICK_INTERVAL_MS = 30_000L
 internal const val MIN_CLOCK_TICK_DELAY_MS = 1_000L
 internal const val BACKGROUND_SERVICE_STOP_DELAY_MS = 1_000L
@@ -161,8 +169,8 @@ internal const val VOLUME_BOOST_STEP_VERY_HIGH_DB = 12
 internal const val VOLUME_BOOST_STEP_MAX_SAFE_DB = 15
 internal const val VOLUME_BOOST_STEP_EXTRA_DB = 18
 internal const val VOLUME_BOOST_STEP_EXTREME_DB = 21
-internal const val SUB_SCALE_MIN = 0.5
-internal const val SUB_SCALE_MAX = 2.0
+internal const val SUB_SCALE_MIN_HUNDREDTHS = 50
+internal const val SUB_SCALE_MAX_HUNDREDTHS = 200
 internal const val SUB_SCALE_STEP_HUNDREDTHS = 5
 internal val VLC_TITLE_EXTRA_KEYS = arrayOf(
     "title",
@@ -181,10 +189,7 @@ internal val VOLUME_BOOST_STEPS_DB = intArrayOf(
     VOLUME_BOOST_STEP_EXTRA_DB,
     VOLUME_BOOST_STEP_EXTREME_DB,
 )
-internal val SUB_SCALE_STEPS =
-    ((SUB_SCALE_MIN * 100).toInt()..(SUB_SCALE_MAX * 100).toInt() step SUB_SCALE_STEP_HUNDREDTHS)
-        .map { it / PERCENT_SCALE_DOUBLE }
-        .toDoubleArray()
+internal val SUB_SCALE_STEPS = buildSubScaleSteps()
 internal val SUB_POSITION_STEPS =
     (SUB_POSITION_MIN_PERCENT..SUB_POSITION_MAX_PERCENT step SUB_POSITION_STEP_PERCENT)
         .toList()

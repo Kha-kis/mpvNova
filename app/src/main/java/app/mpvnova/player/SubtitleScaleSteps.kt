@@ -14,6 +14,11 @@ private val LEGACY_SUB_SCALE_STEPS = doubleArrayOf(
     2.0,
 )
 
+internal fun buildSubScaleSteps(): DoubleArray =
+    (SUB_SCALE_MIN_HUNDREDTHS..SUB_SCALE_MAX_HUNDREDTHS step SUB_SCALE_STEP_HUNDREDTHS)
+        .map { hundredths -> hundredths / PERCENT_SCALE_DOUBLE }
+        .toDoubleArray()
+
 internal fun nearestSubScaleIndex(scale: Double): Int =
     SUB_SCALE_STEPS.indices.minBy { index -> abs(SUB_SCALE_STEPS[index] - scale) }
 
