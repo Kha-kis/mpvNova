@@ -2,6 +2,8 @@ package app.mpvnova.player
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Looper
+import android.util.Log
 import android.view.View
 import java.util.Locale
 
@@ -15,11 +17,18 @@ internal fun MPVActivity.initListeners() {
 }
 
 internal fun MPVActivity.finishWithResult(code: Int, includeTimePos: Boolean = false) {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+        runOnUiThread { finishWithResult(code, includeTimePos) }
+        return
+    }
     if (isFinishing) // only count first call
         return
     val result = if (includeTimePos) {
-        if (resultPositionMs < 0L)
-            capturePlaybackResultSnapshot()
+        if (resultPositionMs < 0L) {
+            capturePlaybackResultSnapshot(updateCompletion = true)
+        } else if (!playbackCompletionReached) {
+            playbackCompletionReached = isPlaybackCompleteForResult(resultPositionMs, resultDurationMs)
+        }
         val endBy = if (playbackCompletionReached)
             EXTERNAL_END_BY_PLAYBACK_COMPLETION
         else
@@ -29,6 +38,13 @@ internal fun MPVActivity.finishWithResult(code: Int, includeTimePos: Boolean = f
         Intent(RESULT_INTENT).apply {
             data = if (intent.data?.scheme == "file") null else intent.data
         }
+    }
+    if (intent.getBooleanExtra(EXTRA_EXTERNAL_PLAYER_RESULT, false)) {
+        Log.v(
+            MPV_ACTIVITY_TAG,
+            "external-player: direct result caller=${intent.getStringExtra(EXTRA_EXTERNAL_CALLER_PACKAGE)} " +
+                "code=${code.resultName()} action=${result.action} extras=${result.resultExtraSummary()}"
+        )
     }
     setResult(code, result)
     finish()
@@ -64,6 +80,7 @@ internal fun MPVActivity.refreshLoadingOverlay() {
         if (streamCacheLoading) R.string.player_buffering_stream
         else R.string.player_loading_stream
     )
+    refreshStreamLoadingCover()
     binding.loadingOverlay.animate().cancel()
     if (visible) {
         if (binding.loadingOverlay.visibility != View.VISIBLE) {
@@ -81,6 +98,26 @@ internal fun MPVActivity.refreshLoadingOverlay() {
             .setDuration(LOADING_OVERLAY_FADE_MS)
             .withLayer()
             .withEndAction { binding.loadingOverlay.visibility = View.GONE }
+    }
+}
+
+// Opaque backdrop tied to the initial network-stream open (streamOpenLoading), so the
+// embedded cover-art still and the demuxer's far-offset network seeks happen behind black
+// and the user sees loading -> real video. Mid-playback rebuffering (streamCacheLoading)
+// deliberately keeps the paused frame visible, so the cover is not tied to it.
+private fun MPVActivity.refreshStreamLoadingCover() {
+    val cover = binding.streamLoadingCover
+    cover.animate().cancel()
+    if (streamOpenLoading) {
+        // Snap on (no fade-in) so no cover-art frame slips through before it's opaque.
+        cover.visibility = View.VISIBLE
+        cover.alpha = 1f
+    } else if (cover.visibility == View.VISIBLE) {
+        cover.animate()
+            .alpha(0f)
+            .setDuration(LOADING_OVERLAY_FADE_MS)
+            .withLayer()
+            .withEndAction { cover.visibility = View.GONE }
     }
 }
 

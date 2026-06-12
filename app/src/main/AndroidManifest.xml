@@ -216,6 +216,30 @@
             </intent-filter>
         </activity>
 
+        <!-- External-player variants launched only by the ExternalPlayerActivity trampoline.
+             Standard launch mode (no singleTask) so they stay in the caller's task and the
+             result flows back. Opaque stops the caller (Nuvio auto-next); translucent keeps it
+             paused (Stremio's result-launcher survives). -->
+        <activity
+            android:name=".ExternalOpaquePlayerActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:supportsPictureInPicture="true"
+            tools:targetApi="n"
+            android:autoRemoveFromRecents="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+
+        <activity
+            android:name=".TranslucentMPVActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:supportsPictureInPicture="true"
+            tools:targetApi="n"
+            android:autoRemoveFromRecents="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.Translucent"
+            android:exported="false" />
+
         <activity
             android:name=".MPVActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"

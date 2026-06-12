@@ -192,7 +192,7 @@ private fun MPVActivity.effectiveIntentStartPosition(launchExtras: Bundle, inten
     val intentNearEnd = intentDurationMs > 0L &&
         intentPositionMs >= intentDurationMs - RESUME_NEAR_END_MS
     return when {
-        intentPositionMs > 0L && !intentNearEnd -> intentPositionMs
+        intentPositionMs >= RESUME_MIN_POSITION_MS && !intentNearEnd -> intentPositionMs
         intentPositionMs <= 0L -> loadResumePosition() ?: 0L
         else -> 0L
     }

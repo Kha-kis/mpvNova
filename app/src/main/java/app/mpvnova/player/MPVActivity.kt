@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat
 typealias ActivityResultCallback = (Int, Intent?) -> Unit
 typealias StateRestoreCallback = () -> Unit
 
-class MPVActivity : AppCompatActivity() {
+open class MPVActivity : AppCompatActivity() {
     override fun attachBaseContext(newBase: android.content.Context) {
         super.attachBaseContext(UiScale.wrap(newBase))
     }
@@ -154,25 +154,9 @@ class MPVActivity : AppCompatActivity() {
     }
 
     internal var becomingNoisyReceiverRegistered = false
-    // Set when we change the display mode (resolution/refresh match) so the
-    // noisy receiver can tell an HDMI re-sync from real headphone unplugging.
-    internal var lastDisplayModeSwitchMs = 0L
-    // The Hi10P fallback tunings force a full display match even when the
-    // user toggles are off. forced = active for the current file (the plain
-    // toggle pass must not regress it); needsRevert = carried into the next
-    // file so a non-Hi10P file can undo the forced mode.
-    internal var displayModeForcedByFallback = false
-    internal var displayModeNeedsRevert = false
     internal val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
-                val sinceModeSwitchMs =
-                    android.os.SystemClock.uptimeMillis() - lastDisplayModeSwitchMs
-                if (sinceModeSwitchMs < DISPLAY_MODE_SWITCH_GRACE_MS) {
-                    Log.v(MPV_ACTIVITY_TAG, "display-match: ignoring becoming-noisy " +
-                        "${sinceModeSwitchMs}ms after mode switch")
-                    return
-                }
                 onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS, "noisy")
             }
         }
@@ -239,14 +223,6 @@ class MPVActivity : AppCompatActivity() {
             .withEndAction { binding.seekOverlay.visibility = View.GONE }
     }
 
-    internal val displayModeSwitchCoverHideRunnable = Runnable {
-        binding.displayModeSwitchCover.animate()
-            .alpha(0f)
-            .setDuration(LOADING_OVERLAY_FADE_MS)
-            .withLayer()
-            .withEndAction { binding.displayModeSwitchCover.visibility = View.GONE }
-    }
-
     internal val stopServiceRunnable = Runnable {
         val intent = Intent(this, BackgroundPlaybackService::class.java)
         applicationContext.stopService(intent)
@@ -263,6 +239,7 @@ class MPVActivity : AppCompatActivity() {
 
     internal var statsFPS = false
     internal var statsLuaMode = 0
+    internal var activeStatsPage = 0
 
     internal var backgroundPlayMode = ""
     internal var noUIPauseMode = ""
@@ -276,8 +253,6 @@ class MPVActivity : AppCompatActivity() {
     internal var keepControlsVisibleWhilePaused = false
     internal var exitWithDoubleBack = false
     internal var lastBackPressMs = 0L
-    internal var autoRefreshRateSwitch = false
-    internal var autoResolutionSwitch = false
     internal var dpadUpJumpsToTopControls = false
     internal var hideControlsWhileSeeking = false
     internal var minimalSeekbarWhileSeeking = false
@@ -394,6 +369,10 @@ class MPVActivity : AppCompatActivity() {
     internal var playbackCompletionReached = false
     internal var resultPositionMs = -1L
     internal var resultDurationMs = 0L
+    // Armed before a replacing loadfile from a new external intent: the outgoing file's
+    // END_FILE (reason STOP) must not be mistaken for a real playback end and bounce the
+    // caller out. Consumed on that END_FILE; cleared on the new file's START_FILE.
+    internal var suppressEndFileFinishForReplace = false
     internal var onloadCommands = mutableListOf<Array<String>>()
     internal var streamOpenLoading = false
     internal var streamCacheLoading = false
@@ -403,8 +382,15 @@ class MPVActivity : AppCompatActivity() {
 
     // Activity lifetime
 
+    // Translucent player variants (e.g. TranslucentMPVActivity for Stremio) override this so
+    // the launching app stays paused, not stopped. applyPlayer re-applies the color theme, so
+    // the translucent attrs are merged on top of it, before the window is created.
+    protected open val useTranslucentPlayerWindow: Boolean get() = false
+
     override fun onCreate(icicle: Bundle?) {
         AppearanceTheme.applyPlayer(this)
+        if (useTranslucentPlayerWindow)
+            setTheme(R.style.PlayerTranslucentOverlay)
         super.onCreate(icicle)
         suppressPlayerActivityTransition()
         lifecycle.addObserver(lifecycleObserver)
@@ -457,7 +443,10 @@ class MPVActivity : AppCompatActivity() {
     }
 
     override fun finish() {
-        showDisplayModeSwitchCoverForExit()
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            runOnUiThread { finish() }
+            return
+        }
         super.finish()
         suppressPlayerActivityTransition()
     }
@@ -489,6 +478,7 @@ class MPVActivity : AppCompatActivity() {
             prepareStreamLoading(filepath)
             if (this.newIntentReplace) {
                 prepareDecoderForFileLoad(filepath)
+                suppressEndFileFinishForReplace = true
                 mpvCommand(arrayOf("loadfile", filepath, "replace"))
                 showToast(getString(R.string.notice_file_play))
             } else {
@@ -501,6 +491,7 @@ class MPVActivity : AppCompatActivity() {
             applySavedSubFilterDefaults()
             prepareStreamLoading(filepath)
             prepareDecoderForFileLoad(filepath)
+            suppressEndFileFinishForReplace = true
             mpvCommand(arrayOf("loadfile", filepath))
         }
     }

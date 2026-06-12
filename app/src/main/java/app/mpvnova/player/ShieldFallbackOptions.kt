@@ -24,6 +24,12 @@ internal val SHIELD_FALLBACK_OPTIONS = listOf(
         R.string.shield_fallback_light_desc,
         "Light",
     ),
+    ShieldFallbackOption(
+        MPVView.SHIELD_DECODER_FALLBACK_FRAMEDROP,
+        R.string.shield_fallback_framedrop_title,
+        R.string.shield_fallback_framedrop_desc,
+        "Sync",
+    ),
 )
 
 internal fun shieldFallbackOption(value: String?): ShieldFallbackOption {

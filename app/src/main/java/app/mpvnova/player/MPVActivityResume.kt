@@ -55,21 +55,24 @@ internal fun MPVActivity.saveResumePosition(
     if (identity == null) return
     val pos = positionMs
     val dur = durationMs
-    if (pos > 0L && dur > 0L) {
-        val prefs = getDefaultSharedPreferences(applicationContext)
-        val key = resumeKey(identity)
-        val legacyKey = legacyResumeKey(identity)
-        if (pos >= dur - RESUME_NEAR_END_MS) {
-            // User effectively finished — don't preserve a "stuck at 99%"
-            // position that'll resume to nothing on next launch.
-            prefs.edit().remove(key).remove(legacyKey).apply()
-        } else {
-            val entry = "$pos|$dur|${System.currentTimeMillis()}"
-            val editor = prefs.edit().putString(key, entry)
-            if (legacyKey != key)
-                editor.remove(legacyKey)
-            editor.apply()
-        }
+    if (dur <= 0L)
+        return
+
+    val prefs = getDefaultSharedPreferences(applicationContext)
+    val key = resumeKey(identity)
+    val legacyKey = legacyResumeKey(identity)
+    if (pos < RESUME_MIN_POSITION_MS) {
+        prefs.edit().remove(key).remove(legacyKey).apply()
+    } else if (pos >= dur - RESUME_NEAR_END_MS) {
+        // User effectively finished — don't preserve a "stuck at 99%"
+        // position that'll resume to nothing on next launch.
+        prefs.edit().remove(key).remove(legacyKey).apply()
+    } else {
+        val entry = "$pos|$dur|${System.currentTimeMillis()}"
+        val editor = prefs.edit().putString(key, entry)
+        if (legacyKey != key)
+            editor.remove(legacyKey)
+        editor.apply()
     }
 }
 
@@ -85,7 +88,7 @@ internal fun MPVActivity.loadResumePosition(): Long? {
         val pos = parts.getOrNull(0)?.toLongOrNull()
         val dur = parts.getOrNull(1)?.toLongOrNull() ?: 0L
         pos?.takeIf { value ->
-            value > 0L && (dur <= 0L || value < dur - RESUME_NEAR_END_MS)
+            value >= RESUME_MIN_POSITION_MS && (dur <= 0L || value < dur - RESUME_NEAR_END_MS)
         }
     }
 }

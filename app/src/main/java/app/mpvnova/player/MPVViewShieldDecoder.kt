@@ -23,6 +23,7 @@ internal fun MPVView.applyShieldHi10pFallback(sharedPreferences: SharedPreferenc
 
 private fun MPVView.applyShieldHi10pFallback(sharedPreferences: SharedPreferences, fallback: String) {
     when (fallback.toShieldDecoderFallback()) {
+        MPVView.SHIELD_DECODER_FALLBACK_FRAMEDROP -> applyShieldHi10pFramedropFallback(sharedPreferences)
         MPVView.SHIELD_DECODER_FALLBACK_COPY -> applyShieldHi10pCopyFallback(sharedPreferences)
         else -> applyShieldHi10pDefaultFallback(sharedPreferences)
     }
@@ -38,9 +39,17 @@ private fun MPVView.applyShieldHi10pCopyFallback(sharedPreferences: SharedPrefer
     applyStandardDecoderTuning(sharedPreferences, MPV_VIEW_VO_GPU_NEXT)
     setRuntimeOption("vd-lavc-skiploopfilter", "nonref")
     setRuntimeOption("audio-buffer", "1.0")
-    // Sharp upscale for whatever scaling remains after the resolution match
-    // (the activity side forces the display to the video's resolution).
+    // Sharp upscale for gpu-next software decode.
     setRuntimeOption("scale", "ewa_lanczossharp")
+}
+
+// Light tuning plus frame dropping. applyStandardDecoderTuning forces framedrop=no, which
+// lets A/V desync grow without bound when the Shield's audio HAL clock slips (a state only a
+// reboot clears). framedrop=vo drops late frames at the output stage so video keeps following
+// the audio clock — an occasional dropped frame instead of runaway drift.
+private fun MPVView.applyShieldHi10pFramedropFallback(sharedPreferences: SharedPreferences) {
+    applyShieldHi10pCopyFallback(sharedPreferences)
+    setRuntimeOption("framedrop", "vo")
 }
 
 // New builds request hwdec=no directly. Keep the legacy copy-tuning check so
@@ -67,6 +76,7 @@ private fun MPVView.matchesShieldOption(name: String, vararg expected: String): 
 // Unknown values (including the removed legacy "g_next_sw") map to DEFAULT.
 internal fun String?.toShieldDecoderFallback(): String {
     return when (this) {
+        MPVView.SHIELD_DECODER_FALLBACK_FRAMEDROP -> MPVView.SHIELD_DECODER_FALLBACK_FRAMEDROP
         MPVView.SHIELD_DECODER_FALLBACK_COPY -> MPVView.SHIELD_DECODER_FALLBACK_COPY
         else -> MPVView.SHIELD_DECODER_FALLBACK_DEFAULT
     }

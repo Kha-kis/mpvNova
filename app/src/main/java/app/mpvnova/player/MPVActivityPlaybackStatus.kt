@@ -95,7 +95,12 @@ internal fun MPVActivity.maybeApplyShieldHi10pFallback() {
     val currentMode = player.currentDecoderMode
     if (!shouldApplyShieldHi10pFallback(currentMode)) return
 
-    val hwdecWillChange = normalizedHwdecOption() != MPV_VIEW_HWDEC_NONE
+    if (player.isShieldH10pFallbackModeActive()) {
+        updateDecoderButton()
+        return
+    }
+
+    val hwdecWillChange = player.hwdecActive.trim().lowercase() != MPV_VIEW_HWDEC_NONE
 
     // Pause around the swap so audio can't drain → no underrun → no drift.
     val wasPlaying = player.paused == false
@@ -105,10 +110,6 @@ internal fun MPVActivity.maybeApplyShieldHi10pFallback() {
     }
     player.applyShieldHi10pFallback(shieldDecoderFallback)
     updateDecoderButton()
-    // Light pairs the tuning with a resolution match so the panel/TV does the
-    // upscaling. Refresh matching stays the user's own toggle choice.
-    if (shieldDecoderFallback == MPVView.SHIELD_DECODER_FALLBACK_COPY)
-        maybeApplyContentDisplayMode(forceResolutionMatch = true)
     // Wait for playback-restart — fixed delay can't cover Shield's 3+s
     // MediaCodec retry cascade.
     if (hwdecWillChange)

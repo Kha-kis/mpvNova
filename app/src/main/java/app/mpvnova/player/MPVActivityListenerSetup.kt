@@ -17,7 +17,7 @@ internal fun MPVActivity.bindClickListeners() = with(binding) {
         player.cyclePause()
     }
     cycleDecoderBtn.setOnClickListener { pickDecoder() }
-    statsToggleBtn.setOnClickListener { showStatsPage(STATS_PAGE_FIRST) }
+    statsToggleBtn.setOnClickListener { toggleStatsFromButton() }
     cycleSpeedBtn.setOnClickListener { cycleSpeed() }
     voiceBoostBtn.setOnClickListener { adjustVoiceBoost(1, wrap = true) }
     volumeBoostBtn.setOnClickListener { adjustVolumeBoost(1, wrap = true) }

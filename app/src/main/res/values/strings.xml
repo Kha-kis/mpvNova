@@ -389,7 +389,9 @@
     <string name="shield_fallback_default_title">G-NEXT SW — no tuning</string>
     <string name="shield_fallback_default_desc">Strictly stock playback: software decode through the standard G-NEXT path with no extra tweaks.</string>
     <string name="shield_fallback_light_title">G-NEXT SW — light tuning</string>
-    <string name="shield_fallback_light_desc">Skips the deblocking filter on non-reference frames (big CPU saving, minor quality cost), uses a 1-second audio buffer, switches the display to the video\'s resolution, and upscales with Lanczos sharp.</string>
+    <string name="shield_fallback_light_desc">Skips the deblocking filter on non reference frames (big CPU saving, minor quality cost), uses a 1 second audio buffer, and upscales with Lanczos sharp. Not always recommended. Some Hi10P streams get major AV sync or framedrop issues with this. If that happens, switch back to no tuning and/or restart your Shield.</string>
+    <string name="shield_fallback_framedrop_title">G-NEXT SW frame drop tuning</string>
+    <string name="shield_fallback_framedrop_desc">Light tuning plus frame dropping: when the Shield\'s audio clock slips and video starts drifting out of sync, the player drops late frames to stay in sync instead of drifting until you reboot. Use this if audio and video desync over time. Not always recommended. Some Hi10P streams get major AV sync or framedrop issues with this. If that happens, switch back to no tuning and/or restart your Shield.</string>
     <string name="pref_autopause_controls_overlay_title">Pause when controls show</string>
     <string name="pref_autopause_controls_overlay_summary">Automatically pause playback while the controls overlay is visible, so navigating doesn\'t fight the decoder for CPU. Applies to every file.</string>
     <string name="pref_autopause_shield_hi10p_title">Pause Hi10P on Shield</string>
@@ -540,13 +542,6 @@
 
     <string name="pref_display_clock_overlay_title">Show clock overlay</string>
     <string name="pref_display_clock_overlay_summary">Display the current time and \"ends at\" estimate at the top-left when the player controls are visible.</string>
-
-    <string name="pref_auto_refresh_rate_title">Match display refresh rate</string>
-    <string name="pref_auto_refresh_rate_summary">On Android TV, switch the display refresh rate to match the playing video (e.g., 23.976 fps content drives a 23.976 Hz mode). Eliminates 3:2 pulldown judder on 60 Hz panels. Reverts to the system default when playback ends.</string>
-    <string name="pref_resolution_match_title">Match display resolution</string>
-    <string name="pref_resolution_match_summary">On Android TV, switch the display output to the closest resolution for the playing video (e.g., 1080p content on a 4K panel), so the TV handles upscaling. Combine with refresh-rate matching for both. Reverts to the system default when playback ends.</string>
-    <string name="toast_display_mode_title">Display mode</string>
-    <string name="toast_display_mode_detail">%1$d × %2$d @ %3$s Hz</string>
 
     <string name="pref_dpad_up_jumps_top_title">D-pad up jumps to top controls</string>
     <string name="pref_dpad_up_jumps_top_summary">When on, pressing Up from the seekbar jumps to the top-right PiP / Settings icons instead of hiding the overlay. When off (default), pressing Up from the seekbar hides the overlay.</string>

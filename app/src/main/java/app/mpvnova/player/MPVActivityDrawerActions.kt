@@ -128,16 +128,16 @@ private fun MPVActivity.handleStatsDrawerAction(
 ) {
     when (action) {
         PlayerDrawerAction.STATS_TOGGLE -> {
-            mpvCommand(arrayOf("script-binding", "stats/display-stats-toggle"))
+            toggleStatsFromButton()
         }
         PlayerDrawerAction.STATS_PAGE_1 -> {
-            mpvCommand(arrayOf("script-binding", "stats/display-page-1"))
+            toggleStatsPage(STATS_PAGE_FIRST)
         }
         PlayerDrawerAction.STATS_PAGE_2 -> {
-            mpvCommand(arrayOf("script-binding", "stats/display-page-2"))
+            toggleStatsPage(STATS_PAGE_FIRST + 1)
         }
         PlayerDrawerAction.STATS_PAGE_3 -> {
-            mpvCommand(arrayOf("script-binding", "stats/display-page-3"))
+            toggleStatsPage(STATS_PAGE_LAST)
         }
         else -> Unit
     }

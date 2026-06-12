@@ -720,6 +720,21 @@
         <item name="materialAlertDialogTheme">@style/AppTheme.Preference.AlertDialog</item>
     </style>
 
+    <!-- Opaque player content, but a translucent window so the launching app (Stremio) stays
+         paused rather than stopped — keeps its result/auto-next callback alive. Used by
+         TranslucentMPVActivity; the video surface + loading cover keep it visually opaque. -->
+    <style name="AppTheme.Translucent" parent="AppTheme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <!-- Overlay merged on top of the color theme in MPVActivity.onCreate (applyPlayer re-sets
+         the theme), to restore translucency for TranslucentMPVActivity before the window is built. -->
+    <style name="PlayerTranslucentOverlay">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
     <style name="AppTheme.Ocean" parent="AppTheme">
         <item name="colorPrimary">#FF1E88E5</item>
         <item name="colorPrimaryDark">#FF1565C0</item>
@@ -1291,6 +1306,11 @@
         <item name="mpvStrokeStrong">#42FFFFFF</item>
     </style>
 
+    <!-- A/B TEST (Stremio result delivery): translucent so the launching app (Stremio) is NOT
+         stopped while the player is up, which keeps its registerForActivityResult callback
+         alive to receive our watched/auto-next result. Trade-off: may reintroduce Nuvio's
+         episode-flash on exit. If this fixes Stremio, replace the opaque-stop with a black
+         exit cover that masks the flash without stopping the caller. -->
     <style name="AppTheme.ExternalPlayer" parent="Theme.Material3.Dark.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>

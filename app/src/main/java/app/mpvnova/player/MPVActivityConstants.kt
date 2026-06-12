@@ -41,6 +41,8 @@ internal const val THUMB_SIZE = 384
 internal const val ASPECT_RATIO_MIN = 1.2f
 internal const val AUDIO_FOCUS_DUCKING = 0.5f
 internal const val RESULT_INTENT = "is.xyz.mpv.MPVActivity.result"
+internal const val EXTRA_EXTERNAL_PLAYER_RESULT = "app.mpvnova.player.extra.EXTERNAL_PLAYER_RESULT"
+internal const val EXTRA_EXTERNAL_CALLER_PACKAGE = "app.mpvnova.player.extra.EXTERNAL_CALLER_PACKAGE"
 internal const val STREAM_TYPE = AudioManager.STREAM_MUSIC
 internal const val MILLIS_PER_SECOND_LONG = 1_000L
 internal const val MPV_MILLIS_PER_SECOND_FLOAT = 1_000f
@@ -65,6 +67,7 @@ internal const val SEEK_FAST_REPEAT_THRESHOLD = 18
 internal const val CHAPTER_SKIP_EPSILON_SEC = 0.25
 internal const val CHAPTER_SEEK_MEMORY_MS = 500L
 internal const val PERIODIC_SAVE_INTERVAL_MS = 30_000L
+internal const val RESUME_MIN_POSITION_MS = 60_000L
 internal const val RESUME_NEAR_END_MS = 30_000L
 internal const val RESUME_TABLE_MAX_AGE_MS = 30L * 24L * 60L * 60L * MILLIS_PER_SECOND_LONG
 internal const val RESUME_TABLE_MAX_ENTRIES = 500
@@ -72,7 +75,7 @@ internal const val RESUME_ENTRY_PART_COUNT = 3
 internal const val RESUME_ENTRY_TIMESTAMP_INDEX = 2
 internal const val RESUME_FILE_TOKEN_MAX_LENGTH = 120
 internal const val RESUME_FILE_TOKEN_MIN_LENGTH = 3
-internal const val RESUME_TOAST_MIN_POSITION_MS = 60_000L
+internal const val RESUME_TOAST_MIN_POSITION_MS = RESUME_MIN_POSITION_MS
 internal const val RESUME_TOAST_DURATION_MS = 3_000L
 internal const val MONO_CHANNEL_COUNT = 1
 internal const val STEREO_CHANNEL_COUNT = 2
@@ -88,19 +91,6 @@ internal const val GPU_NEXT_FALLBACK_TOAST_MS = 5_200L
 // Wait for decoder + VO to settle after the Shield Hi10p fallback before
 // firing the resync seek.
 internal const val SHIELD_FALLBACK_RESYNC_DELAY_MS = 900L
-// Our own display-mode switches make HDMI re-negotiate, which interrupts the
-// audio device and fires ACTION_AUDIO_BECOMING_NOISY — ignore that broadcast
-// for this long after a switch so it doesn't pause playback at file load.
-internal const val DISPLAY_MODE_SWITCH_GRACE_MS = 5_000L
-// Render errors during the HDMI blank itself shouldn't count toward the
-// gpu-next fallback. Kept short: on a genuinely broken render path the
-// fallback rescue must not be delayed much past the blank.
-internal const val DISPLAY_MODE_FALLBACK_GRACE_MS = 2_500L
-// Long enough to still be readable after the 1-2s HDMI blank.
-internal const val DISPLAY_MODE_TOAST_MS = 4_500L
-// Covers the one-frame window resize/scaling flash around HDMI display-mode
-// handoff without keeping the video hidden for the full audio grace window.
-internal const val DISPLAY_MODE_SWITCH_COVER_MS = 1_600L
 internal const val DEFAULT_AUDIO_SAMPLE_RATE = 48_000
 internal const val DB_TO_LINEAR_BASE = 10.0
 internal const val DB_POWER_DIVISOR = 20.0

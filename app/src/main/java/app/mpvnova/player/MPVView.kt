@@ -222,5 +222,6 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
         const val DECODER_MODE_MPV_CONF = "mpv_conf"
         const val SHIELD_DECODER_FALLBACK_DEFAULT = "g_next_default"
         const val SHIELD_DECODER_FALLBACK_COPY = "g_next_copy"
+        const val SHIELD_DECODER_FALLBACK_FRAMEDROP = "g_next_framedrop"
     }
 }

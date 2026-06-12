@@ -34,9 +34,25 @@ private fun MPVActivity.handleMpvEndFile() {
     }
     psc.eof()
     updateMediaSession()
+    // A new external intent that replaced the file stops the outgoing one with an
+    // END_FILE; that is not a real playback end, so it must not return to the caller.
+    val replacedOutgoingFile = suppressEndFileFinishForReplace
+    suppressEndFileFinishForReplace = false
+    if (!replacedOutgoingFile && shouldFinishExternalPlaybackOnEndFile()) {
+        Log.v(
+            MPV_ACTIVITY_TAG,
+            "external-result: finishing on end-file position=$resultPositionMs " +
+                "duration=$resultDurationMs completion=$playbackCompletionReached"
+        )
+        finishWithResult(RESULT_OK, includeTimePos = true)
+    }
 }
 
 private fun MPVActivity.handleMpvStartFile() {
+    // The new file is loading: if a replace armed the suppress flag but the outgoing
+    // file never fired END_FILE (nothing was playing), clear it here so this file's
+    // genuine end still returns to the caller.
+    suppressEndFileFinishForReplace = false
     resetPlaybackResultState()
     audioNormUnderrunHintShown = false
     gpuNextRenderFallbackStage = 0
@@ -45,10 +61,6 @@ private fun MPVActivity.handleMpvStartFile() {
     pendingShieldFallbackResync = false
     shieldFallbackResumeAfter = false
     controlsOverlayAutoPaused = false
-    // The force is per-file; carry it as a pending revert for the new file.
-    displayModeNeedsRevert = displayModeNeedsRevert || displayModeForcedByFallback
-    displayModeForcedByFallback = false
-    refreshDrawerRowsIfVisible(DrawerTab.VIDEO)
     cachedChapters = emptyList()
     pendingChapterSeekTime = null
     currentItemTitle = pendingItemTitle
@@ -73,7 +85,7 @@ private fun MPVActivity.runOnloadCommands() {
     for (command in commands)
         mpvCommand(command)
     if (statsLuaMode > 0 && !playbackHasStarted)
-        mpvCommand(arrayOf("script-binding", "stats/display-page-${statsLuaMode}-toggle"))
+        showConfiguredStatsPage()
 }
 
 private fun MPVActivity.handleMpvFileLoaded() {
@@ -83,8 +95,6 @@ private fun MPVActivity.handleMpvFileLoaded() {
     showResumeToastIfNeeded()
     refreshAudioFiltersAfterFileLoad()
     applyCustomSubtitleStyleOnFileLoad()
-    maybeApplyContentDisplayMode()
-    maybeApplyPreloadedShieldHi10pDisplayMatch()
 }
 
 private fun MPVActivity.guardNearEndStartPosition() {

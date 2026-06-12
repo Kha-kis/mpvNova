@@ -78,9 +78,6 @@ internal fun MPVActivity.pickShieldDecoderFallback() {
                 if (currentDecoderUiMode() == MPVView.DECODER_MODE_SHIELD_H10P) {
                     player.applyShieldHi10pFallback(option.value)
                     updateDecoderButton()
-                    if (option.value == MPVView.SHIELD_DECODER_FALLBACK_COPY) {
-                        maybeApplyContentDisplayMode(forceResolutionMatch = true)
-                    }
                 }
                 refreshDrawerRowsIfVisible(DrawerTab.VIDEO)
                 dialog.dismiss()

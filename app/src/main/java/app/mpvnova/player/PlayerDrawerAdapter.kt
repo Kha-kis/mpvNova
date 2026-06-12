@@ -152,7 +152,7 @@ internal class PlayerDrawerAdapter(
         fun bind(preference: PlayerDrawerPreference) = with(binding) {
             prefRowTitle.setText(preference.titleRes)
             prefRowSummary.setText(preference.summaryRes)
-            refreshPrefRowValue(prefRowValue, prefs.effectiveValue(activity, preference))
+            refreshPrefRowValue(prefRowValue, prefs.rawValue(preference))
             val disabled = preference.disabledWhenOnKey?.let { prefs.getBoolean(it, false) } == true
             root.alpha = if (disabled) PREF_ROW_DISABLED_ALPHA else 1f
             root.setOnClickListener {
@@ -160,7 +160,7 @@ internal class PlayerDrawerAdapter(
                     return@setOnClickListener
                 val newValue = !prefs.rawValue(preference)
                 prefs.edit().putBoolean(preference.key, newValue).apply()
-                refreshPrefRowValue(prefRowValue, prefs.effectiveValue(activity, preference))
+                refreshPrefRowValue(prefRowValue, prefs.rawValue(preference))
                 activity.handleDrawerPreferenceChange(preference, newValue)
                 refreshRowsDisabledBy(preference.key)
             }
@@ -301,17 +301,6 @@ private fun drawerStableScrollOffset(
 
 private fun SharedPreferences.rawValue(preference: PlayerDrawerPreference): Boolean {
     return getBoolean(preference.key, preference.defaultValue)
-}
-
-private fun SharedPreferences.effectiveValue(
-    activity: MPVActivity,
-    preference: PlayerDrawerPreference,
-): Boolean {
-    val raw = rawValue(preference)
-    return when (preference) {
-        PlayerDrawerPreference.RESOLUTION_MATCH -> raw || activity.displayModeForcedByFallback
-        else -> raw
-    }
 }
 
 private fun refreshPrefRowValue(valueView: TextView, on: Boolean) {

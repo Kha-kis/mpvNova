@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager
 import java.io.File
 import java.io.IOException
 import java.nio.ByteBuffer
+import java.util.Locale
 
 internal fun MPVActivity.prepareDecoderForFileLoad(filepath: String) {
     if (!canPreloadShieldHi10pFallback()) {
@@ -14,26 +15,43 @@ internal fun MPVActivity.prepareDecoderForFileLoad(filepath: String) {
         return
     }
 
-    val localFile = filepath.toCanonicalLocalFile()?.takeIf { it.isFile && it.canRead() }
-    if (localFile?.isH264TenBitVideoFile() != true) {
+    val source = shieldHi10pPreloadSource(filepath)
+    if (source == null) {
         restoreDecoderAfterShieldHi10pPreload()
         return
     }
 
-    Log.v(MPV_ACTIVITY_TAG, "shield fallback: preloading software decode for local H.264 Hi10P")
+    Log.v(MPV_ACTIVITY_TAG, "shield fallback: preloading software decode for $source H.264 Hi10P")
     player.applyShieldHi10pFallback(shieldDecoderFallback)
     shieldHi10pPreloadApplied = true
     updateDecoderButton()
 }
 
-internal fun MPVActivity.maybeApplyPreloadedShieldHi10pDisplayMatch() {
-    if (!shieldHi10pPreloadApplied ||
-        shieldDecoderFallback != MPVView.SHIELD_DECODER_FALLBACK_COPY ||
-        !player.isShieldH10pFallbackModeActive()
-    ) {
-        return
-    }
-    maybeApplyContentDisplayMode(forceResolutionMatch = true)
+// Returns a short source label when the file is (or is very likely) H.264 Hi10P, else null.
+// Local files are sniffed authoritatively from their H.264 SPS headers. Streams can't be
+// header-read without a second (often single-use) network open, so they fall back to the
+// release-name hint that Stremio/launchers almost always carry ("Hi10"/"Hi10P").
+private fun MPVActivity.shieldHi10pPreloadSource(filepath: String): String? {
+    val localFile = filepath.toCanonicalLocalFile()?.takeIf { it.isFile && it.canRead() }
+    if (localFile != null)
+        return if (localFile.isH264TenBitVideoFile()) "local" else null
+    val nameHints = listOfNotNull(filepath, pendingFileName, pendingItemTitle)
+    return if (nameHints.any { it.indicatesH264TenBitByName() }) "stream-name" else null
+}
+
+// "Hi10"/"Hi10P" is the anime-release shorthand for H.264 High-10 specifically. Generic
+// "10-bit" markers are ambiguous (HEVC Main10 too, which Shield decodes in hardware), so
+// only treat those as H.264 Hi10P when the name also calls out H.264/AVC and not HEVC.
+internal fun String.indicatesH264TenBitByName(): Boolean {
+    val name = lowercase(Locale.US)
+    val tenBit = name.contains("10bit") || name.contains("10-bit") || name.contains("10 bit")
+    val isH264 = name.contains("x264") || name.contains("h264") ||
+        name.contains("h.264") || name.contains("avc")
+    val isHevc = name.contains("x265") || name.contains("h265") ||
+        name.contains("h.265") || name.contains("hevc")
+    // "Hi10"/"Hi10P" is the anime shorthand for H.264 High-10 specifically; a generic
+    // "10-bit" marker only counts when the name also names H.264/AVC and not HEVC.
+    return name.contains("hi10") || (tenBit && isH264 && !isHevc)
 }
 
 private fun MPVActivity.canPreloadShieldHi10pFallback(): Boolean =
