@@ -8,6 +8,7 @@ import java.nio.ByteOrder
 internal object SubtitleFontTable {
     private const val TAG_TTCF = 0x74746366 // 'ttcf'
     private const val TAG_NAME = 0x6E616D65 // 'name'
+    private const val TAG_HEAD = 0x68656164 // 'head'
     private const val MASK16 = 0xFFFF
     private const val TTC_FIRST_OFFSET_POS = 12
     private const val TABLE_RECORD_SKIP = 6
@@ -17,8 +18,33 @@ internal object SubtitleFontTable {
     private const val PLATFORM_WINDOWS = 3
     private const val SCORE_TYPO = 2
     private const val SCORE_WINDOWS = 1
+    private const val HEAD_MAC_STYLE_OFFSET = 44 // macStyle field offset within the 'head' table
+    private const val MAC_STYLE_BOLD = 0x1
+    private const val MAC_STYLE_ITALIC = 0x2
 
     fun familyName(file: File): String? = runCatching { parse(file.readBytes()) }.getOrNull()
+
+    /** A face's own bold/italic flags (from the 'head' table's macStyle), so the preview can pick
+     *  the real matching face the way libass does instead of synthesizing a slant/weight. */
+    data class Style(val bold: Boolean, val italic: Boolean)
+
+    fun style(file: File): Style? = runCatching { parseStyle(file.readBytes()) }.getOrNull()
+
+    private fun parseStyle(data: ByteArray): Style? {
+        val bb = ByteBuffer.wrap(data).order(ByteOrder.BIG_ENDIAN)
+        bb.position(tableDirectoryOffset(bb))
+        bb.int // sfntVersion
+        val numTables = bb.short.toInt() and MASK16
+        bb.position(bb.position() + TABLE_RECORD_SKIP)
+        val headOffset = findTableOffset(bb, numTables, TAG_HEAD) ?: return null
+        val pos = headOffset + HEAD_MAC_STYLE_OFFSET
+        return if (pos < 0 || pos + 2 > data.size) {
+            null
+        } else {
+            val macStyle = ((data[pos].toInt() and 0xFF) shl 8) or (data[pos + 1].toInt() and 0xFF)
+            Style(bold = macStyle and MAC_STYLE_BOLD != 0, italic = macStyle and MAC_STYLE_ITALIC != 0)
+        }
+    }
 
     private fun parse(data: ByteArray): String? {
         val bb = ByteBuffer.wrap(data).order(ByteOrder.BIG_ENDIAN)
@@ -39,13 +65,16 @@ internal object SubtitleFontTable {
         }
     }
 
-    private fun findNameTableOffset(bb: ByteBuffer, numTables: Int): Int? {
+    private fun findNameTableOffset(bb: ByteBuffer, numTables: Int): Int? =
+        findTableOffset(bb, numTables, TAG_NAME)
+
+    private fun findTableOffset(bb: ByteBuffer, numTables: Int, tag: Int): Int? {
         repeat(numTables) {
-            val tag = bb.int
+            val recordTag = bb.int
             bb.int // checksum
             val offset = bb.int
             bb.int // length
-            if (tag == TAG_NAME) return offset
+            if (recordTag == tag) return offset
         }
         return null
     }

@@ -22,6 +22,7 @@ internal data class SubtitleStylePreset(
     val spacingIndex: Int,
     val justify: String,
     val overrideAss: Boolean,
+    val selectiveAss: Boolean,
     val forceAll: Boolean,
     val includeLayout: Boolean,
     val scaleLevel: Int,
@@ -62,6 +63,7 @@ private fun presetToJson(p: SubtitleStylePreset): JSONObject = JSONObject().appl
     put("spacingIndex", p.spacingIndex)
     put("justify", p.justify)
     put("overrideAss", p.overrideAss)
+    put("selectiveAss", p.selectiveAss)
     put("forceAll", p.forceAll)
     put("includeLayout", p.includeLayout)
     put("scaleLevel", p.scaleLevel)
@@ -89,6 +91,7 @@ private fun presetFromJson(o: JSONObject): SubtitleStylePreset? {
         spacingIndex = o.optInt("spacingIndex", DEFAULT_SUBTITLE_SPACING_INDEX),
         justify = o.optString("justify", DEFAULT_SUBTITLE_JUSTIFY.name),
         overrideAss = o.optBoolean("overrideAss", false),
+        selectiveAss = o.optBoolean("selectiveAss", false),
         forceAll = o.optBoolean("forceAll", false),
         includeLayout = o.optBoolean("includeLayout", false),
         scaleLevel = migrateSubScaleLevel(

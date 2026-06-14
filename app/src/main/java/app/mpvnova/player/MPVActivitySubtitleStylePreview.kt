@@ -2,6 +2,7 @@ package app.mpvnova.player
 
 import android.graphics.Color
 import android.graphics.Typeface
+import java.io.File
 import java.util.Locale
 
 private const val SUB_PREVIEW_SHADOW_BLUR_DP = 1.5f
@@ -56,12 +57,35 @@ internal fun MPVActivity.subtitleTypefaceFor(
     bold: Boolean = false,
     italic: Boolean = false,
 ): Typeface {
-    val base = when (family) {
+    val generic = when (family) {
         "", "sans-serif" -> Typeface.SANS_SERIF
         "serif" -> Typeface.SERIF
         "monospace" -> Typeface.MONOSPACE
-        else -> userOrBundledTypeface(family) ?: Typeface.DEFAULT
+        else -> null
     }
+    if (generic != null) return styledTypeface(generic, bold, italic)
+
+    val faces = subtitleFontsDir()
+        .listFiles { f -> f.isFile && f.extension.lowercase(Locale.ROOT) in FONT_EXTENSIONS }
+        ?.filter { SubtitleFontTable.familyName(it) == family }
+        .orEmpty()
+
+    // Prefer the real face whose own flags match the request (the face libass uses), so the
+    // preview shows true italic/bold letterforms. Otherwise fall back to the regular file and let
+    // Android synthesize, mirroring libass's own oblique/bold fallback.
+    val exactFace = faces.firstOrNull { SubtitleFontTable.style(it) == SubtitleFontTable.Style(bold, italic) }
+        ?.let { typefaceFromFile(it) }
+    val regularFile = faces.firstOrNull {
+        SubtitleFontTable.style(it) == SubtitleFontTable.Style(bold = false, italic = false)
+    } ?: faces.firstOrNull()
+    val synthesized = styledTypeface(regularFile?.let { typefaceFromFile(it) } ?: Typeface.DEFAULT, bold, italic)
+    return exactFace ?: synthesized
+}
+
+private fun typefaceFromFile(file: File): Typeface? =
+    runCatching { Typeface.createFromFile(file) }.getOrNull()
+
+private fun styledTypeface(base: Typeface, bold: Boolean, italic: Boolean): Typeface {
     val style = when {
         bold && italic -> Typeface.BOLD_ITALIC
         bold -> Typeface.BOLD
@@ -69,16 +93,6 @@ internal fun MPVActivity.subtitleTypefaceFor(
         else -> Typeface.NORMAL
     }
     return if (style == Typeface.NORMAL) base else Typeface.create(base, style)
-}
-
-private fun MPVActivity.userOrBundledTypeface(family: String): Typeface? {
-    val file = subtitleFontsDir()
-        .listFiles { candidate ->
-            candidate.isFile && candidate.extension.lowercase(Locale.ROOT) in FONT_EXTENSIONS
-        }
-        ?.firstOrNull { SubtitleFontTable.familyName(it) == family }
-        ?: return null
-    return runCatching { Typeface.createFromFile(file) }.getOrNull()
 }
 
 private fun subtitleArgb(rgb: Int, opacityPercent: Int): Int =

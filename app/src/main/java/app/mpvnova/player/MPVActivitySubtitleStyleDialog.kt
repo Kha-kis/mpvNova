@@ -95,6 +95,7 @@ private fun MPVActivity.showRemoveSubtitleFontDialog() {
 
 internal fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
     val on = customSubStyleEnabled
+    val overrideRows = assOverrideRowStates(on)
     val bgOpacity = SUBTITLE_OPACITY_PERCENT_STEPS[subStyleBgOpacityIndex]
     val bgOn = bgOpacity > 0
     // Outline/edge and background box are mutually exclusive rendering modes.
@@ -142,9 +143,31 @@ internal fun MPVActivity.subtitleStyleState(): SubtitleStyleDialog.State {
         boldOn = subStyleBold,
         italicOn = subStyleItalic,
         overrideOn = subStyleOverrideAss,
-        overrideEnabled = on,
+        overrideEnabled = overrideRows.overrideEnabled,
+        selectiveOn = subStyleSelectiveAss,
+        selectiveEnabled = overrideRows.selectiveEnabled,
         forceAllOn = subStyleForceAllAss,
+        forceAllEnabled = overrideRows.forceAllEnabled,
         preview = subtitleStylePreviewSpec(),
+    )
+}
+
+private data class AssOverrideRowStates(
+    val overrideEnabled: Boolean,
+    val selectiveEnabled: Boolean,
+    val forceAllEnabled: Boolean,
+)
+
+// The three ASS-override rows are mutually exclusive: a row is clickable only when it is the
+// active mode (so it can be toggled off) or no other mode is active.
+private fun MPVActivity.assOverrideRowStates(masterOn: Boolean): AssOverrideRowStates {
+    val o = subStyleOverrideAss
+    val s = subStyleSelectiveAss
+    val f = subStyleForceAllAss
+    return AssOverrideRowStates(
+        overrideEnabled = masterOn && (o || !(s || f)),
+        selectiveEnabled = masterOn && (s || !(o || f)),
+        forceAllEnabled = masterOn && (f || !(o || s)),
     )
 }
 

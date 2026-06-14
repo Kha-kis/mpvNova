@@ -439,6 +439,58 @@
                         app:tint="@color/tv_text"
                         tools:visibility="visible" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/presetSelectiveRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_tv_track_row"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:minHeight="54dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="10dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="7dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sub_style_selective_ass"
+                            android:textColor="@color/tv_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/sub_style_selective_ass_summary"
+                            android:textColor="@color/tv_text_dim"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/presetSelectiveCheck"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="12dp"
+                        android:contentDescription="@string/sub_style_selective_ass"
+                        android:src="@drawable/ic_tv_check"
+                        android:visibility="invisible"
+                        app:tint="@color/tv_text"
+                        tools:visibility="visible" />
+                </LinearLayout>
             </LinearLayout>
             </ScrollView>
         </LinearLayout>

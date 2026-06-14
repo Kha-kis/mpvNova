@@ -4,7 +4,7 @@ internal fun MPVActivity.adjustSubtitleStyle(
     control: SubtitleStyleDialog.Control,
     delta: Int,
 ): SubtitleStyleDialog.State {
-    if (!adjustSubtitleColorControl(control, delta))
+    if (!adjustSubtitleColorControl(control, delta) && !adjustSubtitleToggleControl(control))
         adjustSubtitleValueControl(control, delta)
     applyCustomSubtitleStyle()
     writeSubtitleStyleSettings()
@@ -38,12 +38,25 @@ private fun MPVActivity.adjustSubtitleColorControl(
     return true
 }
 
+// Plain on/off toggles, including the mutually-exclusive ASS-override modes. False for the rest.
+private fun MPVActivity.adjustSubtitleToggleControl(control: SubtitleStyleDialog.Control): Boolean {
+    when (control) {
+        SubtitleStyleDialog.Control.MASTER -> customSubStyleEnabled = !customSubStyleEnabled
+        SubtitleStyleDialog.Control.BOLD -> subStyleBold = !subStyleBold
+        SubtitleStyleDialog.Control.ITALIC -> subStyleItalic = !subStyleItalic
+        SubtitleStyleDialog.Control.OVERRIDE_ASS -> setAssOverrideMode(AssOverrideMode.OVERRIDE)
+        SubtitleStyleDialog.Control.SELECTIVE_ASS -> setAssOverrideMode(AssOverrideMode.SELECTIVE)
+        SubtitleStyleDialog.Control.FORCE_ALL_ASS -> setAssOverrideMode(AssOverrideMode.FORCE_ALL)
+        else -> return false
+    }
+    return true
+}
+
 private fun MPVActivity.adjustSubtitleValueControl(
     control: SubtitleStyleDialog.Control,
     delta: Int,
 ) {
     when (control) {
-        SubtitleStyleDialog.Control.MASTER -> customSubStyleEnabled = !customSubStyleEnabled
         SubtitleStyleDialog.Control.TEXT_OPACITY ->
             subStyleTextOpacityIndex = clampIndex(subStyleTextOpacityIndex, delta, SUBTITLE_OPACITY_PERCENT_STEPS.size)
         SubtitleStyleDialog.Control.OUTLINE_SIZE ->
@@ -57,12 +70,23 @@ private fun MPVActivity.adjustSubtitleValueControl(
         SubtitleStyleDialog.Control.SPACING ->
             subStyleSpacingIndex = clampIndex(subStyleSpacingIndex, delta, SUBTITLE_SPACING_STEPS.size)
         SubtitleStyleDialog.Control.FONT -> adjustSubtitleFont(delta)
-        SubtitleStyleDialog.Control.BOLD -> subStyleBold = !subStyleBold
-        SubtitleStyleDialog.Control.ITALIC -> subStyleItalic = !subStyleItalic
-        SubtitleStyleDialog.Control.OVERRIDE_ASS -> subStyleOverrideAss = !subStyleOverrideAss
-        SubtitleStyleDialog.Control.FORCE_ALL_ASS -> subStyleForceAllAss = !subStyleForceAllAss
         else -> Unit
     }
+}
+
+private enum class AssOverrideMode { OVERRIDE, SELECTIVE, FORCE_ALL }
+
+// Toggle one ASS-override mode. The three are mutually exclusive, so turning one on clears the
+// other two; clicking the active mode turns it off (back to "scale").
+private fun MPVActivity.setAssOverrideMode(mode: AssOverrideMode) {
+    val turningOn = when (mode) {
+        AssOverrideMode.OVERRIDE -> !subStyleOverrideAss
+        AssOverrideMode.SELECTIVE -> !subStyleSelectiveAss
+        AssOverrideMode.FORCE_ALL -> !subStyleForceAllAss
+    }
+    subStyleOverrideAss = turningOn && mode == AssOverrideMode.OVERRIDE
+    subStyleSelectiveAss = turningOn && mode == AssOverrideMode.SELECTIVE
+    subStyleForceAllAss = turningOn && mode == AssOverrideMode.FORCE_ALL
 }
 
 private fun MPVActivity.adjustSubtitleFont(delta: Int) {
