@@ -28,6 +28,7 @@ internal fun MPVActivity.showMinimalSeekOverlay() {
     if (durationMs <= 0L)
         return
     val positionMs = (pendingDpadSeekPreviewMs ?: psc.position).coerceIn(0L, durationMs)
+    binding.seekOverlayBar.setChapterGapMode(true)
     binding.seekOverlayBar.progress = (positionMs * SEEK_OVERLAY_BAR_MAX / durationMs).toInt()
     binding.seekOverlayTime.setTextIfChanged(
         "${Utils.prettyTime((positionMs / MILLIS_PER_SECOND_LONG).toInt())} / " +

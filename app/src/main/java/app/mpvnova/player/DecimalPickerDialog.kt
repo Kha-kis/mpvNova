@@ -26,7 +26,7 @@ internal class DecimalPickerDialog(
             val value = text?.toString()?.toDoubleOrNull() ?: return@addTextChangedListener
             val valueBounded = value.coerceIn(rangeMin, rangeMax)
             if (valueBounded != value)
-                binding.editText.setText(valueBounded.toString())
+                binding.editText.setText(formatDelayForField(valueBounded))
         })
         val onClick = { delta: Double ->
             val value = this.number ?: 0.0
@@ -41,10 +41,10 @@ internal class DecimalPickerDialog(
     override fun isInteger(): Boolean = false
 
     override var number: Double?
-        set(v) = binding.editText.setText(v?.toString().orEmpty())
+        set(v) = binding.editText.setText(v?.let(::formatDelayForField).orEmpty())
         get() = binding.editText.text.toString().toDoubleOrNull()
 
     companion object {
-        private const val STEP = 1.0
+        private const val STEP = 0.1
     }
 }

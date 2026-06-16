@@ -104,10 +104,13 @@ internal fun MPVActivity.updateChapterMarkers() {
 
     if (!hasChapters || duration <= 0) {
         binding.playbackSeekbar.clearChapters()
+        binding.seekOverlayBar.clearChapters()
         return
     }
 
-    binding.playbackSeekbar.setChapters(chapters.map { it.time }, duration.toDouble())
+    val chapterTimes = chapters.map { it.time }
+    binding.playbackSeekbar.setChapters(chapterTimes, duration.toDouble())
+    binding.seekOverlayBar.setChapters(chapterTimes, duration.toDouble())
 }
 
 internal fun MPVActivity.showChapterPickerDialog() {

@@ -420,13 +420,18 @@
                 tools:ignore="RtlSymmetry"
                 tools:text="03:29 / 23:48" />
 
-            <ProgressBar
+            <app.mpvnova.player.ChapterSeekBar
                 android:id="@+id/seekOverlayBar"
-                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:max="1000"
+                android:maxHeight="8dp"
+                android:minHeight="8dp"
                 android:progressDrawable="@drawable/seekbar_progress_tv"
+                android:splitTrack="false"
+                android:thumb="@null"
                 tools:progress="350" />
         </LinearLayout>
 

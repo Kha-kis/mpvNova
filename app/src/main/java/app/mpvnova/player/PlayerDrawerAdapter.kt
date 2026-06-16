@@ -43,6 +43,15 @@ internal class PlayerDrawerAdapter(
     private val rows = mutableListOf<PlayerDrawerRow>()
     private val prefs = getDefaultSharedPreferences(activity.applicationContext)
     private var scrollbarHeightCache: DrawerScrollbarHeightCache? = null
+    private var boundRecyclerView: RecyclerView? = null
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        boundRecyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        boundRecyclerView = null
+    }
 
     fun submitRows(newRows: List<PlayerDrawerRow>) {
         val oldSize = rows.size
@@ -91,11 +100,17 @@ internal class PlayerDrawerAdapter(
 
     override fun getItemCount(): Int = rows.size
 
-    // Re-bind any row greyed out by changedKey so its disabled state refreshes in place.
+    // Refresh the disabled (greyed) state of any row gated on changedKey. A visible row is updated
+    // in place on its live ViewHolder — NOT via notifyItemChanged — so the change animation can't
+    // steal D-pad focus from the row the user just toggled. Off-screen rows (never focused) fall
+    // back to a normal rebind.
     private fun refreshRowsDisabledBy(changedKey: String) {
         rows.forEachIndexed { index, row ->
-            if (row is PlayerDrawerRow.Preference && row.preference.disabledWhenOnKey == changedKey)
-                notifyItemChanged(index)
+            if (row !is PlayerDrawerRow.Preference || row.preference.disabledWhenOnKey != changedKey)
+                return@forEachIndexed
+            val holder = boundRecyclerView?.findViewHolderForAdapterPosition(index)
+            if (holder is PreferenceHolder) holder.applyDisabledState()
+            else notifyItemChanged(index)
         }
     }
 
@@ -149,14 +164,17 @@ internal class PlayerDrawerAdapter(
     private inner class PreferenceHolder(
         private val binding: DrawerPrefRowBinding,
     ) : RecyclerView.ViewHolder(binding.root) {
+        private var boundPreference: PlayerDrawerPreference? = null
+
         fun bind(preference: PlayerDrawerPreference) = with(binding) {
+            boundPreference = preference
             prefRowTitle.setText(preference.titleRes)
             prefRowSummary.setText(preference.summaryRes)
             refreshPrefRowValue(prefRowValue, prefs.rawValue(preference))
-            val disabled = preference.disabledWhenOnKey?.let { prefs.getBoolean(it, false) } == true
-            root.alpha = if (disabled) PREF_ROW_DISABLED_ALPHA else 1f
+            applyDisabledState()
             root.setOnClickListener {
-                if (disabled)
+                // Re-read live so an in-place disabled update is respected without a rebind.
+                if (isDisabled(preference))
                     return@setOnClickListener
                 val newValue = !prefs.rawValue(preference)
                 prefs.edit().putBoolean(preference.key, newValue).apply()
@@ -165,6 +183,15 @@ internal class PlayerDrawerAdapter(
                 refreshRowsDisabledBy(preference.key)
             }
         }
+
+        // Update only the greyed-out state on the live view, leaving focus untouched.
+        fun applyDisabledState() {
+            val preference = boundPreference ?: return
+            binding.root.alpha = if (isDisabled(preference)) PREF_ROW_DISABLED_ALPHA else 1f
+        }
+
+        private fun isDisabled(preference: PlayerDrawerPreference): Boolean =
+            preference.disabledWhenOnKey?.let { prefs.getBoolean(it, false) } == true
     }
 
     private inner class OptionHolder(
