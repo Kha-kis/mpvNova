@@ -45,6 +45,14 @@ private fun MPVActivity.handleDrawerInterfacePreference(
             showClockOverlay = newValue
             refreshUi()
         }
+        PlayerDrawerPreference.SHOW_CLOCK_DATE -> {
+            showClockDate = newValue
+            refreshTimeInfoPanelVisibility()
+        }
+        PlayerDrawerPreference.SHOW_CLOCK_ON_PAUSE -> {
+            showClockOnPause = newValue
+            refreshTimeInfoPanelVisibility()
+        }
         PlayerDrawerPreference.BOTTOM_CONTROLS -> {
             controlsAtBottom = newValue
             onConfigurationChanged(resources.configuration)

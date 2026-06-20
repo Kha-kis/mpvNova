@@ -82,6 +82,20 @@ internal enum class PlayerDrawerPreference(
         "display_clock_overlay",
         true,
     ),
+    SHOW_CLOCK_DATE(
+        PlayerDrawerPreferenceGroup.INTERFACE,
+        R.string.pref_display_clock_date_title,
+        R.string.pref_display_clock_date_summary,
+        "display_clock_date",
+        false,
+    ),
+    SHOW_CLOCK_ON_PAUSE(
+        PlayerDrawerPreferenceGroup.INTERFACE,
+        R.string.pref_display_clock_on_pause_title,
+        R.string.pref_display_clock_on_pause_summary,
+        "display_clock_on_pause",
+        false,
+    ),
     BOTTOM_CONTROLS(
         PlayerDrawerPreferenceGroup.INTERFACE,
         R.string.pref_bottom_controls_title,
@@ -265,6 +279,8 @@ private fun addInterfaceRows(rows: MutableList<PlayerDrawerRow>) {
     rows.addPref(PlayerDrawerPreference.KEEP_CONTROLS_VISIBLE)
     rows.addPref(PlayerDrawerPreference.SHOW_MEDIA_TITLE)
     rows.addPref(PlayerDrawerPreference.SHOW_CLOCK)
+    rows.addPref(PlayerDrawerPreference.SHOW_CLOCK_DATE)
+    rows.addPref(PlayerDrawerPreference.SHOW_CLOCK_ON_PAUSE)
     rows.addPref(PlayerDrawerPreference.BOTTOM_CONTROLS)
     rows.addPref(PlayerDrawerPreference.EXIT_DOUBLE_BACK)
     rows.addPref(PlayerDrawerPreference.DPAD_UP_JUMPS_TOP)

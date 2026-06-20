@@ -42,6 +42,9 @@ import java.util.zip.ZipOutputStream
 object SupportActions {
     private val PLAYER_UI_KEYS = arrayOf(
         "display_media_title",
+        "display_clock_overlay",
+        "display_clock_date",
+        "display_clock_on_pause",
         "bottom_controls",
         "player_controls_timeout",
         "keep_controls_visible_paused",

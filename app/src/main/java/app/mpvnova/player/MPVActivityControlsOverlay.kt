@@ -70,9 +70,7 @@ private fun MPVActivity.performFirstShowSetup() {
     binding.controls.setVisibilityIfChanged(View.VISIBLE)
     binding.topControls.setVisibilityIfChanged(View.VISIBLE)
     binding.controlsScrim.setVisibilityIfChanged(View.VISIBLE)
-    binding.timeInfoPanel.setVisibilityIfChanged(
-        if (showClockOverlay) View.VISIBLE else View.GONE
-    )
+    refreshTimeInfoPanelVisibility()
     updatePlayerTitleOverlay()
     if (statsFPS) {
         updateStats()
@@ -86,10 +84,6 @@ private fun MPVActivity.performFirstShowSetup() {
     }
     updatePlaybackTimeline(psc.position, forceTextUpdate = true)
     updatePlayerToastPlacement()
-    clockHandler.removeCallbacks(clockRunnable)
-    // Don't tick the clock when its overlay is off.
-    if (showClockOverlay)
-        clockHandler.post(clockRunnable)
 }
 
 internal fun MPVActivity.refreshVisibleControlsTimeout() {
@@ -128,10 +122,9 @@ internal fun MPVActivity.hideControls() {
     binding.topControls.setVisibilityIfChanged(View.GONE)
     binding.playerTitleOverlay.setVisibilityIfChanged(View.GONE)
     binding.controlsScrim.setVisibilityIfChanged(View.GONE)
-    binding.timeInfoPanel.setVisibilityIfChanged(View.GONE)
     binding.statsTextView.setVisibilityIfChanged(View.GONE)
+    refreshTimeInfoPanelVisibility()
     updatePlayerToastPlacement()
-    clockHandler.removeCallbacks(clockRunnable)
 
     // Skip on TV — see performFirstShowSetup() for the SurfaceFlinger hitch.
     if (!isTvUiMode) {

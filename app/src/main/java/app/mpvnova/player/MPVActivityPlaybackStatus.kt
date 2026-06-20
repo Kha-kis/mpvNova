@@ -57,6 +57,7 @@ internal fun MPVActivity.updatePlaybackStatus(paused: Boolean) {
             fadeHandler.postDelayed(fadeRunnable, controlsDisplayTimeoutMs)
         }
     }
+    refreshTimeInfoPanelVisibility()
 }
 
 internal fun MPVActivity.updateDecoderButton() {

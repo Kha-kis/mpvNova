@@ -64,6 +64,20 @@
     <SwitchPreferenceCompat
         android:defaultValue="false"
         app:iconSpaceReserved="false"
+        android:key="display_clock_date"
+        android:summary="@string/pref_display_clock_date_summary"
+        android:title="@string/pref_display_clock_date_title" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
+        android:key="display_clock_on_pause"
+        android:summary="@string/pref_display_clock_on_pause_summary"
+        android:title="@string/pref_display_clock_on_pause_title" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
         android:key="exit_with_double_back"
         android:summary="@string/pref_exit_with_double_back_summary"
         android:title="@string/pref_exit_with_double_back_title" />

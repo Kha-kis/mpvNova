@@ -2,8 +2,17 @@ package app.mpvnova.player
 
 import android.view.View
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
+private const val ORDINAL_TEEN_MIN = 11
+private const val ORDINAL_TEEN_MAX = 13
+private const val ORDINAL_ONE = 1
+private const val ORDINAL_TWO = 2
+private const val ORDINAL_THREE = 3
+private const val ORDINAL_TEN = 10
+private const val ORDINAL_HUNDRED = 100
 
 /**
  * Clock + "Ends at" + stats overlay updates for the time-info panel and
@@ -36,9 +45,9 @@ internal fun MPVActivity.updateClockInfo(force: Boolean = false) {
         clockFormatterIs24 = is24Hour
     }
     val formatter = clockFormatter ?: return
-    val clockText = formatter.format(Date(now))
-    if (binding.clockTextView.text.toString() != clockText)
-        binding.clockTextView.text = clockText
+    val nowDate = Date(now)
+    updateClockDate(nowDate)
+    binding.clockTextView.setTextIfChanged(formatter.format(nowDate))
 
     val remainingSeconds = (psc.durationSec - psc.positionSec).coerceAtLeast(0)
     if (psc.durationSec > 0 && remainingSeconds > 0) {
@@ -54,5 +63,45 @@ internal fun MPVActivity.updateClockInfo(force: Boolean = false) {
             binding.endsAtTextView.text = endsAtText
     } else {
         binding.endsAtTextView.visibility = View.GONE
+    }
+}
+
+private fun MPVActivity.updateClockDate(nowDate: Date) {
+    if (!showClockDate) {
+        binding.dateTextView.setVisibilityIfChanged(View.GONE)
+        return
+    }
+    binding.dateTextView.setVisibilityIfChanged(View.VISIBLE)
+    binding.dateTextView.setTextIfChanged(formatClockDate(nowDate))
+}
+
+private fun MPVActivity.formatClockDate(date: Date): String {
+    val calendar = Calendar.getInstance()
+    calendar.time = date
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    val year = calendar.get(Calendar.YEAR)
+    return "${clockDateFormatter().format(date)} $day${ordinalSuffix(day)}, $year"
+}
+
+private fun MPVActivity.clockDateFormatter(): SimpleDateFormat {
+    val locale = Locale.getDefault()
+    val existing = clockDateFormatter
+    if (existing != null && clockDateFormatterLocale == locale)
+        return existing
+    return SimpleDateFormat("MMMM", locale).also {
+        clockDateFormatter = it
+        clockDateFormatterLocale = locale
+    }
+}
+
+private fun ordinalSuffix(day: Int): String {
+    val hundredRemainder = day % ORDINAL_HUNDRED
+    if (hundredRemainder in ORDINAL_TEEN_MIN..ORDINAL_TEEN_MAX)
+        return "th"
+    return when (day % ORDINAL_TEN) {
+        ORDINAL_ONE -> "st"
+        ORDINAL_TWO -> "nd"
+        ORDINAL_THREE -> "rd"
+        else -> "th"
     }
 }

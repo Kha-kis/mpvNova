@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
 import androidx.media.AudioFocusRequestCompat
 import java.text.SimpleDateFormat
+import java.util.Locale
 
 typealias ActivityResultCallback = (Int, Intent?) -> Unit
 typealias StateRestoreCallback = () -> Unit
@@ -187,8 +188,13 @@ open class MPVActivity : AppCompatActivity() {
                 .alpha(0f).setDuration(CONTROLS_FADE_DURATION).setInterpolator(accelerate).withLayer()
             binding.controlsScrim.animate()
                 .alpha(0f).setDuration(CONTROLS_FADE_DURATION).setInterpolator(accelerate).withLayer()
-            binding.timeInfoPanel.animate()
-                .alpha(0f).setDuration(CONTROLS_FADE_DURATION).setInterpolator(accelerate).withLayer()
+            if (shouldShowClockWhileControlsHidden()) {
+                binding.timeInfoPanel.animate().cancel()
+                binding.timeInfoPanel.alpha = 1f
+            } else {
+                binding.timeInfoPanel.animate()
+                    .alpha(0f).setDuration(CONTROLS_FADE_DURATION).setInterpolator(accelerate).withLayer()
+            }
             binding.statsTextView.animate()
                 .alpha(0f).setDuration(CONTROLS_FADE_DURATION).setInterpolator(accelerate).withLayer()
             // Main bar drives the listener so hideControls() fires once.
@@ -249,6 +255,8 @@ open class MPVActivity : AppCompatActivity() {
     internal var controlsAtBottom = true
     internal var showMediaTitle = false
     internal var showClockOverlay = true
+    internal var showClockDate = false
+    internal var showClockOnPause = false
     internal var controlsDisplayTimeoutMs = DEFAULT_CONTROLS_DISPLAY_TIMEOUT
     internal var keepControlsVisibleWhilePaused = false
     internal var exitWithDoubleBack = false
@@ -590,6 +598,8 @@ open class MPVActivity : AppCompatActivity() {
 
     internal var clockFormatter: SimpleDateFormat? = null
     internal var clockFormatterIs24: Boolean? = null
+    internal var clockDateFormatter: SimpleDateFormat? = null
+    internal var clockDateFormatterLocale: Locale? = null
 
     override fun dispatchKeyEvent(ev: KeyEvent): Boolean {
         // Built-in handlers first; forward the rest to libmpv.
