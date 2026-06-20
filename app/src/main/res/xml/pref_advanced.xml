@@ -42,20 +42,6 @@
         android:title="@string/pref_preferred_decoder_mode_title"
         app:iconSpaceReserved="false" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        app:iconSpaceReserved="false"
-        android:key="display_clock_date"
-        android:summary="@string/pref_display_clock_date_summary"
-        android:title="@string/pref_display_clock_date_title" />
-
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        app:iconSpaceReserved="false"
-        android:key="display_clock_on_pause"
-        android:summary="@string/pref_display_clock_on_pause_summary"
-        android:title="@string/pref_display_clock_on_pause_title" />
-
     <app.mpvnova.player.preferences.ConfigEditDialogPreference
         app:iconSpaceReserved="false"
         app:filename="mpv.conf"
