@@ -74,6 +74,11 @@ open class MPVActivity : AppCompatActivity() {
     @DrawableRes
     internal var lastPlayButtonIconRes = 0
 
+    // Intro/outro skip segments passed by the launching app (e.g. Nuvio), and the segments
+    // we've already auto-skipped so we don't fight the user if they seek back into one.
+    internal var skipSegments: List<SkipSegment> = emptyList()
+    internal val autoSkippedSegmentKeys = HashSet<String>()
+
     // Coalesce ~60/sec time-pos bursts into one UI hop.
     @Volatile internal var timePosUiPending = false
     internal val timePosUiRunnable = Runnable {

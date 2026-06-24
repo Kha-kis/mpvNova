@@ -18,6 +18,9 @@
     <string name="track_audio">Audio</string>
     <string name="track_subs">Subs</string> <!-- short for "Subtitles" -->
     <string name="track_off">Off</string>
+    <string name="skip_segment_intro">Skipped intro</string>
+    <string name="skip_segment_outro">Skipped outro</string>
+    <string name="skip_segment_recap">Skipped recap</string>
     <string name="status_on">On</string>
     <string name="status_off">Off</string>
     <string name="resume_toast_title">Resumed playback</string>

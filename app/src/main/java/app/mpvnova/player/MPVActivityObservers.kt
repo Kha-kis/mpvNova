@@ -48,6 +48,7 @@ internal class MpvActivityEventObserver(private val activity: MPVActivity) : Mpv
         // time-pos/full fires at frame rate — coalesce to ~5 UI/sec or it
         // starves the SW Hi10p decoder.
         if (property == "time-pos/full") {
+            maybeAutoSkipSegments(value)
             if (!timePosUiPending) {
                 timePosUiPending = true
                 eventUiHandler.postDelayed(timePosUiRunnable, TIME_POS_UI_COALESCE_DELAY_MS)

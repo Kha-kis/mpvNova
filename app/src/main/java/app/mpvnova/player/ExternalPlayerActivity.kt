@@ -213,6 +213,7 @@ private val EXTERNAL_ALLOWED_EXTRA_KEYS = setOf(
     "return_result",
     "resume_position",
     "secure_uri",
+    "skip_segments",
     "startfrom",
     "subs",
     "subs.enable",

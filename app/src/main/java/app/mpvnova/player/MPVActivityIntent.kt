@@ -87,6 +87,7 @@ internal fun MPVActivity.parseIntentExtras(extras: Bundle?) {
 
     addIntentSubtitles(launchExtras)
     applyIntentStartPosition(launchExtras)
+    parseSkipSegments(launchExtras)
 }
 
 internal fun MPVActivity.trackSwitchNotification(f: () -> TrackData) {
