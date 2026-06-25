@@ -18,7 +18,7 @@ internal fun MPVView.onKey(event: KeyEvent): Boolean {
 
 @Suppress("DEPRECATION")
 private fun mappedKey(event: KeyEvent): String? {
-    val mapped = KeyMapping.map.get(event.keyCode)
+    val mapped = keyMapping[event.keyCode]
     return when {
         event.action == KeyEvent.ACTION_MULTIPLE -> null
         KeyEvent.isModifierKey(event.keyCode) -> null
