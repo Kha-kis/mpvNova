@@ -18,9 +18,10 @@
     <string name="track_audio">Audio</string>
     <string name="track_subs">Subs</string> <!-- short for "Subtitles" -->
     <string name="track_off">Off</string>
-    <string name="skip_segment_intro">Skipped intro</string>
-    <string name="skip_segment_outro">Skipped outro</string>
-    <string name="skip_segment_recap">Skipped recap</string>
+    <string name="skip_segment_intro">Intro</string>
+    <string name="skip_segment_outro">Outro</string>
+    <string name="skip_segment_recap">Recap</string>
+    <string name="toast_skip_segment_detail">Skipped to %1$s</string>
     <string name="status_on">On</string>
     <string name="status_off">Off</string>
     <string name="resume_toast_title">Resumed playback</string>
@@ -410,6 +411,8 @@
 
     <string name="pref_save_position_title">Save position on quit</string>
     <string name="pref_save_position_summary">Remember current playback position on exit. When the same file is played again, the player will seek to the previous position.</string>
+    <string name="pref_auto_skip_segments_title">Auto-skip intro and outro</string>
+    <string name="pref_auto_skip_segments_summary">Automatically skip intro and outro segments when the launching app (such as Nuvio) provides them.</string>
 
     <string name="pref_new_intent_replace_title">Play new files immediately</string>
     <string name="pref_new_intent_replace_summary">When opening new files while the player is in background, replace the current playlist instead of adding at end.</string>

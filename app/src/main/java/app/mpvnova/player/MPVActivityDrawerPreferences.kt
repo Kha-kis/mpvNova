@@ -123,6 +123,7 @@ private fun MPVActivity.handleDrawerPlaybackPreference(
 ) {
     when (preference) {
         PlayerDrawerPreference.SAVE_POSITION -> shouldSavePosition = newValue
+        PlayerDrawerPreference.AUTO_SKIP_SEGMENTS -> autoSkipSegmentsEnabled = newValue
         PlayerDrawerPreference.PLAYLIST_EXIT_WARNING -> playlistExitWarning = newValue
         else -> Unit
     }

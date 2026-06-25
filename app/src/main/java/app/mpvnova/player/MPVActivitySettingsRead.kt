@@ -17,6 +17,7 @@ internal fun MPVActivity.readPlaybackSettings(
     backgroundPlayMode = getString("background_play", R.string.pref_background_play_default)
     noUIPauseMode = getString("no_ui_pause", R.string.pref_no_ui_pause_default)
     shouldSavePosition = prefs.getBoolean("save_position", true)
+    autoSkipSegmentsEnabled = prefs.getBoolean("auto_skip_segments", true)
     controlsAtBottom = prefs.getBoolean("bottom_controls", true)
     showMediaTitle = prefs.getBoolean("display_media_title", true)
     showClockOverlay = prefs.getBoolean("display_clock_overlay", true)

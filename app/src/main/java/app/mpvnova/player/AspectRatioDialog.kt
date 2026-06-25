@@ -4,6 +4,11 @@ import app.mpvnova.player.databinding.DialogOptionItemBinding
 import app.mpvnova.player.databinding.DialogOptionListBinding
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import kotlin.math.abs
+
+// mpv reports aspect overrides as floats, so a value is "selected" when it lands
+// within this tolerance of an array entry (enough to tell 16:9 from 16:10/4:3).
+private const val ASPECT_RATIO_MATCH_TOLERANCE = 0.01
 
 internal fun MPVActivity.openAspectMenu(restoreState: StateRestoreCallback): Boolean {
     val ratios = resources.getStringArray(R.array.aspect_ratios)
@@ -43,7 +48,22 @@ private fun MPVActivity.currentAspectRatioChoice(): String {
     val panscan = mpvGetPropertyDouble("panscan") ?: 0.0
     if (panscan > 0.0)
         return "panscan"
-    return mpvGetPropertyString("video-aspect-override") ?: "-1"
+    val override = mpvGetPropertyDouble("video-aspect-override") ?: -1.0
+    val ratios = resources.getStringArray(R.array.aspect_ratios)
+    return ratios.firstOrNull { entry ->
+        val value = aspectRatioEntryValue(entry)
+        value != null && override > 0.0 && abs(value - override) < ASPECT_RATIO_MATCH_TOLERANCE
+    } ?: "-1"
+}
+
+private fun aspectRatioEntryValue(entry: String): Double? {
+    if (entry.contains(':')) {
+        val parts = entry.split(':')
+        val width = parts.getOrNull(0)?.toDoubleOrNull()
+        val height = parts.getOrNull(1)?.toDoubleOrNull()
+        return if (width != null && height != null && height != 0.0) width / height else null
+    }
+    return entry.toDoubleOrNull()
 }
 
 private fun applyAspectRatioChoice(ratio: String) {

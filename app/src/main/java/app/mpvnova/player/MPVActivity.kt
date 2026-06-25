@@ -256,6 +256,7 @@ open class MPVActivity : AppCompatActivity() {
     internal var noUIPauseMode = ""
 
     internal var shouldSavePosition = false
+    internal var autoSkipSegmentsEnabled = true
 
     internal var controlsAtBottom = true
     internal var showMediaTitle = false

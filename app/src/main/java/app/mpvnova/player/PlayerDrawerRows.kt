@@ -154,6 +154,13 @@ internal enum class PlayerDrawerPreference(
         "save_position",
         true,
     ),
+    AUTO_SKIP_SEGMENTS(
+        PlayerDrawerPreferenceGroup.PLAYBACK,
+        R.string.pref_auto_skip_segments_title,
+        R.string.pref_auto_skip_segments_summary,
+        "auto_skip_segments",
+        true,
+    ),
     PLAYLIST_EXIT_WARNING(
         PlayerDrawerPreferenceGroup.PLAYBACK,
         R.string.pref_playlist_exit_warning_title,
@@ -270,6 +277,7 @@ private fun MPVActivity.addPlaybackRows(rows: MutableList<PlayerDrawerRow>) {
     rows.add(PlayerDrawerRow.Stats)
     rows.add(PlayerDrawerRow.Spacer(DRAWER_SECTION_SPACER_DP))
     rows.addPref(PlayerDrawerPreference.SAVE_POSITION)
+    rows.addPref(PlayerDrawerPreference.AUTO_SKIP_SEGMENTS)
     rows.addPref(PlayerDrawerPreference.PLAYLIST_EXIT_WARNING)
 }
 

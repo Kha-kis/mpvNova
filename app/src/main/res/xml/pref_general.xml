@@ -49,6 +49,13 @@
         android:title="@string/pref_save_position_title" />
 
     <SwitchPreferenceCompat
+        android:defaultValue="true"
+        app:iconSpaceReserved="false"
+        android:key="auto_skip_segments"
+        android:summary="@string/pref_auto_skip_segments_summary"
+        android:title="@string/pref_auto_skip_segments_title" />
+
+    <SwitchPreferenceCompat
         android:defaultValue="false"
         app:iconSpaceReserved="false"
         android:key="new_intent_replace"
