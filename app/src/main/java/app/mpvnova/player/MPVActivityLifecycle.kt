@@ -52,7 +52,10 @@ internal fun MPVActivity.startPlayerForFile(filepath: String) {
     player.playFile(filepath)
     mediaSession = initMediaSession()
     updateMediaSessionNow()
-    BackgroundPlaybackService.mediaToken = mediaSession?.sessionToken
+    with(BackgroundPlaybackService) {
+        mediaToken = mediaSession?.sessionToken
+        thumbnailChanged = { updateMediaSessionNow() }
+    }
     setupAudioSessionId()
     volumeControlStream = STREAM_TYPE
 }
@@ -83,7 +86,10 @@ internal fun MPVActivity.cancelAllScheduledWork() {
 
 /** onDestroy: release the media session and abandon audio focus. */
 internal fun MPVActivity.releaseMediaAndAudioFocus() {
-    BackgroundPlaybackService.mediaToken = null
+    with(BackgroundPlaybackService) {
+        mediaToken = null
+        thumbnailChanged = null
+    }
     mediaSession?.let {
         it.isActive = false
         it.release()

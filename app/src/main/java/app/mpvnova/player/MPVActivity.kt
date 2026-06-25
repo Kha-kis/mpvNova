@@ -529,10 +529,9 @@ open class MPVActivity : AppCompatActivity() {
     }
 
     internal fun onPauseImpl() {
-        val fmt = mpvGetPropertyString("video-format")
         val shouldBackground = shouldBackground()
-        if (shouldBackground && !fmt.isNullOrEmpty())
-            BackgroundPlaybackService.thumbnail = mpvGrabThumbnail(THUMB_SIZE)
+        if (shouldBackground)
+            BackgroundPlaybackService.grabThumbnail()
         else
             BackgroundPlaybackService.thumbnail = null
         // Flush synchronously — handler queue gets purged below.
