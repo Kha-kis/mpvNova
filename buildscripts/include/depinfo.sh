@@ -40,7 +40,7 @@ dep_mpvnova=(mpv)
 ## for CI workflow
 
 # pinned ffmpeg revision
-v_ci_ffmpeg=n8.1.1
+v_ci_ffmpeg=n8.1.2
 v_ci_arches=armv7l-arm64-x86-x86_64
 v_ci_prefix_mode=full-mpv
 
