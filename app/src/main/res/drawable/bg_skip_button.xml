@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Skip Intro/Outro/Recap pill. Uses the same translucent overlay gradient as the player
+     controls bar (bg_player_controls) so it reads as see-through like the rest of the UI. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_selected="true">
         <layer-list>
@@ -19,8 +21,9 @@
                 <shape android:shape="rectangle">
                     <gradient
                         android:angle="270"
-                        android:endColor="?attr/mpvSurfaceStrongEnd"
-                        android:startColor="?attr/mpvSurfaceStrongStart"
+                        android:startColor="?attr/mpvOverlayStart"
+                        android:centerColor="?attr/mpvOverlayCenter"
+                        android:endColor="?attr/mpvOverlayEnd"
                         android:type="linear" />
                     <stroke
                         android:width="1dp"
@@ -35,8 +38,9 @@
         <shape android:shape="rectangle">
             <gradient
                 android:angle="270"
-                android:endColor="?attr/mpvSurfaceStrongEnd"
-                android:startColor="?attr/mpvSurfaceStrongStart"
+                android:startColor="?attr/mpvOverlayStart"
+                android:centerColor="?attr/mpvOverlayCenter"
+                android:endColor="?attr/mpvOverlayEnd"
                 android:type="linear" />
             <stroke
                 android:width="1dp"
