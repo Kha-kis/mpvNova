@@ -17,6 +17,8 @@ internal fun MPVActivity.interceptDpadWithoutControls(ev: KeyEvent): Boolean {
             true
         }
         KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+            // When the user explicitly binds this key in input.conf, dispatchKeyEvent has already
+            // handed it to mpv. Unbound LEFT/RIGHT keeps mpvNova's built-in seek behavior.
             when (ev.action) {
                 KeyEvent.ACTION_DOWN -> seekFromHiddenControls(ev)
                 KeyEvent.ACTION_UP -> commitPendingSeekbarSeek()
@@ -54,7 +56,7 @@ internal fun MPVActivity.interceptDpadActivation(ev: KeyEvent, controls: List<Vi
 }
 
 internal fun MPVActivity.interceptActiveDpad(ev: KeyEvent, controls: List<View>): Boolean {
-    val selectedView = controls.getOrNull(btnSelected)
+    val selectedView = selectedDpadView(controls)
     val seekbarSelected = selectedView === binding.playbackSeekbar
     return when (ev.keyCode) {
         KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN ->
@@ -88,7 +90,8 @@ private fun MPVActivity.nextSelectionForVerticalDpad(
     seekbarSelected: Boolean,
     controls: List<View>,
 ): Int {
-    val current = controls.getOrNull(btnSelected)
+    val current = selectedDpadView(controls)
+    skipButtonVerticalTarget(ev, controls, current, seekbarSelected)?.let { return it }
     if (current === binding.topMenuBtn || current === binding.topPiPBtn) {
         // Top control: DOWN → seekbar, UP → exit.
         return if (ev.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) 0 else -1
@@ -119,6 +122,8 @@ internal fun MPVActivity.handleHorizontalDpad(
                     seekDeltaFromDpadEvent(ev),
                     baseOnVisibleSeekbar = true
                 )
+                keepVisibleControlsFresh()
+            } else if (btnSelected == SKIP_BUTTON_SELECTION_INDEX) {
                 keepVisibleControlsFresh()
             } else {
                 val direction = if (ev.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1 else -1
@@ -155,12 +160,12 @@ internal fun MPVActivity.handleCenterDpad(
     return when (ev.action) {
         KeyEvent.ACTION_DOWN -> {
             if (ev.repeatCount == 0)
-                scheduleDpadLongClick(controls.getOrNull(btnSelected))
+                scheduleDpadLongClick(selectedDpadView(controls))
             showControls()
             true
         }
         KeyEvent.ACTION_UP -> {
-            val view = controls.getOrNull(btnSelected)
+            val view = selectedDpadView(controls)
             cancelPendingDpadLongClick()
             if (!dpadLongClickPerformed)
                 view?.performClick()

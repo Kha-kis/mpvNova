@@ -11,9 +11,9 @@ import android.os.Parcelable
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import android.provider.Settings
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
+import android.media.MediaMetadata
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.text.InputType
 import android.util.Log
 import android.util.TypedValue
@@ -455,7 +455,7 @@ internal object Utils {
     /**
      * Helper class that keeps much more state than <code>AudioMetadata</code>, in order to facilitate
      * updating a media session.
-     * @see MediaSessionCompat
+     * @see MediaSession
      */
     class PlaybackStateCache {
         val meta = AudioMetadata()
@@ -558,43 +558,41 @@ internal object Utils {
             duration = 0L
         }
 
-        private val mediaMetadataBuilder = MediaMetadataCompat.Builder()
-        private val playbackStateBuilder = PlaybackStateCompat.Builder()
+        private val mediaMetadataBuilder = MediaMetadata.Builder()
+        private val playbackStateBuilder = PlaybackState.Builder()
 
-        private fun buildMediaMetadata(includeThumb: Boolean): MediaMetadataCompat {
+        private fun buildMediaMetadata(includeThumb: Boolean): MediaMetadata {
             return with (mediaMetadataBuilder) {
-                putText(MediaMetadataCompat.METADATA_KEY_ALBUM, meta.mediaAlbum)
+                putText(MediaMetadata.METADATA_KEY_ALBUM, meta.mediaAlbum)
                 if (includeThumb) {
                     // put even if it's null to reset any previous art
-                    putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
+                    putBitmap(MediaMetadata.METADATA_KEY_ART,
                         BackgroundPlaybackService.thumbnail
                     )
                 }
-                putText(MediaMetadataCompat.METADATA_KEY_ARTIST, meta.mediaArtist)
-                putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration.takeIf { it > 0 } ?: -1)
-                putText(MediaMetadataCompat.METADATA_KEY_TITLE, meta.mediaTitle)
+                putText(MediaMetadata.METADATA_KEY_ARTIST, meta.mediaArtist)
+                putLong(MediaMetadata.METADATA_KEY_DURATION, duration.takeIf { it > 0 } ?: -1)
+                putText(MediaMetadata.METADATA_KEY_TITLE, meta.mediaTitle)
                 build()
             }
         }
 
-        private fun buildPlaybackState(): PlaybackStateCompat {
+        private fun buildPlaybackState(): PlaybackState {
             val stateInt = when {
-                position < 0 || duration <= 0 -> PlaybackStateCompat.STATE_NONE
-                cachePause -> PlaybackStateCompat.STATE_BUFFERING
-                pause -> PlaybackStateCompat.STATE_PAUSED
-                else -> PlaybackStateCompat.STATE_PLAYING
+                position < 0 || duration <= 0 -> PlaybackState.STATE_NONE
+                cachePause -> PlaybackState.STATE_BUFFERING
+                pause -> PlaybackState.STATE_PAUSED
+                else -> PlaybackState.STATE_PLAYING
             }
-            var actions = PlaybackStateCompat.ACTION_PLAY or
-                    PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                    PlaybackStateCompat.ACTION_PAUSE or
-                    PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+            var actions = PlaybackState.ACTION_PLAY or
+                    PlaybackState.ACTION_PLAY_PAUSE or
+                    PlaybackState.ACTION_PAUSE
             if (duration > 0)
-                actions = actions or PlaybackStateCompat.ACTION_SEEK_TO
+                actions = actions or PlaybackState.ACTION_SEEK_TO
             if (playlistCount > 1) {
                 // we could be very pedantic here but it's probably better to either show both or none
-                actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
-                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-                        PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+                actions = actions or PlaybackState.ACTION_SKIP_TO_PREVIOUS or
+                        PlaybackState.ACTION_SKIP_TO_NEXT
             }
             return with (playbackStateBuilder) {
                 setState(stateInt, position, speed)
@@ -603,11 +601,11 @@ internal object Utils {
             }
         }
 
-        fun write(session: MediaSessionCompat, includeThumb: Boolean = true) {
+        fun write(session: MediaSession, includeThumb: Boolean = true) {
             with (session) {
                 setMetadata(buildMediaMetadata(includeThumb))
                 val ps = buildPlaybackState()
-                isActive = ps.state != PlaybackStateCompat.STATE_NONE
+                isActive = ps.state != PlaybackState.STATE_NONE
                 setPlaybackState(ps)
             }
         }

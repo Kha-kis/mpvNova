@@ -84,6 +84,7 @@ private fun MPVActivity.performFirstShowSetup() {
     }
     updatePlaybackTimeline(psc.position, forceTextUpdate = true)
     updatePlayerToastPlacement()
+    refreshSkipButtonVisibility()
 }
 
 internal fun MPVActivity.refreshVisibleControlsTimeout() {
@@ -125,6 +126,7 @@ internal fun MPVActivity.hideControls() {
     binding.statsTextView.setVisibilityIfChanged(View.GONE)
     refreshTimeInfoPanelVisibility()
     updatePlayerToastPlacement()
+    refreshSkipButtonVisibility()
 
     // Skip on TV — see performFirstShowSetup() for the SurfaceFlinger hitch.
     if (!isTvUiMode) {

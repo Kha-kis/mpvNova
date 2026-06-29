@@ -119,6 +119,15 @@ private fun MPVActivity.handlePlaybackDrawerAction(
         PlayerDrawerAction.CHAPTER_NEXT -> {
             seekChapterRelative(1); dismiss()
         }
+        PlayerDrawerAction.SKIP_MODE -> {
+            dismissDrawerExpectingReopen(dismiss); pickSkipMode()
+        }
+        PlayerDrawerAction.SKIP_BUTTON_DISPLAY -> {
+            dismissDrawerExpectingReopen(dismiss); pickSkipButtonDisplay()
+        }
+        PlayerDrawerAction.SEEK_STEP -> {
+            dismissDrawerExpectingReopen(dismiss); pickSeekStep()
+        }
         else -> Unit
     }
 }

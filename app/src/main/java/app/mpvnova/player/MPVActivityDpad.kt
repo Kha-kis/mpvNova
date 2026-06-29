@@ -37,6 +37,10 @@ internal fun MPVActivity.firstControlButtonIndex(controls: List<View>): Int {
 
 internal fun MPVActivity.interceptDpad(ev: KeyEvent): Boolean {
     val controls = dpadButtons()
+    if (controls.isEmpty() && btnSelected == SKIP_BUTTON_SELECTION_INDEX) {
+        btnSelected = -1
+        syncSkipButtonHighlight()
+    }
     return when {
         btnSelected == -1 && controls.isEmpty() -> interceptDpadWithoutControls(ev)
         controls.isEmpty() -> false
@@ -50,6 +54,7 @@ internal fun MPVActivity.updateSelectedDpadButton() {
     // state_selected in the drawable; requestFocus() would fire a11y events
     // + scheduleTraversals() per press → SW Hi10p decoder drift.
     val controls = dpadButtons()
+    syncSkipButtonHighlight()
     controls.forEachIndexed { i, child ->
         val selected = i == btnSelected
         if (child.isSelected != selected) {

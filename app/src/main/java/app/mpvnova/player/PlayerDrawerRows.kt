@@ -30,6 +30,9 @@ internal enum class PlayerDrawerAction(val group: PlayerDrawerActionGroup) {
     CHAPTER_PICKER(PlayerDrawerActionGroup.PLAYBACK),
     CHAPTER_PREV(PlayerDrawerActionGroup.PLAYBACK),
     CHAPTER_NEXT(PlayerDrawerActionGroup.PLAYBACK),
+    SKIP_MODE(PlayerDrawerActionGroup.PLAYBACK),
+    SKIP_BUTTON_DISPLAY(PlayerDrawerActionGroup.PLAYBACK),
+    SEEK_STEP(PlayerDrawerActionGroup.PLAYBACK),
     STATS_TOGGLE(PlayerDrawerActionGroup.STATS),
     STATS_PAGE_1(PlayerDrawerActionGroup.STATS),
     STATS_PAGE_2(PlayerDrawerActionGroup.STATS),
@@ -154,12 +157,19 @@ internal enum class PlayerDrawerPreference(
         "save_position",
         true,
     ),
-    AUTO_SKIP_SEGMENTS(
+    FAST_SEEK(
         PlayerDrawerPreferenceGroup.PLAYBACK,
-        R.string.pref_auto_skip_segments_title,
-        R.string.pref_auto_skip_segments_summary,
-        "auto_skip_segments",
-        true,
+        R.string.pref_fast_seek_title,
+        R.string.pref_fast_seek_summary,
+        "fast_seek_enabled",
+        false,
+    ),
+    SEEK_KEYS_INPUTCONF(
+        PlayerDrawerPreferenceGroup.PLAYBACK,
+        R.string.pref_seek_keys_inputconf_title,
+        R.string.pref_seek_keys_inputconf_summary,
+        "seek_keys_use_inputconf",
+        false,
     ),
     PLAYLIST_EXIT_WARNING(
         PlayerDrawerPreferenceGroup.PLAYBACK,
@@ -189,6 +199,21 @@ internal enum class PlayerDrawerOption(
         PlayerDrawerAction.SHIELD_FALLBACK,
         R.string.pref_shield_decoder_fallback_title,
         R.string.pref_shield_decoder_fallback_summary,
+    ),
+    SKIP_MODE(
+        PlayerDrawerAction.SKIP_MODE,
+        R.string.pref_skip_segments_mode_title,
+        R.string.pref_skip_segments_mode_summary,
+    ),
+    SKIP_BUTTON_DISPLAY(
+        PlayerDrawerAction.SKIP_BUTTON_DISPLAY,
+        R.string.pref_skip_button_display_title,
+        R.string.pref_skip_button_display_summary,
+    ),
+    SEEK_STEP(
+        PlayerDrawerAction.SEEK_STEP,
+        R.string.pref_seek_step_title,
+        R.string.pref_seek_step_summary,
     ),
 }
 
@@ -276,8 +301,14 @@ private fun MPVActivity.addPlaybackRows(rows: MutableList<PlayerDrawerRow>) {
     }
     rows.add(PlayerDrawerRow.Stats)
     rows.add(PlayerDrawerRow.Spacer(DRAWER_SECTION_SPACER_DP))
+    rows.addOption(PlayerDrawerOption.SKIP_MODE)
+    if (skipSegmentsMode == SkipSegmentsMode.BUTTON) {
+        rows.addOption(PlayerDrawerOption.SKIP_BUTTON_DISPLAY)
+    }
+    rows.addOption(PlayerDrawerOption.SEEK_STEP)
+    rows.addPref(PlayerDrawerPreference.FAST_SEEK)
+    rows.addPref(PlayerDrawerPreference.SEEK_KEYS_INPUTCONF)
     rows.addPref(PlayerDrawerPreference.SAVE_POSITION)
-    rows.addPref(PlayerDrawerPreference.AUTO_SKIP_SEGMENTS)
     rows.addPref(PlayerDrawerPreference.PLAYLIST_EXIT_WARNING)
 }
 

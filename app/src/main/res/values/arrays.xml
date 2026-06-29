@@ -156,4 +156,41 @@
         <item>lua3</item>
     </string-array>
 
+    <string-array name="skip_segments_mode_entries">
+        <item>@string/skip_mode_off</item>
+        <item>@string/skip_mode_auto</item>
+        <item>@string/skip_mode_button</item>
+    </string-array>
+    <string-array name="skip_segments_mode_values" translatable="false">
+        <item>off</item>
+        <item>auto</item>
+        <item>button</item>
+    </string-array>
+
+    <string-array name="skip_button_display_entries">
+        <item>@string/skip_button_display_segment</item>
+        <item>@string/skip_button_display_10s</item>
+        <item>@string/skip_button_display_30s</item>
+    </string-array>
+    <string-array name="skip_button_display_values" translatable="false">
+        <item>segment</item>
+        <item>10000</item>
+        <item>30000</item>
+    </string-array>
+
+    <string-array name="seek_step_entries">
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>@string/pref_seek_step_custom_entry</item>
+    </string-array>
+    <string-array name="seek_step_values" translatable="false">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>custom</item>
+    </string-array>
+
 </resources>

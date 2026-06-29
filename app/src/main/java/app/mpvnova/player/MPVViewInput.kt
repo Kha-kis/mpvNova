@@ -5,19 +5,25 @@ import android.view.KeyCharacterMap
 import android.view.KeyEvent
 
 internal fun MPVView.onKey(event: KeyEvent): Boolean {
-    val mapped = mappedKey(event)
+    val mapped = mpvKeyNameForEvent(event)
     return when {
         mapped == null -> false
         event.repeatCount > 0 -> true // eat event but ignore it, mpv has its own key repeat
         else -> {
-            sendKeyEventToMpv(event, mapped)
+            sendInputConfKey(event, mapped)
             true
         }
     }
 }
 
+internal fun MPVView.sendInputConfKey(event: KeyEvent, key: String): Boolean {
+    val shouldSend = event.repeatCount == 0
+    if (shouldSend) sendKeyEventToMpv(event, key)
+    return true
+}
+
 @Suppress("DEPRECATION")
-private fun mappedKey(event: KeyEvent): String? {
+internal fun mpvKeyNameForEvent(event: KeyEvent): String? {
     val mapped = keyMapping[event.keyCode]
     return when {
         event.action == KeyEvent.ACTION_MULTIPLE -> null

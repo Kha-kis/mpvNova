@@ -3,12 +3,14 @@ package app.mpvnova.player
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.media.AudioFocusRequest
+import android.os.Build
+import androidx.annotation.RequiresApi
 import android.media.AudioManager
 import android.util.Log
 import android.view.View
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.media.AudioManagerCompat
 
 /** Lifecycle-stage helpers for [MPVActivity] — keeps the override bodies short. */
 
@@ -95,12 +97,26 @@ internal fun MPVActivity.releaseMediaAndAudioFocus() {
         it.release()
     }
     mediaSession = null
-    audioFocusRequest?.let { request ->
-        audioManager?.let { manager ->
-            AudioManagerCompat.abandonAudioFocusRequest(manager, request)
-        }
-    }
+    audioManager?.let { manager -> abandonAudioFocus(manager) }
     audioFocusRequest = null
+}
+
+private fun MPVActivity.abandonAudioFocus(manager: AudioManager) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        audioFocusRequest?.let { abandonAudioFocusModern(manager, it) }
+    } else {
+        abandonAudioFocusLegacy(manager)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun abandonAudioFocusModern(manager: AudioManager, request: AudioFocusRequest) {
+    manager.abandonAudioFocusRequest(request)
+}
+
+@Suppress("DEPRECATION")
+private fun MPVActivity.abandonAudioFocusLegacy(manager: AudioManager) {
+    manager.abandonAudioFocus(audioFocusChangeListener)
 }
 
 /** onNewIntent: foreground replacement path — refresh resume source + extras. */

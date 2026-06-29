@@ -1,10 +1,10 @@
 package app.mpvnova.player
 
 import android.util.Log
-import android.support.v4.media.session.MediaSessionCompat
+import android.media.session.MediaSession
 
-internal fun MPVActivity.initMediaSession(): MediaSessionCompat {
-    val session = MediaSessionCompat(this, MPV_ACTIVITY_TAG)
+internal fun MPVActivity.initMediaSession(): MediaSession {
+    val session = MediaSession(this, MPV_ACTIVITY_TAG)
     session.setFlags(0)
     session.setCallback(mediaSessionCallback)
     return session

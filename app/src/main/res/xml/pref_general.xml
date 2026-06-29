@@ -48,12 +48,46 @@
         android:summary="@string/pref_save_position_summary"
         android:title="@string/pref_save_position_title" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
+    <ListPreference
+        android:defaultValue="auto"
         app:iconSpaceReserved="false"
-        android:key="auto_skip_segments"
-        android:summary="@string/pref_auto_skip_segments_summary"
-        android:title="@string/pref_auto_skip_segments_title" />
+        android:key="skip_segments_mode"
+        android:entries="@array/skip_segments_mode_entries"
+        android:entryValues="@array/skip_segments_mode_values"
+        android:summary="@string/pref_skip_segments_mode_summary"
+        android:title="@string/pref_skip_segments_mode_title" />
+
+    <ListPreference
+        android:defaultValue="segment"
+        app:iconSpaceReserved="false"
+        android:key="skip_button_display"
+        android:entries="@array/skip_button_display_entries"
+        android:entryValues="@array/skip_button_display_values"
+        android:summary="@string/pref_skip_button_display_summary"
+        android:title="@string/pref_skip_button_display_title" />
+
+    <ListPreference
+        android:defaultValue="10"
+        app:iconSpaceReserved="false"
+        android:key="seek_step_seconds"
+        android:entries="@array/seek_step_entries"
+        android:entryValues="@array/seek_step_values"
+        android:summary="@string/pref_seek_step_summary"
+        android:title="@string/pref_seek_step_title" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
+        android:key="fast_seek_enabled"
+        android:summary="@string/pref_fast_seek_summary"
+        android:title="@string/pref_fast_seek_title" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        app:iconSpaceReserved="false"
+        android:key="seek_keys_use_inputconf"
+        android:summary="@string/pref_seek_keys_inputconf_summary"
+        android:title="@string/pref_seek_keys_inputconf_title" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"

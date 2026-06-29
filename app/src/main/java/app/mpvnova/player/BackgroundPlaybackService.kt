@@ -9,10 +9,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
-import android.support.v4.media.session.MediaSessionCompat
+import android.media.session.MediaSession
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -21,7 +22,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.PendingIntentCompat
 import androidx.core.app.ServiceCompat
-import androidx.media.app.NotificationCompat.MediaStyle
 import app.mpvnova.player.MpvEvent
 
 fun createBackgroundPlaybackNotificationChannel(context: Context) {
@@ -40,15 +40,24 @@ private fun Service.buildNotificationAction(
     @DrawableRes icon: Int,
     @StringRes title: Int,
     intentAction: String,
-): NotificationCompat.Action {
+): Notification.Action {
     val intent = NotificationButtonReceiver.createIntent(this, intentAction)
 
-    val builder = NotificationCompat.Action.Builder(icon, getString(title), intent)
-    with(builder) {
-        setContextual(false)
-        setShowsUserInterface(false)
-        return build()
+    val builder = Notification.Action.Builder(Icon.createWithResource(this, icon), getString(title), intent)
+    return builder.build()
+}
+
+private fun Service.notificationBuilder(): Notification.Builder {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+    } else {
+        legacyNotificationBuilder()
     }
+}
+
+@Suppress("DEPRECATION")
+private fun Service.legacyNotificationBuilder(): Notification.Builder {
+    return Notification.Builder(this)
 }
 
 private fun Service.buildBackgroundNotification(
@@ -66,10 +75,9 @@ private fun Service.buildBackgroundNotification(
         false
     )
 
-    val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+    val builder = notificationBuilder()
     with(builder) {
-        setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-        setPriority(NotificationCompat.PRIORITY_LOW)
+        setVisibility(Notification.VISIBILITY_PUBLIC)
         setContentTitle(metadata.formatTitle())
         setContentText(metadata.formatArtistAlbum())
         setSmallIcon(R.drawable.ic_mpv_symbolic)
@@ -97,7 +105,7 @@ private fun Service.buildBackgroundNotification(
         buildNotificationAction(R.drawable.ic_pause_black_24dp, R.string.btn_pause, "PLAY_PAUSE")
     }
 
-    val style = MediaStyle()
+    val style = Notification.MediaStyle()
     BackgroundPlaybackService.mediaToken?.let { style.setMediaSession(it) }
     if (shouldShowPrevNext) {
         builder.addAction(buildNotificationAction(
@@ -217,7 +225,7 @@ class BackgroundPlaybackService : Service(), MpvEventObserver {
         /* thumbnail to display alongside the permanent notification */
         var thumbnail: Bitmap? = null
         /* Set by MPVActivity; for connecting the notification to the media session */
-        var mediaToken: MediaSessionCompat.Token? = null
+        var mediaToken: MediaSession.Token? = null
         /* Set by MPVActivity; to notify on thumbnail changes */
         var thumbnailChanged: (() -> Unit)? = null
 

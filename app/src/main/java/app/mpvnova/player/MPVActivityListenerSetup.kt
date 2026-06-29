@@ -27,6 +27,7 @@ internal fun MPVActivity.bindClickListeners() = with(binding) {
     topPiPBtn.setOnClickListener { goIntoPiP() }
     topMenuBtn.setOnClickListener { openPlayerDrawer() }
     playbackDurationTxt.setOnClickListener { toggleTimeRemainingDisplay() }
+    bindSkipButton()
 }
 
 internal fun MPVActivity.bindLongClickListeners() = with(binding) {

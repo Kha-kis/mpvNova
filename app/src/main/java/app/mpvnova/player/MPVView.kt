@@ -58,6 +58,7 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
         applyDisplayRefreshRate()
         applyPreferredOptions(sharedPreferences)
         applyVideoPreferenceOptions(sharedPreferences)
+        applySeekPreferenceOptions(sharedPreferences)
         applyCorePlaybackOptions(hwdec)
         applyScreenshotOptions()
     }
@@ -121,6 +122,12 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
             mpvSetOptionString("vd-lavc-fast", "yes")
             mpvSetOptionString("vd-lavc-skiploopfilter", "nonkey")
         }
+    }
+
+    private fun applySeekPreferenceOptions(sharedPreferences: android.content.SharedPreferences) {
+        // Only override mpv's hr-seek when the user opts into fast seeking; otherwise mpv.conf wins.
+        if (sharedPreferences.getBoolean("fast_seek_enabled", false))
+            mpvSetOptionString("hr-seek", "no")
     }
 
     private fun applyCorePlaybackOptions(hwdec: String?) {

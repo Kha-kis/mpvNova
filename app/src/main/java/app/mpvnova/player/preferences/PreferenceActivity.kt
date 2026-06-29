@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.graphics.Rect
+import android.text.InputType
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -16,11 +17,13 @@ import android.view.ViewTreeObserver
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.XmlRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
@@ -41,6 +44,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.DynamicColors
 import app.mpvnova.player.AppearanceTheme
 import app.mpvnova.player.R
+import app.mpvnova.player.SEEK_STEP_DEFAULT_SEC
+import app.mpvnova.player.SEEK_STEP_MAX_SEC
+import app.mpvnova.player.SEEK_STEP_MIN_SEC
 import app.mpvnova.player.TvScrollbars
 import app.mpvnova.player.decoderModeDescriptionRes
 import app.mpvnova.player.defaultPreferredDecoderMode
@@ -586,6 +592,65 @@ class PreferenceActivity : AppCompatActivity(),
         override fun onPreferencesLoaded() {
             preferenceManager.findPreference<Preference>("material_you_theming")?.isVisible =
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            bindSkipButtonDisplayVisibility()
+            bindSeekStepPreference()
+        }
+
+        private fun bindSkipButtonDisplayVisibility() {
+            val skipModePref = findPreference<ListPreference>("skip_segments_mode")
+            val displayPref = findPreference<ListPreference>("skip_button_display")
+            fun syncVisibility(value: String?) {
+                displayPref?.isVisible = value == "button"
+            }
+            syncVisibility(skipModePref?.value)
+            skipModePref?.setOnPreferenceChangeListener { _, newValue ->
+                syncVisibility(newValue as? String)
+                true
+            }
+            displayPref?.summaryProvider = SummaryProvider<ListPreference> { pref ->
+                pref.entry ?: getString(R.string.pref_skip_button_display_summary)
+            }
+        }
+
+        private fun bindSeekStepPreference() {
+            val seekStepPref = findPreference<ListPreference>("seek_step_seconds") ?: return
+            seekStepPref.summaryProvider = SummaryProvider<ListPreference> { pref ->
+                seekStepSummary(pref.value)
+            }
+            seekStepPref.setOnPreferenceChangeListener { _, newValue ->
+                if (newValue == "custom") {
+                    showCustomSeekStepDialog(seekStepPref)
+                    false
+                } else {
+                    true
+                }
+            }
+        }
+
+        private fun seekStepSummary(value: String?): String {
+            val seconds = value?.toIntOrNull()?.coerceIn(SEEK_STEP_MIN_SEC, SEEK_STEP_MAX_SEC)
+                ?: SEEK_STEP_DEFAULT_SEC
+            return getString(R.string.seek_step_seconds_value, seconds)
+        }
+
+        private fun showCustomSeekStepDialog(pref: ListPreference) {
+            val input = EditText(requireContext()).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER
+                setText((pref.value?.toIntOrNull() ?: SEEK_STEP_DEFAULT_SEC).toString())
+                selectAll()
+            }
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.pref_seek_step_custom_title)
+                .setMessage(R.string.pref_seek_step_custom_message)
+                .setView(input)
+                .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                    val seconds = input.text.toString().toIntOrNull()
+                        ?.coerceIn(SEEK_STEP_MIN_SEC, SEEK_STEP_MAX_SEC)
+                        ?: SEEK_STEP_DEFAULT_SEC
+                    pref.value = seconds.toString()
+                }
+                .setNegativeButton(R.string.dialog_cancel, null)
+                .show()
         }
     }
 

@@ -2,10 +2,11 @@ package app.mpvnova.player
 
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.os.Build
+import androidx.annotation.RequiresApi
 import android.util.Log
-import androidx.media.AudioAttributesCompat
-import androidx.media.AudioFocusRequestCompat
-import androidx.media.AudioManagerCompat
 
 /** Audio focus + dialog pause + controls-overlay autopause. */
 
@@ -48,27 +49,40 @@ internal fun MPVActivity.setNoisyReceiverRegistered(register: Boolean) {
 }
 
 internal fun MPVActivity.requestAudioFocus(): Boolean {
-    val manager = audioManager
-    val req = audioFocusRequest ?:
-        with(AudioFocusRequestCompat.Builder(AudioManagerCompat.AUDIOFOCUS_GAIN)) {
-        setAudioAttributes(with(AudioAttributesCompat.Builder()) {
-            // libmpv's ao_audiotrack may differ â€” here we always pretend to be music.
-            setUsage(AudioAttributesCompat.USAGE_MEDIA)
-            setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
-            build()
-        })
-        setOnAudioFocusChangeListener {
-            onAudioFocusChange(it, "callback")
-        }
-        build()
-    }
-    val res = manager?.let { AudioManagerCompat.requestAudioFocus(it, req) }
-    return if (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-        audioFocusRequest = req
-        true
+    val manager = audioManager ?: return false
+    val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        requestAudioFocusModern(manager)
     } else {
-        false
+        requestAudioFocusLegacy(manager)
     }
+    return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun MPVActivity.requestAudioFocusModern(manager: AudioManager): Int {
+    val request = audioFocusRequest ?: AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+        .setAudioAttributes(
+            AudioAttributes.Builder()
+                // libmpv's ao_audiotrack may differ — here we always pretend to be music.
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+        )
+        .setOnAudioFocusChangeListener(audioFocusChangeListener)
+        .build()
+    val result = manager.requestAudioFocus(request)
+    if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+        audioFocusRequest = request
+    return result
+}
+
+@Suppress("DEPRECATION")
+private fun MPVActivity.requestAudioFocusLegacy(manager: AudioManager): Int {
+    return manager.requestAudioFocus(
+        audioFocusChangeListener,
+        STREAM_TYPE,
+        AudioManager.AUDIOFOCUS_GAIN
+    )
 }
 
 internal fun MPVActivity.onAudioFocusChange(type: Int, source: String) {

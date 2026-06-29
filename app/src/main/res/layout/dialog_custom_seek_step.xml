@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pref_seek_step_custom_message"
+        android:textColor="@color/tv_text_dim"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/customSeekStepInput"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_list_row"
+        android:gravity="center_vertical"
+        android:hint="@string/pref_seek_step_custom_hint"
+        android:inputType="number"
+        android:maxLines="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:selectAllOnFocus="true"
+        android:textColor="@color/tv_text"
+        android:textColorHint="@color/tv_text_mute"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="45" />
+</LinearLayout>

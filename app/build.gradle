@@ -142,7 +142,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-common:2.6.2'
     implementation 'androidx.loader:loader:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.media:media:1.8.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'com.google.android.material:material:1.14.0'
     testImplementation 'junit:junit:4.13.2'

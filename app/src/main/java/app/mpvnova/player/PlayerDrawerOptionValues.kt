@@ -6,4 +6,20 @@ internal fun MPVActivity.drawerOptionValue(option: PlayerDrawerOption): String =
         decoderModeCompactLabel(mode)
     }
     PlayerDrawerOption.SHIELD_FALLBACK -> shieldFallbackOption(shieldDecoderFallback).compactLabel
+    PlayerDrawerOption.SKIP_MODE -> skipSegmentsModeLabel(skipSegmentsMode)
+    PlayerDrawerOption.SKIP_BUTTON_DISPLAY -> skipButtonDisplayModeCompactLabel(
+        skipButtonDisplayMode
+    )
+    PlayerDrawerOption.SEEK_STEP -> seekStepLabel(seekStepMs)
+}
+
+private fun MPVActivity.skipButtonDisplayModeCompactLabel(
+    mode: SkipButtonDisplayMode
+): String = when (mode) {
+    SkipButtonDisplayMode.SEGMENT ->
+        getString(R.string.skip_button_display_segment_compact)
+    SkipButtonDisplayMode.TEN_SECONDS ->
+        getString(R.string.seek_step_seconds_value, SKIP_BUTTON_DISPLAY_TEN_SECONDS)
+    SkipButtonDisplayMode.THIRTY_SECONDS ->
+        getString(R.string.seek_step_seconds_value, SKIP_BUTTON_DISPLAY_THIRTY_SECONDS)
 }

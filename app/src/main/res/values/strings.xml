@@ -411,8 +411,44 @@
 
     <string name="pref_save_position_title">Save position on quit</string>
     <string name="pref_save_position_summary">Remember current playback position on exit. When the same file is played again, the player will seek to the previous position.</string>
-    <string name="pref_auto_skip_segments_title">Auto-skip intro and outro</string>
-    <string name="pref_auto_skip_segments_summary">Automatically skip intro and outro segments when the launching app (such as Nuvio) provides them.</string>
+    <string name="pref_skip_segments_mode_title">Skip intro and outro</string>
+    <string name="pref_skip_segments_mode_summary">What to do with intro, outro, and recap segments when the launching app (such as Nuvio) provides them.</string>
+    <string name="pref_skip_button_display_title">Skip button duration</string>
+    <string name="pref_skip_button_display_summary">How long the skip button stays visible when a skippable segment is active.</string>
+    <string name="pref_seek_step_title">Seek step</string>
+    <string name="pref_seek_step_summary">How far a single ◀/▶ press seeks. Holding still ramps up to scrub faster.</string>
+    <string name="pref_seek_step_custom_entry">Custom…</string>
+    <string name="pref_seek_step_custom_title">Custom seek step</string>
+    <string name="pref_seek_step_custom_message">Enter a seek step in seconds. Values from 1 to 3600 seconds are allowed.</string>
+    <string name="pref_seek_step_custom_hint">Seconds</string>
+    <string name="pref_fast_seek_title">Fast (keyframe) seeking</string>
+    <string name="pref_fast_seek_summary">Snap seeks to the nearest keyframe (mpv hr-seek=no). Faster, but less precise. Leave off to follow your mpv.conf.</string>
+    <string name="pref_seek_keys_inputconf_title">Respect input.conf key bindings</string>
+    <string name="pref_seek_keys_inputconf_summary">When the player UI is hidden, keys you bind in input.conf go to mpv. Unbound remote keys still use mpvNova controls.</string>
+
+    <!-- Skip-mode picker labels (drawer value + Settings list). -->
+    <string name="skip_mode_off">Off</string>
+    <string name="skip_mode_auto">Auto-skip</string>
+    <string name="skip_mode_button">Skip button</string>
+    <string name="skip_mode_off_summary">Leave intro, outro, and recap segments alone.</string>
+    <string name="skip_mode_auto_summary">Seek past provided segments automatically.</string>
+    <string name="skip_mode_button_summary">Show a skip prompt while the segment is active.</string>
+    <string name="skip_button_display_segment">Until segment ends</string>
+    <string name="skip_button_display_segment_compact">Segment</string>
+    <string name="skip_button_display_10s">10 seconds</string>
+    <string name="skip_button_display_30s">30 seconds</string>
+    <string name="skip_button_display_segment_summary">Keep the prompt visible for the active skip window.</string>
+    <string name="skip_button_display_timed_summary">Hide the prompt after this many seconds unless controls are open.</string>
+    <string name="seek_step_preset_summary">Use this many seconds for each seek-key press.</string>
+    <string name="seek_step_custom_summary">Enter your own seek step in seconds.</string>
+    <!-- Seek-step compact value, e.g. "10s". -->
+    <string name="seek_step_seconds_value">%1$ds</string>
+    <!-- Skip button label, e.g. "Skip Intro". -->
+    <string name="skip_button_label">Skip %1$s</string>
+    <string name="skip_button_eyebrow">Skip</string>
+    <string name="option_picker_selected">ON</string>
+    <string name="option_picker_choose">--</string>
+    <string name="option_picker_playback">Playback</string>
 
     <string name="pref_new_intent_replace_title">Play new files immediately</string>
     <string name="pref_new_intent_replace_summary">When opening new files while the player is in background, replace the current playlist instead of adding at end.</string>

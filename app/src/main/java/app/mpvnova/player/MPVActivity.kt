@@ -8,13 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.util.Log
+import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.media.session.MediaSession
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
@@ -23,7 +23,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
-import androidx.media.AudioFocusRequestCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -78,12 +77,16 @@ open class MPVActivity : AppCompatActivity() {
     // we've already auto-skipped so we don't fight the user if they seek back into one.
     internal var skipSegments: List<SkipSegment> = emptyList()
     internal val autoSkippedSegmentKeys = HashSet<String>()
+    internal val dismissedSkipSegmentKeys = HashSet<String>()
+    internal val autoHiddenSkipSegmentKeys = HashSet<String>()
+    internal val skipButtonAutoHideRunnable = Runnable { autoHideSkipButton() }
 
     // Coalesce ~60/sec time-pos bursts into one UI hop.
     @Volatile internal var timePosUiPending = false
     internal val timePosUiRunnable = Runnable {
         timePosUiPending = false
         if (!activityIsForeground) return@Runnable
+        maybeAutoSkipSegments(psc.position / MPV_MILLIS_PER_SECOND_DOUBLE)
         if (binding.controls.visibility != View.VISIBLE) return@Runnable
         if (!userIsOperatingSeekbar && pendingSeekbarSeekMs == null && pendingDpadSeekPreviewMs == null)
             updatePlaybackTimeline(psc.position)
@@ -122,11 +125,14 @@ open class MPVActivity : AppCompatActivity() {
     }
 
     internal var audioManager: AudioManager? = null
-    internal var audioFocusRequest: AudioFocusRequestCompat? = null
+    internal var audioFocusRequest: AudioFocusRequest? = null
+    internal val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener {
+        onAudioFocusChange(it, "callback")
+    }
     internal var audioFocusRestore: () -> Unit = {}
 
     internal val psc = Utils.PlaybackStateCache()
-    internal var mediaSession: MediaSessionCompat? = null
+    internal var mediaSession: MediaSession? = null
 
     internal lateinit var binding: PlayerBinding
     internal val lifecycleObserver = MpvActivityLifecycleObserver(this)
@@ -256,7 +262,17 @@ open class MPVActivity : AppCompatActivity() {
     internal var noUIPauseMode = ""
 
     internal var shouldSavePosition = false
-    internal var autoSkipSegmentsEnabled = true
+    internal var skipSegmentsMode = SkipSegmentsMode.AUTO
+    internal var skipButtonDisplayMode = SkipButtonDisplayMode.SEGMENT
+    // The segment the Skip button is currently prompting for (null = button hidden).
+    internal var currentSkipButtonSegment: SkipSegment? = null
+    // D-pad seek: single-press step, "fast (keyframe) seek", and whether to defer seek keys to mpv.
+    internal var seekStepMs = SEEK_DEFAULT_DPAD_STEP_MS
+    internal var fastSeekEnabled = false
+    internal var fastSeekRestoreValue: String? = null
+    internal var seekKeysUseInputConf = false
+    internal var inputConfOverrideKeys: Set<InputConfOverrideKey> = emptySet()
+    internal var inputConfOverrideState: InputConfFileState? = null
 
     internal var controlsAtBottom = true
     internal var showMediaTitle = false
@@ -607,12 +623,19 @@ open class MPVActivity : AppCompatActivity() {
     internal var clockDateFormatterLocale: Locale? = null
 
     override fun dispatchKeyEvent(ev: KeyEvent): Boolean {
-        // Built-in handlers first; forward the rest to libmpv.
-        val handled = interceptDpad(ev) ||
-            interceptRemoteNextChapterButton(ev) ||
-            (ev.action == KeyEvent.ACTION_DOWN && interceptKeyDown(ev)) ||
-            player.onKey(ev)
-        return handled || super.dispatchKeyEvent(ev)
+        val inputConfKey = inputConfDispatchKey(ev)
+        val handled = when {
+            // Skip button (when shown) gets first crack: OK skips, other keys dismiss it.
+            handleSkipButtonKey(ev) -> true
+            inputConfKey != null -> player.sendInputConfKey(ev, inputConfKey)
+            // Built-in handlers first; forward the rest to libmpv.
+            else -> interceptDpad(ev) ||
+                interceptRemoteNextChapterButton(ev) ||
+                (ev.action == KeyEvent.ACTION_DOWN && interceptKeyDown(ev)) ||
+                player.onKey(ev) ||
+                super.dispatchKeyEvent(ev)
+        }
+        return handled
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -634,6 +657,7 @@ open class MPVActivity : AppCompatActivity() {
             }
             rightMargin = leftMargin
         }
+        updateSkipButtonPlacement()
     }
 
     // Audio filter levels. DRC is mutually exclusive with audio-norm so the
@@ -667,7 +691,7 @@ open class MPVActivity : AppCompatActivity() {
             pendingActivityResultCallback = null
         }
 
-    internal val mediaSessionCallback = object : MediaSessionCompat.Callback() {
+    internal val mediaSessionCallback = object : MediaSession.Callback() {
         override fun onPause() {
             player.paused = true
         }
@@ -679,14 +703,5 @@ open class MPVActivity : AppCompatActivity() {
         }
         override fun onSkipToNext() = playlistNext()
         override fun onSkipToPrevious() = playlistPrev()
-        override fun onSetRepeatMode(repeatMode: Int) {
-            mpvSetPropertyString("loop-playlist",
-                if (repeatMode == PlaybackStateCompat.REPEAT_MODE_ALL) "inf" else "no")
-            mpvSetPropertyString("loop-file",
-                if (repeatMode == PlaybackStateCompat.REPEAT_MODE_ONE) "inf" else "no")
-        }
-        override fun onSetShuffleMode(shuffleMode: Int) {
-            player.changeShuffle(false, shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL)
-        }
     }
 }

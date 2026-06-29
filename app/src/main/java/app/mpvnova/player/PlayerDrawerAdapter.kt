@@ -1,11 +1,14 @@
 package app.mpvnova.player
 
 import android.content.SharedPreferences
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.updateLayoutParams
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +26,9 @@ private const val VIEW_TYPE_SPACER = 4
 private const val VIEW_TYPE_OPTION = 5
 private const val PREF_ROW_OFF_ALPHA = 0.55f
 private const val PREF_ROW_DISABLED_ALPHA = 0.4f
+private const val PREF_ROW_VALUE_WIDTH_DP = 48f
+private const val OPTION_ROW_VALUE_MIN_WIDTH_DP = 72f
+private const val OPTION_ROW_VALUE_MAX_WIDTH_DP = 112f
 
 private data class DrawerScrollbarHeightCache(
     val width: Int,
@@ -170,6 +176,7 @@ internal class PlayerDrawerAdapter(
             boundPreference = preference
             prefRowTitle.setText(preference.titleRes)
             prefRowSummary.setText(preference.summaryRes)
+            activity.applyPreferenceValueLayout(prefRowValue)
             refreshPrefRowValue(prefRowValue, prefs.rawValue(preference))
             applyDisabledState()
             root.setOnClickListener {
@@ -200,6 +207,7 @@ internal class PlayerDrawerAdapter(
         fun bind(option: PlayerDrawerOption) = with(binding) {
             prefRowTitle.setText(option.titleRes)
             prefRowSummary.setText(option.summaryRes)
+            activity.applyOptionValueLayout(prefRowValue)
             prefRowValue.text = activity.drawerOptionValue(option)
             prefRowValue.alpha = 1f
             root.alpha = 1f
@@ -328,6 +336,26 @@ private fun drawerStableScrollOffset(
 
 private fun SharedPreferences.rawValue(preference: PlayerDrawerPreference): Boolean {
     return getBoolean(preference.key, preference.defaultValue)
+}
+
+private fun MPVActivity.applyPreferenceValueLayout(valueView: TextView) {
+    valueView.updateLayoutParams<LinearLayout.LayoutParams> {
+        width = Utils.convertDp(this@applyPreferenceValueLayout, PREF_ROW_VALUE_WIDTH_DP)
+    }
+    valueView.minWidth = 0
+    valueView.maxWidth = Int.MAX_VALUE
+    valueView.maxLines = 1
+    valueView.ellipsize = null
+}
+
+private fun MPVActivity.applyOptionValueLayout(valueView: TextView) {
+    valueView.updateLayoutParams<LinearLayout.LayoutParams> {
+        width = ViewGroup.LayoutParams.WRAP_CONTENT
+    }
+    valueView.minWidth = Utils.convertDp(this@applyOptionValueLayout, OPTION_ROW_VALUE_MIN_WIDTH_DP)
+    valueView.maxWidth = Utils.convertDp(this@applyOptionValueLayout, OPTION_ROW_VALUE_MAX_WIDTH_DP)
+    valueView.maxLines = 1
+    valueView.ellipsize = TextUtils.TruncateAt.END
 }
 
 private fun refreshPrefRowValue(valueView: TextView, on: Boolean) {

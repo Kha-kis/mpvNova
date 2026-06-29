@@ -81,11 +81,12 @@ internal fun MPVActivity.commitPendingSeekbarSeek() {
 
 internal fun MPVActivity.seekDeltaFromDpadEvent(ev: KeyEvent): Long {
     val direction = if (ev.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) 1L else -1L
+    // Single press = the user-configurable seek step; holding ramps to the fast-scrub tiers.
     val magnitudeMs = when {
         ev.repeatCount >= SEEK_FAST_REPEAT_THRESHOLD -> SEEK_FAST_STEP_MS
         ev.repeatCount >= SEEK_MEDIUM_REPEAT_THRESHOLD -> SEEK_MEDIUM_STEP_MS
         ev.repeatCount >= SEEK_SLOW_REPEAT_THRESHOLD -> SEEK_SLOW_STEP_MS
-        else -> SEEK_DEFAULT_DPAD_STEP_MS
+        else -> seekStepMs
     }
     return direction * magnitudeMs
 }

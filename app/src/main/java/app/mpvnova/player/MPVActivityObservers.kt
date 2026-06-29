@@ -1,6 +1,5 @@
 package app.mpvnova.player
 
-import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
@@ -31,7 +30,7 @@ internal class MpvActivityEventObserver(private val activity: MPVActivity) : Mpv
     override fun eventProperty(property: String, value: Boolean): Unit = with(activity) {
         val metaUpdated = psc.update(property, value)
         if (metaUpdated) updateMediaSession()
-        dispatchEventThreadBoolean(property, value, metaUpdated)
+        dispatchEventThreadBoolean(property, metaUpdated)
         if (!activityIsForeground) return
         eventUiHandler.post { eventBooleanPropertyUi(property, value) }
     }
@@ -48,7 +47,6 @@ internal class MpvActivityEventObserver(private val activity: MPVActivity) : Mpv
         // time-pos/full fires at frame rate — coalesce to ~5 UI/sec or it
         // starves the SW Hi10p decoder.
         if (property == "time-pos/full") {
-            maybeAutoSkipSegments(value)
             if (!timePosUiPending) {
                 timePosUiPending = true
                 eventUiHandler.postDelayed(timePosUiRunnable, TIME_POS_UI_COALESCE_DELAY_MS)
@@ -70,12 +68,8 @@ internal class MpvActivityEventObserver(private val activity: MPVActivity) : Mpv
     }
 
     /** Event-thread side-effects that must run regardless of foreground state. */
-    private fun MPVActivity.dispatchEventThreadBoolean(property: String, value: Boolean, metaUpdated: Boolean) {
+    private fun MPVActivity.dispatchEventThreadBoolean(property: String, metaUpdated: Boolean) {
         when (property) {
-            "shuffle" -> mediaSession?.setShuffleMode(
-                if (value) PlaybackStateCompat.SHUFFLE_MODE_ALL
-                else PlaybackStateCompat.SHUFFLE_MODE_NONE
-            )
             "mute" -> updateAudioPresence()
         }
         if (metaUpdated || property == "mute")
@@ -85,13 +79,6 @@ internal class MpvActivityEventObserver(private val activity: MPVActivity) : Mpv
     /** FORMAT_NONE / metadata-string event-thread side-effects. */
     private fun MPVActivity.dispatchEventThreadMetadata(property: String) {
         when (property) {
-            "loop-file", "loop-playlist" -> {
-                mediaSession?.setRepeatMode(when (player.getRepeat()) {
-                    2 -> PlaybackStateCompat.REPEAT_MODE_ONE
-                    1 -> PlaybackStateCompat.REPEAT_MODE_ALL
-                    else -> PlaybackStateCompat.REPEAT_MODE_NONE
-                })
-            }
             "current-tracks/audio/selected" -> {
                 updateAudioPresence()
                 if (persistAudioFilters) {

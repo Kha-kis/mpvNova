@@ -17,7 +17,12 @@ internal fun MPVActivity.readPlaybackSettings(
     backgroundPlayMode = getString("background_play", R.string.pref_background_play_default)
     noUIPauseMode = getString("no_ui_pause", R.string.pref_no_ui_pause_default)
     shouldSavePosition = prefs.getBoolean("save_position", true)
-    autoSkipSegmentsEnabled = prefs.getBoolean("auto_skip_segments", true)
+    skipSegmentsMode = readSkipSegmentsMode(prefs)
+    skipButtonDisplayMode = SkipButtonDisplayMode.fromPref(prefs.getString("skip_button_display", "segment"))
+    seekStepMs = readSeekStepSeconds(prefs) * MILLIS_PER_SECOND_LONG
+    seekKeysUseInputConf = prefs.getBoolean("seek_keys_use_inputconf", false)
+    reloadInputConfOverrideKeys()
+    fastSeekEnabled = prefs.getBoolean("fast_seek_enabled", false)
     controlsAtBottom = prefs.getBoolean("bottom_controls", true)
     showMediaTitle = prefs.getBoolean("display_media_title", true)
     showClockOverlay = prefs.getBoolean("display_clock_overlay", true)
@@ -58,6 +63,24 @@ internal fun MPVActivity.readPlaybackSettings(
     preferredDecoderMode = prefs.getString("preferred_decoder_mode", "") ?: ""
     autoPauseControlsOverlayEnabled = prefs.getBoolean("autopause_controls_overlay", false)
     autoPauseShieldHi10pEnabled = prefs.getBoolean("autopause_shield_hi10p", true)
+}
+
+/** Skip mode, migrating the old `auto_skip_segments` boolean (true -> auto, false -> off). */
+private fun readSkipSegmentsMode(prefs: SharedPreferences): SkipSegmentsMode {
+    val value = when {
+        prefs.contains("skip_segments_mode") -> prefs.getString("skip_segments_mode", "auto")
+        prefs.contains("auto_skip_segments") ->
+            if (prefs.getBoolean("auto_skip_segments", true)) "auto" else "off"
+        else -> "auto"
+    }
+    return SkipSegmentsMode.fromPref(value)
+}
+
+private fun readSeekStepSeconds(prefs: SharedPreferences): Long {
+    return (
+        prefs.getString("seek_step_seconds", SEEK_STEP_DEFAULT_SEC.toString())?.toLongOrNull()
+            ?: SEEK_STEP_DEFAULT_SEC.toLong()
+        ).coerceIn(SEEK_STEP_MIN_SEC.toLong(), SEEK_STEP_MAX_SEC.toLong())
 }
 
 internal fun MPVActivity.readAudioFilterSettings(prefs: SharedPreferences) {
