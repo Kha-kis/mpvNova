@@ -34,25 +34,3 @@ internal fun MPVActivity.showPlayerPickerDialog(
     }
     showWidePlayerDialog(dialog, layout)
 }
-
-internal fun MPVActivity.showSubDelayPicker(
-    restoreState: StateRestoreCallback,
-    layout: PlayerDialogLayout
-) {
-    val picker = subDelayDialog ?: SubDelayDialog(SUB_DELAY_MIN_SEC, SUB_DELAY_MAX_SEC).also {
-        subDelayDialog = it
-    }
-    val pickerView = picker.buildView(layoutInflater)
-    picker.delay1 = player.subDelay ?: 0.0
-    picker.delay2 = if (player.secondarySid != -1) player.secondarySubDelay else null
-
-    showPlayerPickerDialog(
-        titleRes = R.string.sub_delay,
-        contentView = pickerView,
-        restoreState = restoreState,
-        layout = layout,
-    ) {
-        picker.delay1?.let { player.subDelay = it }
-        picker.delay2?.let { player.secondarySubDelay = it }
-    }
-}

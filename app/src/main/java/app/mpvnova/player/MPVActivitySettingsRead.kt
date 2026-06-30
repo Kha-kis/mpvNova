@@ -21,6 +21,8 @@ internal fun MPVActivity.readPlaybackSettings(
     skipButtonDisplayMode = SkipButtonDisplayMode.fromPref(prefs.getString("skip_button_display", "segment"))
     seekStepMs = readSeekStepSeconds(prefs) * MILLIS_PER_SECOND_LONG
     seekKeysUseInputConf = prefs.getBoolean("seek_keys_use_inputconf", false)
+    preferExternalForwardedSubtitles = prefs.getBoolean(PREF_PREFER_EXTERNAL_FORWARDED_SUBTITLES, false)
+    readDelayDefaults(prefs)
     reloadInputConfOverrideKeys()
     fastSeekEnabled = prefs.getBoolean("fast_seek_enabled", false)
     controlsAtBottom = prefs.getBoolean("bottom_controls", true)
@@ -63,6 +65,13 @@ internal fun MPVActivity.readPlaybackSettings(
     preferredDecoderMode = prefs.getString("preferred_decoder_mode", "") ?: ""
     autoPauseControlsOverlayEnabled = prefs.getBoolean("autopause_controls_overlay", false)
     autoPauseShieldHi10pEnabled = prefs.getBoolean("autopause_shield_hi10p", true)
+}
+
+private fun MPVActivity.readDelayDefaults(prefs: SharedPreferences) {
+    savedAudioDelayMs = prefs.getLong(PREF_AUDIO_DELAY_MS, 0L)
+    savedSubDelayMs = prefs.getLong(PREF_SUB_DELAY_MS, 0L)
+    savedSecondarySubDelayMs = prefs.getLong(PREF_SECONDARY_SUB_DELAY_MS, 0L)
+    bluetoothAudioDelayMs = prefs.getLong(PREF_BLUETOOTH_AUDIO_DELAY_MS, 0L)
 }
 
 /** Skip mode, migrating the old `auto_skip_segments` boolean (true -> auto, false -> off). */

@@ -39,7 +39,7 @@ internal enum class PlayerDrawerAction(val group: PlayerDrawerActionGroup) {
     STATS_PAGE_3(PlayerDrawerActionGroup.STATS),
 }
 
-internal enum class PlayerDrawerPreferenceGroup { AUTOPAUSE, INTERFACE, VIDEO, PLAYBACK }
+internal enum class PlayerDrawerPreferenceGroup { AUTOPAUSE, INTERFACE, VIDEO, PLAYBACK, SUBTITLES }
 
 internal enum class PlayerDrawerPreference(
     val group: PlayerDrawerPreferenceGroup,
@@ -178,6 +178,13 @@ internal enum class PlayerDrawerPreference(
         "playlist_exit_warning",
         true,
     ),
+    PREFER_EXTERNAL_FORWARDED_SUBTITLES(
+        PlayerDrawerPreferenceGroup.SUBTITLES,
+        R.string.pref_prefer_external_forwarded_subtitles_title,
+        R.string.pref_prefer_external_forwarded_subtitles_summary,
+        PREF_PREFER_EXTERNAL_FORWARDED_SUBTITLES,
+        false,
+    ),
 }
 
 internal data class PlayerDrawerButtonSpec(
@@ -276,6 +283,7 @@ private fun MPVActivity.addAudioRows(rows: MutableList<PlayerDrawerRow>) {
 
 private fun MPVActivity.addSubtitleRows(rows: MutableList<PlayerDrawerRow>) {
     rows.addButton(PlayerDrawerAction.OPEN_SUB, R.string.open_external_sub)
+    rows.addPref(PlayerDrawerPreference.PREFER_EXTERNAL_FORWARDED_SUBTITLES)
     if (player.sid != -1) {
         rows.addButton(PlayerDrawerAction.SUB_DELAY, R.string.sub_delay)
         rows.addButton(PlayerDrawerAction.SUB_TRACK, R.string.btn_sub_track)

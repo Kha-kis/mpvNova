@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.util.Log
 import android.media.AudioFocusRequest
+import android.media.AudioDeviceCallback
 import android.media.AudioManager
 import android.media.session.MediaSession
 import android.os.Build
@@ -126,6 +127,12 @@ open class MPVActivity : AppCompatActivity() {
 
     internal var audioManager: AudioManager? = null
     internal var audioFocusRequest: AudioFocusRequest? = null
+    internal var bluetoothAudioDelayRouteCallback: AudioDeviceCallback? = null
+    internal var savedAudioDelayMs = 0L
+    internal var savedSubDelayMs = 0L
+    internal var savedSecondarySubDelayMs = 0L
+    internal var bluetoothAudioDelayMs = 0L
+    internal var appliedBluetoothAudioDelayMs: Long? = null
     internal val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener {
         onAudioFocusChange(it, "callback")
     }
@@ -271,6 +278,7 @@ open class MPVActivity : AppCompatActivity() {
     internal var fastSeekEnabled = false
     internal var fastSeekRestoreValue: String? = null
     internal var seekKeysUseInputConf = false
+    internal var preferExternalForwardedSubtitles = false
     internal var inputConfOverrideKeys: Set<InputConfOverrideKey> = emptySet()
     internal var inputConfOverrideState: InputConfFileState? = null
 
@@ -292,7 +300,8 @@ open class MPVActivity : AppCompatActivity() {
     internal var drawerBinding: app.mpvnova.player.databinding.DialogPlayerDrawerBinding? = null
     internal var playerPickerBinding: app.mpvnova.player.databinding.DialogPlayerPickerBinding? = null
     internal var speedPickerDialog: SpeedPickerDialog? = null
-    internal var subDelayDialog: SubDelayDialog? = null
+    internal var subDelayDialog: SubDelayPanelDialog? = null
+    internal var audioDelayDialog: AudioDelayDialog? = null
     internal var audioPickerDialog: MediaPickerDialog? = null
     internal var subtitlePickerDialog: MediaPickerDialog? = null
     internal var decoderPickerDialog: MediaPickerDialog? = null
@@ -511,6 +520,7 @@ open class MPVActivity : AppCompatActivity() {
         if (!activityIsForeground && didResumeBackgroundPlayback) {
             applySavedAudioFilterDefaults()
             applySavedSubFilterDefaults()
+            applySavedDelayDefaults()
             prepareStreamLoading(filepath)
             if (this.newIntentReplace) {
                 prepareDecoderForFileLoad(filepath)
@@ -525,6 +535,7 @@ open class MPVActivity : AppCompatActivity() {
         } else {
             applySavedAudioFilterDefaults()
             applySavedSubFilterDefaults()
+            applySavedDelayDefaults()
             prepareStreamLoading(filepath)
             prepareDecoderForFileLoad(filepath)
             suppressEndFileFinishForReplace = true

@@ -11,6 +11,7 @@ internal fun MPVActivity.handleDrawerPreferenceChange(
         PlayerDrawerPreferenceGroup.INTERFACE -> handleDrawerInterfacePreference(preference, newValue)
         PlayerDrawerPreferenceGroup.VIDEO -> handleDrawerVideoPreference(preference, newValue)
         PlayerDrawerPreferenceGroup.PLAYBACK -> handleDrawerPlaybackPreference(preference, newValue)
+        PlayerDrawerPreferenceGroup.SUBTITLES -> handleDrawerSubtitlePreference(preference, newValue)
     }
 }
 
@@ -126,6 +127,17 @@ private fun MPVActivity.handleDrawerPlaybackPreference(
         PlayerDrawerPreference.FAST_SEEK -> applyFastSeek(newValue)
         PlayerDrawerPreference.SEEK_KEYS_INPUTCONF -> seekKeysUseInputConf = newValue
         PlayerDrawerPreference.PLAYLIST_EXIT_WARNING -> playlistExitWarning = newValue
+        else -> Unit
+    }
+}
+
+private fun MPVActivity.handleDrawerSubtitlePreference(
+    preference: PlayerDrawerPreference,
+    newValue: Boolean,
+) {
+    when (preference) {
+        PlayerDrawerPreference.PREFER_EXTERNAL_FORWARDED_SUBTITLES ->
+            preferExternalForwardedSubtitles = newValue
         else -> Unit
     }
 }

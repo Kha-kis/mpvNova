@@ -71,8 +71,7 @@ private fun MPVActivity.handleAudioSubtitleDrawerAction(
         }
         PlayerDrawerAction.AUDIO_DELAY -> {
             dismissDrawerExpectingReopen(dismiss)
-            val picker = DecimalPickerDialog(AUDIO_DELAY_MIN_SEC, AUDIO_DELAY_MAX_SEC)
-            genericPickerDialog(picker, R.string.audio_delay, "audio-delay", pauseForDialog())
+            showAudioDelayPicker(pauseForDialog())
         }
         PlayerDrawerAction.SUB_TRACK -> {
             dismissDrawerExpectingReopen(dismiss); pickSub()
@@ -82,10 +81,7 @@ private fun MPVActivity.handleAudioSubtitleDrawerAction(
         }
         PlayerDrawerAction.SUB_DELAY -> {
             dismissDrawerExpectingReopen(dismiss)
-            showSubDelayPicker(pauseForDialog(), PlayerDialogLayout(
-                widthFraction = ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION,
-                maxWidthDp = ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP,
-            ))
+            showSubDelayPicker(pauseForDialog())
         }
         PlayerDrawerAction.SUB_SEEK_PREV -> mpvCommand(arrayOf("sub-seek", "-1"))
         PlayerDrawerAction.SUB_SEEK_NEXT -> mpvCommand(arrayOf("sub-seek", "1"))

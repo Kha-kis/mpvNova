@@ -124,8 +124,17 @@ internal const val VIDEO_ADJUSTMENT_MAX_INT = 100
 internal const val VIDEO_ADJUSTMENT_DEFAULT_INT = 0
 internal const val AUDIO_DELAY_MIN_SEC = -600.0
 internal const val AUDIO_DELAY_MAX_SEC = 600.0
+internal const val AUDIO_DELAY_STEP_MS = 25L
+internal const val AUDIO_DELAY_DIALOG_WIDTH_FRACTION = 0.46f
+internal const val AUDIO_DELAY_DIALOG_MAX_WIDTH_DP = 560f
+internal const val PREF_BLUETOOTH_AUDIO_DELAY_MS = "bluetooth_audio_delay_ms"
+internal const val PREF_AUDIO_DELAY_MS = "audio_delay_ms"
+internal const val PREF_SUB_DELAY_MS = "sub_delay_ms"
+internal const val PREF_SECONDARY_SUB_DELAY_MS = "secondary_sub_delay_ms"
+internal const val PREF_PREFER_EXTERNAL_FORWARDED_SUBTITLES = "prefer_external_forwarded_subtitles"
 internal const val SUB_DELAY_MIN_SEC = -600.0
 internal const val SUB_DELAY_MAX_SEC = 600.0
+internal const val SUB_DELAY_STEP_MS = 25L
 internal const val ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION = 0.42f
 internal const val ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP = 520f
 // Player settings drawer (right-edge panel). Wider than other

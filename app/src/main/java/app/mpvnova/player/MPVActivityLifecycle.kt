@@ -49,6 +49,7 @@ internal fun MPVActivity.startPlayerForFile(filepath: String) {
     player.initialize(filesDir.path, cacheDir.path)
     applySavedAudioFilterDefaults()
     applySavedSubFilterDefaults()
+    applySavedDelayDefaults()
     prepareStreamLoading(filepath)
     prepareDecoderForFileLoad(filepath)
     player.playFile(filepath)
@@ -59,6 +60,7 @@ internal fun MPVActivity.startPlayerForFile(filepath: String) {
         thumbnailChanged = { updateMediaSessionNow() }
     }
     setupAudioSessionId()
+    registerBluetoothAudioDelayWatcher()
     volumeControlStream = STREAM_TYPE
 }
 
@@ -98,6 +100,7 @@ internal fun MPVActivity.releaseMediaAndAudioFocus() {
     }
     mediaSession = null
     audioManager?.let { manager -> abandonAudioFocus(manager) }
+    unregisterBluetoothAudioDelayWatcher()
     audioFocusRequest = null
 }
 

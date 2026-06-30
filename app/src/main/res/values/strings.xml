@@ -383,6 +383,8 @@
 
     <string name="pref_default_subtitle_language_title">Default subtitle language</string>
     <string name="pref_default_subtitle_language_message">Subtitle language(s) to be selected by default when playing a video with multiple subtitles.\nTwo- or three-letter languages codes work. Multiple values can be delimited by comma.</string>
+    <string name="pref_prefer_external_forwarded_subtitles_title">Prefer forwarded external subtitles</string>
+    <string name="pref_prefer_external_forwarded_subtitles_summary">When another app forwards external subtitles, select them over embedded subtitles by default.</string>
 
     <string name="pref_hardware_decoding_title">Hardware decoding</string>
     <string name="pref_hardware_decoding_summary">Attempt hardware decoding before falling back to software. This is generally more efficient.</string>
@@ -425,6 +427,31 @@
     <string name="pref_fast_seek_summary">Snap seeks to the nearest keyframe (mpv hr-seek=no). Faster, but less precise. Leave off to follow your mpv.conf.</string>
     <string name="pref_seek_keys_inputconf_title">Respect input.conf key bindings</string>
     <string name="pref_seek_keys_inputconf_summary">When the player UI is hidden, keys you bind in input.conf go to mpv. Unbound remote keys still use mpvNova controls.</string>
+    <string name="audio_delay_current">Current delay</string>
+    <string name="audio_delay_step_hint">Adjusts in 25 ms steps.</string>
+    <string name="audio_delay_apply_bt">Apply to Bluetooth device</string>
+    <string name="audio_delay_clear_bt">Clear Bluetooth delay</string>
+    <string name="audio_delay_remember">Remember audio delay</string>
+    <string name="audio_delay_clear_remembered">Clear remembered audio delay</string>
+    <string name="audio_delay_bt_not_set">Bluetooth delay: not set</string>
+    <string name="audio_delay_bt_saved">Bluetooth delay saved: %1$s</string>
+    <string name="audio_delay_bt_active">Bluetooth delay active: %1$s</string>
+    <string name="audio_delay_bt_saved_toast">Saved %1$s for Bluetooth audio.</string>
+    <string name="audio_delay_bt_cleared">Bluetooth audio delay cleared.</string>
+    <string name="delay_remember_not_set">Remembered delay: not set</string>
+    <string name="delay_remember_saved">Remembered delay: %1$s</string>
+    <string name="delay_remember_cleared">Remembered delay cleared.</string>
+    <string name="sub_delay_primary">Primary subtitles</string>
+    <string name="sub_delay_secondary">Secondary subtitles</string>
+    <string name="sub_delay_step_hint">Adjusts in 25 ms steps.</string>
+    <string name="sub_delay_remember">Remember subtitle delay</string>
+    <string name="sub_delay_clear_remembered">Clear remembered subtitle delay</string>
+    <string name="sub_delay_remember_saved_dual">Remembered delay: %1$s primary, %2$s secondary</string>
+    <string name="sub_delay_sync_hint">Tap when the spoken line is heard, then when the matching subtitle text appears.</string>
+    <string name="sub_delay_sync_waiting_voice">Now tap when the matching spoken line is heard.</string>
+    <string name="sub_delay_sync_waiting_text">Now tap when the matching subtitle text appears.</string>
+    <string name="sub_delay_voice_heard">Voice heard</string>
+    <string name="sub_delay_text_seen">Text seen</string>
 
     <!-- Skip-mode picker labels (drawer value + Settings list). -->
     <string name="skip_mode_off">Off</string>
@@ -454,7 +481,7 @@
     <string name="pref_new_intent_replace_summary">When opening new files while the player is in background, replace the current playlist instead of adding at end.</string>
 
     <string name="pref_display_media_title_title">Display media title (videos)</string>
-    <string name="pref_display_media_title_summary">Display a VLC-style media title at the top of the player UI when the launcher or file path provides one.</string>
+    <string name="pref_display_media_title_summary">Display a media title at the top of the player UI when the launcher or file path provides one.</string>
 
     <string name="pref_bottom_controls_title">Show controls at bottom of screen</string>
     <string name="pref_bottom_controls_summary">When on, the player controls dock to the bottom of the screen. When off, they float as a centered overlay above the bottom edge.</string>

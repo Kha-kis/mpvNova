@@ -2,7 +2,7 @@ package app.mpvnova.player
 
 import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
-import java.util.Locale
+import kotlin.math.roundToLong
 
 internal fun MPVActivity.configureSubPickerCallbacks(
     impl: MediaPickerDialog,
@@ -73,7 +73,7 @@ internal fun MPVActivity.createSubPickerDialog(
     impl: MediaPickerDialog,
     restore: StateRestoreCallback
 ): AlertDialog {
-    val delayValue = String.format(Locale.US, "%.2f s", player.subDelay ?: 0.0)
+    val delayValue = currentSubtitleDelayText()
     return with(AlertDialog.Builder(this)) {
         val inflater = LayoutInflater.from(context)
         setView(impl.buildView(inflater, subPickerOptions(delayValue)))
@@ -98,6 +98,11 @@ private fun MPVActivity.subPickerOptions(delayValue: String): MediaPickerDialog.
         showSubPresetCycler = hasSubtitleStylePresets(),
         initialSubPresetName = currentSubtitleStylePresetName(),
     )
+}
+
+private fun MPVActivity.currentSubtitleDelayText(): String {
+    val delayMs = ((player.subDelay ?: 0.0) * MPV_MILLIS_PER_SECOND_DOUBLE).roundToLong()
+    return formatAudioDelayMs(delayMs)
 }
 
 private fun MPVActivity.subtitleStyleToggleText(): String = getString(

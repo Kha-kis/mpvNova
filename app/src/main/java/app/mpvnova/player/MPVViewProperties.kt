@@ -32,6 +32,12 @@ internal var MPVView.playbackSpeed: Double?
         speed?.let { mpvSetPropertyDouble("speed", it) }
     }
 
+internal var MPVView.audioDelay: Double?
+    get() = mpvGetPropertyDouble("audio-delay")
+    set(delay) {
+        delay?.let { mpvSetPropertyDouble("audio-delay", it) }
+    }
+
 internal var MPVView.subDelay: Double?
     get() = mpvGetPropertyDouble("sub-delay")
     set(speed) {

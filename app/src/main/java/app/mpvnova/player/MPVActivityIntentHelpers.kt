@@ -41,7 +41,10 @@ internal fun MPVActivity.addIntentSubtitles(launchExtras: Bundle) {
     val subsToEnable = getParcelableArray<Uri>(launchExtras, "subs.enable")
     for (suburi in subList) {
         val subfile = resolveUri(suburi) ?: continue
-        val flag = if (subsToEnable.any { it == suburi }) "select" else "auto"
+        val flag = intentSubtitleAddFlag(
+            isRequestedSelected = subsToEnable.any { it == suburi },
+            preferExternalForwardedSubtitles = preferExternalForwardedSubtitles,
+        )
         Log.v(MPV_ACTIVITY_TAG, "Adding subtitles from intent extras: $subfile")
         onloadCommands.add(arrayOf("sub-add", subfile, flag))
     }

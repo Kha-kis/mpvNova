@@ -143,13 +143,7 @@ internal fun MPVActivity.pickSub() {
 
 internal fun MPVActivity.openSubDelayDialog() {
     val restore = keepPlaybackForDialog()
-    showSubDelayPicker(
-        restore,
-        PlayerDialogLayout(
-            widthFraction = ADVANCED_SUB_DELAY_DIALOG_WIDTH_FRACTION,
-            maxWidthDp = ADVANCED_SUB_DELAY_DIALOG_MAX_WIDTH_DP,
-        )
-    )
+    showSubDelayPicker(restore)
 }
 
 internal fun MPVActivity.openPlaylistMenu(restore: StateRestoreCallback) {
