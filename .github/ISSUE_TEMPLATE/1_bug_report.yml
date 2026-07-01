@@ -25,6 +25,8 @@ body:
           required: true
         - label: This reproduces on a clean config (no custom scripts, no custom input.conf / mpv.conf).
           required: true
+        - label: If this involves a custom mpv.conf or input.conf, I first asked an AI assistant (after giving it the [mpv documentation](https://mpv.io/manual/master/)) to help create or fix my config, and the problem still happens.
+          required: false
   - type: input
     id: device
     attributes:
@@ -62,5 +64,14 @@ body:
         `adb logcat -s mpv '*:F'`
         Paste the output here (it will be formatted automatically) or attach it as a file.
       render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: config
+    attributes:
+      label: mpv.conf / input.conf (if relevant)
+      description: |
+        If your issue relates to configuration, paste the relevant parts here. First run your config together with the [mpv documentation](https://mpv.io/manual/master/) through an AI assistant to help create or fix it, and only file if the problem remains.
+      render: ini
     validations:
       required: false

@@ -17,6 +17,8 @@ body:
           required: true
         - label: I searched existing issues and discussions.
           required: true
+        - label: If this is about mpv.conf or input.conf, I first asked an AI assistant (after giving it the [mpv documentation](https://mpv.io/manual/master/)) to help create or fix my config.
+          required: false
   - type: textarea
     id: question
     attributes:

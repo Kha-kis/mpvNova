@@ -32,7 +32,9 @@ jobs:
             };
 
             // Maintainers can open free-form tracking issues without hassle.
-            if (privileged) return;
+            // A "[bot-test]" title lets a maintainer force the bot to run (for testing).
+            const testOverride = /\[bot-test\]/i.test(issue.title || '');
+            if (privileged && !testOverride) return;
 
             // Required confirmation checkboxes from our templates. A form submission
             // always contains them (checked); a bypassed/edited issue does not.
