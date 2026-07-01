@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a bug in mpvNova's own features (not general mpv / mpv-android behavior).
+labels: [needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        mpvNova is a fork of **mpv-android**, so general mpv or mpv-android bugs belong upstream.
+        Only file here for issues in mpvNova's own features (skip intro/outro, TV UI, seek controls, decoder handling added by this fork, etc).
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you file
+      description: Please confirm all of the following. Issues that skip these are closed automatically.
+      options:
+        - label: I read the [mpv manual](https://mpv.io/manual/master/).
+          required: true
+        - label: I checked the [mpv FAQ](https://github.com/mpv-player/mpv/wiki/FAQ).
+          required: true
+        - label: I checked the [mpv-android README](https://github.com/mpv-android/mpv-android/blob/master/README.md).
+          required: true
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: This bug is specific to mpvNova's changes, not general mpv / mpv-android behavior.
+          required: true
+        - label: This reproduces on a clean config (no custom scripts, no custom input.conf / mpv.conf).
+          required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device / TV model and Android version
+      description: For example "NVIDIA Shield TV Pro, Android 11" or "Chromecast with Google TV, Android 12".
+      placeholder: Device model, Android version
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: mpvNova version
+      description: Settings > Advanced > Version information. If you built it yourself, say so.
+      placeholder: e.g. 2026-06-29-hotfix1
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Exact, numbered steps that reliably reproduce the problem, plus what you expected versus what happened.
+      placeholder: |
+        1. ...
+        2. ...
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output
+      description: |
+        Strongly recommended. Collect with a computer connected via adb:
+        `adb logcat -s mpv '*:F'`
+        Paste the output here (it will be formatted automatically) or attach it as a file.
+      render: shell
+    validations:
+      required: false

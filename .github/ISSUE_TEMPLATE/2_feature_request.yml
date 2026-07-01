@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest a new feature or enhancement specific to mpvNova.
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests are for **mpvNova-specific** functionality. General mpv or mpv-android features belong upstream.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you file
+      description: Please confirm all of the following. Requests that skip these are closed automatically.
+      options:
+        - label: I searched existing issues and this feature has not already been requested.
+          required: true
+        - label: This is a mpvNova-specific feature, not a general mpv / mpv-android feature.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe your use case and the problem you are trying to solve, not just the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the behavior you would like to see.
+    validations:
+      required: true

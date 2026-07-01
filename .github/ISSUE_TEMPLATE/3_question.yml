@@ -1,0 +1,25 @@
+name: Question
+description: Ask a question about mpvNova itself (not general mpv usage).
+labels: [question, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For general mpv usage (options, input.conf, mpv.conf), please use the [mpv manual](https://mpv.io/manual/master/) and [mpv FAQ](https://github.com/mpv-player/mpv/wiki/FAQ) instead.
+        Use this only for questions about mpvNova's own behavior.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you ask
+      description: Please confirm all of the following. Questions that skip these are closed automatically.
+      options:
+        - label: I checked the mpv manual and FAQ, and this is a question about mpvNova specifically.
+          required: true
+        - label: I searched existing issues and discussions.
+          required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true

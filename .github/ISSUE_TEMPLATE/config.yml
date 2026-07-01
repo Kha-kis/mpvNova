@@ -1,1 +1,11 @@
 blank_issues_enabled: false
+contact_links:
+  - name: mpv manual (usage, options, input.conf)
+    url: https://mpv.io/manual/master/
+    about: How mpv options, properties, and key bindings work. Most usage questions are answered here.
+  - name: mpv FAQ
+    url: https://github.com/mpv-player/mpv/wiki/FAQ
+    about: Common mpv questions and answers.
+  - name: mpv-android (upstream) issues
+    url: https://github.com/mpv-android/mpv-android/issues
+    about: mpvNova is a fork of mpv-android. General playback, decoder, or codec bugs that are not specific to mpvNova belong upstream.

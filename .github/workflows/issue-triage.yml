@@ -1,0 +1,109 @@
+name: Issue triage
+
+on:
+  issues:
+    types: [opened]
+  schedule:
+    # Daily needs-info sweep.
+    - cron: '0 3 * * *'
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  # Welcome new issues, and immediately close ones that bypassed the templates
+  # or left required confirmations unchecked. Maintainers are exempt.
+  welcome-and-validate:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = (issue.body || '').trim();
+            const assoc = issue.author_association || 'NONE';
+            const privileged = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(assoc);
+            const common = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+            };
+
+            // Maintainers can open free-form tracking issues without hassle.
+            if (privileged) return;
+
+            // Required confirmation checkboxes from our templates. A form submission
+            // always contains them (checked); a bypassed/edited issue does not.
+            const requiredPhrases = [
+              'mpv manual',
+              'mpv faq',
+              'readme',
+              'searched existing',
+              'specific to mpvnova',
+              'clean config',
+              'not already been requested',
+              'searched existing issues and discussions',
+            ];
+            const lines = body.split('\n');
+            const uncheckedRequired = lines.some((l) =>
+              /- \[ \]/.test(l) &&
+              requiredPhrases.some((p) => l.toLowerCase().includes(p))
+            );
+            const hasCheckbox = /- \[[ xX]\]/.test(body);
+            const looksEmpty = body.replace(/\s+/g, ' ').length < 20;
+            const invalid = looksEmpty || !hasCheckbox || uncheckedRequired;
+
+            if (invalid) {
+              await github.rest.issues.createComment({
+                ...common,
+                body: [
+                  'This issue was closed automatically because it did not go through an issue template, or required confirmations were left unchecked.',
+                  '',
+                  "mpvNova keeps its tracker focused on bugs in **mpvNova's own changes**. Please open a new issue using one of the templates and complete every required field and checkbox.",
+                  '',
+                  'General mpv or mpv-android usage and bugs belong with the [mpv manual](https://mpv.io/manual/master/), [mpv FAQ](https://github.com/mpv-player/mpv/wiki/FAQ), or [mpv-android](https://github.com/mpv-android/mpv-android/issues).',
+                ].join('\n'),
+              });
+              await github.rest.issues.addLabels({ ...common, labels: ['invalid'] });
+              await github.rest.issues.update({
+                ...common,
+                state: 'closed',
+                state_reason: 'not_planned',
+              });
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              ...common,
+              body: [
+                'Thanks for the report. A couple of automated notes:',
+                '',
+                '- mpvNova is a fork of [mpv-android](https://github.com/mpv-android/mpv-android). General mpv / mpv-android bugs and usage questions will be redirected to the [mpv manual](https://mpv.io/manual/master/), [mpv FAQ](https://github.com/mpv-player/mpv/wiki/FAQ), or [upstream](https://github.com/mpv-android/mpv-android/issues).',
+                '- If a maintainer marks this `needs-info` and it stays inactive, it is closed automatically after about 14 days.',
+              ].join('\n'),
+            });
+
+  # Close issues left in needs-info without a response.
+  stale:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          only-labels: needs-info
+          stale-issue-label: stale
+          exempt-issue-labels: bug,confirmed,in-progress
+          days-before-stale: 7
+          days-before-close: 7
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          stale-issue-message: >
+            This issue is marked `needs-info` and has been inactive for 7 days.
+            It will be closed in 7 more days if no further information is
+            provided. Comment or remove the `stale` label to keep it open.
+          close-issue-message: >
+            Closing this issue because it was marked `needs-info` and stayed
+            inactive. Comment with the requested information and it can be
+            reopened.
