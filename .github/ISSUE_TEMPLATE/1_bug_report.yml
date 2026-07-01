@@ -28,11 +28,30 @@ body:
         - label: If this involves a custom mpv.conf or input.conf, I first asked an AI assistant (after giving it the [mpv documentation](https://mpv.io/manual/master/)) to help create or fix my config, and the problem still happens.
           required: false
   - type: input
-    id: device
+    id: device_model
     attributes:
-      label: Device / TV model and Android version
-      description: For example "NVIDIA Shield TV Pro, Android 11" or "Chromecast with Google TV, Android 12".
-      placeholder: Device model, Android version
+      label: Device / TV model
+      description: The exact model. For example "NVIDIA Shield TV Pro (2019)", "Fire TV Stick 4K Max", or "Chromecast with Google TV (4K)".
+      placeholder: Exact device / TV model
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Which platform is this device running?
+      options:
+        - Android TV / Google TV
+        - Fire OS (Fire TV)
+        - Other (explain in steps to reproduce)
+    validations:
+      required: true
+  - type: input
+    id: os_version
+    attributes:
+      label: Android / Fire OS version
+      description: For example "Android 11" or "Fire OS 7".
+      placeholder: OS version
     validations:
       required: true
   - type: input
