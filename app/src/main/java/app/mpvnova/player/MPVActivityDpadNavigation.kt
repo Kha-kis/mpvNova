@@ -17,13 +17,18 @@ internal fun MPVActivity.interceptDpadWithoutControls(ev: KeyEvent): Boolean {
             true
         }
         KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
-            // When the user explicitly binds this key in input.conf, dispatchKeyEvent has already
-            // handed it to mpv. Unbound LEFT/RIGHT keeps mpvNova's built-in seek behavior.
-            when (ev.action) {
-                KeyEvent.ACTION_DOWN -> seekFromHiddenControls(ev)
-                KeyEvent.ACTION_UP -> commitPendingSeekbarSeek()
+            // With "let mpv handle seek keys" on, don't grab LEFT/RIGHT: return false so
+            // dispatchKeyEvent forwards them to libmpv (player.onKey), matching mpv-android
+            // so mpv's own input.conf seeks them. Off keeps mpvNova's built-in seek.
+            if (seekKeysUseInputConf) {
+                false
+            } else {
+                when (ev.action) {
+                    KeyEvent.ACTION_DOWN -> seekFromHiddenControls(ev)
+                    KeyEvent.ACTION_UP -> commitPendingSeekbarSeek()
+                }
+                true
             }
-            true
         }
         else -> false
     }

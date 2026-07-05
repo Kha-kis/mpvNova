@@ -10,16 +10,10 @@ internal fun MPVView.onKey(event: KeyEvent): Boolean {
         mapped == null -> false
         event.repeatCount > 0 -> true // eat event but ignore it, mpv has its own key repeat
         else -> {
-            sendInputConfKey(event, mapped)
+            sendKeyEventToMpv(event, mapped)
             true
         }
     }
-}
-
-internal fun MPVView.sendInputConfKey(event: KeyEvent, key: String): Boolean {
-    val shouldSend = event.repeatCount == 0
-    if (shouldSend) sendKeyEventToMpv(event, key)
-    return true
 }
 
 @Suppress("DEPRECATION")

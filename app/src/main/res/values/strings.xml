@@ -426,7 +426,7 @@
     <string name="pref_fast_seek_title">Fast (keyframe) seeking</string>
     <string name="pref_fast_seek_summary">Snap seeks to the nearest keyframe (mpv hr-seek=no). Faster, but less precise. Leave off to follow your mpv.conf.</string>
     <string name="pref_seek_keys_inputconf_title">Respect input.conf key bindings</string>
-    <string name="pref_seek_keys_inputconf_summary">When the player UI is hidden, keys you bind in input.conf go to mpv. Unbound remote keys still use mpvNova controls.</string>
+    <string name="pref_seek_keys_inputconf_summary">When the player UI is hidden, LEFT/RIGHT go straight to mpv so your input.conf (or mpv\'s defaults) handle seeking, like mpv-android. Off uses mpvNova\'s built-in seek.</string>
     <string name="audio_delay_current">Current delay</string>
     <string name="audio_delay_step_hint">Adjusts in 25 ms steps.</string>
     <string name="audio_delay_apply_bt">Apply to Bluetooth device</string>

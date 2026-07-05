@@ -23,7 +23,6 @@ internal fun MPVActivity.readPlaybackSettings(
     seekKeysUseInputConf = prefs.getBoolean("seek_keys_use_inputconf", false)
     preferExternalForwardedSubtitles = prefs.getBoolean(PREF_PREFER_EXTERNAL_FORWARDED_SUBTITLES, false)
     readDelayDefaults(prefs)
-    reloadInputConfOverrideKeys()
     fastSeekEnabled = prefs.getBoolean("fast_seek_enabled", false)
     controlsAtBottom = prefs.getBoolean("bottom_controls", true)
     showMediaTitle = prefs.getBoolean("display_media_title", true)

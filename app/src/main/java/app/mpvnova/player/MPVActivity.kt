@@ -279,8 +279,6 @@ open class MPVActivity : AppCompatActivity() {
     internal var fastSeekRestoreValue: String? = null
     internal var seekKeysUseInputConf = false
     internal var preferExternalForwardedSubtitles = false
-    internal var inputConfOverrideKeys: Set<InputConfOverrideKey> = emptySet()
-    internal var inputConfOverrideState: InputConfFileState? = null
 
     internal var controlsAtBottom = true
     internal var showMediaTitle = false
@@ -634,11 +632,9 @@ open class MPVActivity : AppCompatActivity() {
     internal var clockDateFormatterLocale: Locale? = null
 
     override fun dispatchKeyEvent(ev: KeyEvent): Boolean {
-        val inputConfKey = inputConfDispatchKey(ev)
         val handled = when {
             // Skip button (when shown) gets first crack: OK skips, other keys dismiss it.
             handleSkipButtonKey(ev) -> true
-            inputConfKey != null -> player.sendInputConfKey(ev, inputConfKey)
             // Built-in handlers first; forward the rest to libmpv.
             else -> interceptDpad(ev) ||
                 interceptRemoteNextChapterButton(ev) ||
