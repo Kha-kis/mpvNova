@@ -206,6 +206,11 @@ The `mpvNova` name, app icon, TV banner, package name `app.mpvnova.player`, rele
 
 Do not upload mpvNova-branded builds to app stores or third-party stores without permission.
 
+The app ships an opaque TV banner so it doesn't overlap neighbouring banners on the stock
+launcher. If you use a launcher with custom icons (e.g. Projectivy) and prefer the transparent
+wordmark, download [assets/mpvnova-transparent-icon.png](assets/mpvnova-transparent-icon.png)
+and set it as a custom icon (in Projectivy: long-press the mpvNova tile → **Edit → Icon → Local file**).
+
 ---
 
 ## Privacy
