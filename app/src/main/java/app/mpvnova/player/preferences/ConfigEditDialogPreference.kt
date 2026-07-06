@@ -3,6 +3,7 @@ package app.mpvnova.player.preferences
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.EditText
 import androidx.preference.Preference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -32,16 +33,21 @@ class ConfigEditDialogPreference(
 
     override fun onClick() {
         super.onClick()
-        val dialog = MaterialAlertDialogBuilder(context)
         binding = ConfEditorBinding.inflate(LayoutInflater.from(context))
-        dialog.setView(binding.root)
-        dialog.setTitle(title)
-        dialog.setMessage(dialogMessage)
+        binding.confTitle.text = title
+        binding.confMessage.text = dialogMessage
+        binding.confMessage.visibility = if (dialogMessage.isNullOrBlank()) View.GONE else View.VISIBLE
         setupViews()
-        dialog.setNegativeButton(R.string.dialog_cancel) { _, _ -> }
-        dialog.setNeutralButton(R.string.dialog_clear_all) { _, _ -> clearAll() }
-        dialog.setPositiveButton(R.string.dialog_save) { _, _ -> save() }
-        dialog.create().show()
+        // Buttons live in the layout (pinned below the bounded editor), matching the app's
+        // other dialogs, so a long config can never push them off-screen (issue #23).
+        val dialog = MaterialAlertDialogBuilder(context)
+            .setView(binding.root)
+            .create()
+        binding.cancelBtn.setOnClickListener { dialog.dismiss() }
+        // Clear the editor in place; the empty content is persisted (file deleted) on Save.
+        binding.clearBtn.setOnClickListener { binding.editText.setText("") }
+        binding.saveBtn.setOnClickListener { save(); dialog.dismiss() }
+        dialog.show()
     }
 
     private fun setupViews() {
@@ -56,9 +62,5 @@ class ConfigEditDialogPreference(
             configFile.delete()
         else
             configFile.writeText(content)
-    }
-
-    private fun clearAll() {
-        configFile.delete()
     }
 }

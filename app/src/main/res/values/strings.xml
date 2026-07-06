@@ -560,7 +560,7 @@
     <string name="pref_edit_mpv_conf_message">You can directly edit the advanced playback configuration here.</string>
 
     <string name="pref_edit_input_conf">Edit input.conf</string>
-    <string name="pref_edit_input_conf_message">You can edit input.conf here, which is mainly useful for TV remotes and keyboards.\n\nImportant: this player still has a few hardcoded keys which can\'t be redefined here, for example \'j\' to cycle subtitles.</string>
+    <string name="pref_edit_input_conf_message">You can edit input.conf here, which is mainly useful for TV remotes and keyboards.</string>
 
     <!-- Strings used in Settings dialog preferences -->
     <string name="scaler_filter">Filter function</string>
