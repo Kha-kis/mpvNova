@@ -57,6 +57,9 @@ internal fun MPVActivity.showWidePlayerDialog(dialog: AlertDialog, layout: Playe
 internal fun MPVActivity.showPlayerDialog(dialog: AlertDialog) {
     playerDialogStack.removeAll { !it.isShowing }
     topPlayerDialog = dialog
+    // Any key inside a panel counts as activity, so the idle timer only fires when the user
+    // truly stops moving; navigating a menu keeps the screensaver away.
+    dialog.setOnKeyListener { _, _, _ -> noteScreensaverActivity(); false }
     dialog.show()
     if (dialog !in playerDialogStack) {
         playerDialogStack += dialog

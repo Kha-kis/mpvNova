@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_tv_dialog_shell"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingTop="22dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="22dp">
+
+    <TextView
+        android:id="@+id/choiceTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/tv_text"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        tools:text="Mode" />
+
+    <app.mpvnova.player.MaxHeightScrollView
+        android:id="@+id/choiceScroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:clipToPadding="false"
+        android:scrollbarDefaultDelayBeforeFade="1200"
+        android:scrollbarFadeDuration="240"
+        android:scrollbarSize="3dp"
+        android:scrollbarStyle="insideInset"
+        android:scrollbarThumbVertical="@drawable/bg_tv_scrollbar_thumb"
+        android:scrollbarTrackVertical="@drawable/bg_tv_scrollbar_track"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:id="@+id/choiceRows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingEnd="6dp" />
+    </app.mpvnova.player.MaxHeightScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/choiceCancelBtn"
+            style="@style/Mpv.SurfaceButton.Compact"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="84dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/dialog_cancel" />
+    </LinearLayout>
+</LinearLayout>

@@ -33,6 +33,7 @@ internal enum class PlayerDrawerAction(val group: PlayerDrawerActionGroup) {
     SKIP_MODE(PlayerDrawerActionGroup.PLAYBACK),
     SKIP_BUTTON_DISPLAY(PlayerDrawerActionGroup.PLAYBACK),
     SEEK_STEP(PlayerDrawerActionGroup.PLAYBACK),
+    SCREENSAVER(PlayerDrawerActionGroup.PLAYBACK),
     STATS_TOGGLE(PlayerDrawerActionGroup.STATS),
     STATS_PAGE_1(PlayerDrawerActionGroup.STATS),
     STATS_PAGE_2(PlayerDrawerActionGroup.STATS),
@@ -222,6 +223,11 @@ internal enum class PlayerDrawerOption(
         R.string.pref_seek_step_title,
         R.string.pref_seek_step_summary,
     ),
+    SCREENSAVER(
+        PlayerDrawerAction.SCREENSAVER,
+        R.string.pref_screensaver_title,
+        R.string.pref_screensaver_summary,
+    ),
 }
 
 internal sealed class PlayerDrawerRow {
@@ -314,6 +320,7 @@ private fun MPVActivity.addPlaybackRows(rows: MutableList<PlayerDrawerRow>) {
         rows.addOption(PlayerDrawerOption.SKIP_BUTTON_DISPLAY)
     }
     rows.addOption(PlayerDrawerOption.SEEK_STEP)
+    rows.addOption(PlayerDrawerOption.SCREENSAVER)
     rows.addPref(PlayerDrawerPreference.FAST_SEEK)
     rows.addPref(PlayerDrawerPreference.SEEK_KEYS_INPUTCONF)
     rows.addPref(PlayerDrawerPreference.SAVE_POSITION)

@@ -7,6 +7,8 @@ internal const val MPV_ACTIVITY_TAG = "mpv"
 internal const val RESULT_OK = android.app.Activity.RESULT_OK
 internal const val RESULT_CANCELED = android.app.Activity.RESULT_CANCELED
 internal const val DEFAULT_CONTROLS_DISPLAY_TIMEOUT = 5_000L
+// Paused-inactivity screensaver: default 10 minutes.
+internal const val SCREENSAVER_DEFAULT_TIMEOUT_MS = 10L * 60L * 1000L
 // Controls-overlay fade-out. Snappy 280ms paired with a Material
 // accelerate curve so the overlay clears in one motion.
 internal const val CONTROLS_FADE_DURATION = 280L
@@ -33,6 +35,16 @@ internal val SAVE_PRESET_DIALOG_LAYOUT = PlayerDialogLayout(
     maxWidthDp = SAVE_PRESET_MAX_WIDTH_DP,
     heightFraction = SAVE_PRESET_HEIGHT_FRACTION,
     maxHeightDp = SAVE_PRESET_MAX_HEIGHT_DP,
+)
+internal val SCREENSAVER_DIALOG_LAYOUT = PlayerDialogLayout(
+    widthFraction = 0.54f,
+    maxWidthDp = 580f,
+    heightFraction = 0.82f,
+    maxHeightDp = 560f,
+)
+internal val SCREENSAVER_LOGO_DIALOG_LAYOUT = PlayerDialogLayout(
+    widthFraction = 0.5f,
+    maxWidthDp = 560f,
 )
 internal const val CLOCK_TICK_INTERVAL_MS = 30_000L
 internal const val MIN_CLOCK_TICK_DELAY_MS = 1_000L

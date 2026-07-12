@@ -193,4 +193,28 @@
         <item>custom</item>
     </string-array>
 
+    <string-array name="screensaver_timeout_entries">
+        <item>@string/pref_screensaver_10min</item>
+        <item>@string/pref_screensaver_30min</item>
+        <item>@string/pref_screensaver_1hour</item>
+        <item>@string/pref_screensaver_custom_entry</item>
+    </string-array>
+    <string-array name="screensaver_timeout_values" translatable="false">
+        <item>600</item>
+        <item>1800</item>
+        <item>3600</item>
+        <item>custom</item>
+    </string-array>
+
+    <string-array name="screensaver_mode_entries">
+        <item>@string/pref_screensaver_mode_off</item>
+        <item>@string/pref_screensaver_mode_dim</item>
+        <item>@string/pref_screensaver_mode_logo</item>
+    </string-array>
+    <string-array name="screensaver_mode_values" translatable="false">
+        <item>off</item>
+        <item>dim</item>
+        <item>logo</item>
+    </string-array>
+
 </resources>

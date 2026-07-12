@@ -1,6 +1,7 @@
 package app.mpvnova.player.preferences
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
@@ -8,6 +9,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.graphics.Rect
+import android.net.Uri
 import android.text.InputType
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -22,6 +24,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.XmlRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -43,7 +46,12 @@ import androidx.preference.SwitchPreferenceCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.DynamicColors
 import app.mpvnova.player.AppearanceTheme
+import app.mpvnova.player.PREF_SCREENSAVER_LOGO_URI
+import app.mpvnova.player.PREF_SCREENSAVER_TINT
 import app.mpvnova.player.R
+import app.mpvnova.player.SCREENSAVER_CHOICES_SEC
+import app.mpvnova.player.SCREENSAVER_CUSTOM_ID
+import app.mpvnova.player.screensaverTimeoutLabel
 import app.mpvnova.player.SEEK_STEP_DEFAULT_SEC
 import app.mpvnova.player.SEEK_STEP_MAX_SEC
 import app.mpvnova.player.SEEK_STEP_MIN_SEC
@@ -132,6 +140,7 @@ private const val NOVA_BORDER_CHANNEL = 210
 private const val THEME_LABEL_CHANNEL = 188
 private const val STATE_HERO_TITLE = "hero_title"
 private const val STATE_HERO_SUBTITLE = "hero_subtitle"
+private val SCREENSAVER_LIST_PREF_KEYS = setOf("screensaver_mode", "screensaver_timeout")
 
 @Suppress("TooManyFunctions") // mostly Activity lifecycle overrides
 class PreferenceActivity : AppCompatActivity(),
@@ -651,6 +660,113 @@ class PreferenceActivity : AppCompatActivity(),
                 }
                 .setNegativeButton(R.string.dialog_cancel, null)
                 .show()
+        }
+    }
+
+    @Suppress("TooManyFunctions") // grouped screensaver preference-binding helpers
+    class ScreensaverPreference : StyledPreferenceFragment(R.xml.pref_screensaver) {
+        private val screensaverLogoPicker =
+            registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                onScreensaverLogoPicked(uri)
+            }
+
+        override fun onPreferencesLoaded() {
+            bindScreensaverLogoPreference()
+            bindScreensaverSummaries()
+        }
+
+        // Route the mode/idle-time pickers through the app-styled choice dialog.
+        override fun onDisplayPreferenceDialog(preference: Preference) {
+            val listPref = preference as? ListPreference
+            if (listPref != null && preference.key in SCREENSAVER_LIST_PREF_KEYS) {
+                showScreensaverListChoice(listPref)
+            } else {
+                super.onDisplayPreferenceDialog(preference)
+            }
+        }
+
+        private fun showScreensaverListChoice(pref: ListPreference) {
+            val entries = pref.entries
+            val values = pref.entryValues
+            val presetValues = values.map { it.toString() }.filter { it != SCREENSAVER_CUSTOM_ID }
+            val items = entries.indices.map { i ->
+                val value = values[i].toString()
+                if (value == SCREENSAVER_CUSTOM_ID) {
+                    SettingsChoiceItem(title = entries[i], checked = pref.value !in presetValues) {
+                        showScreensaverTimeInputDialog(currentScreensaverSeconds(pref)) { sec ->
+                            pref.value = sec.toString()
+                        }
+                    }
+                } else {
+                    SettingsChoiceItem(title = entries[i], checked = pref.value == value) { pref.value = value }
+                }
+            }
+            showSettingsChoiceDialog(pref.title ?: "", items)
+        }
+
+        private fun currentScreensaverSeconds(pref: ListPreference): Int =
+            pref.value?.toIntOrNull() ?: SCREENSAVER_CHOICES_SEC.first()
+
+        private fun bindScreensaverSummaries() {
+            setEntrySummary("screensaver_mode", R.string.pref_screensaver_summary)
+            findPreference<ListPreference>("screensaver_timeout")?.summaryProvider =
+                SummaryProvider<ListPreference> { pref -> screensaverTimeoutSummary(pref.value) }
+        }
+
+        private fun screensaverTimeoutSummary(value: String?): String {
+            val sec = value?.toIntOrNull() ?: return getString(R.string.pref_screensaver_idle_summary)
+            return screensaverTimeoutLabel(requireContext(), sec)
+        }
+
+        private fun setEntrySummary(key: String, fallbackRes: Int) {
+            findPreference<ListPreference>(key)?.summaryProvider =
+                SummaryProvider<ListPreference> { pref -> pref.entry ?: getString(fallbackRes) }
+        }
+
+        private fun bindScreensaverLogoPreference() {
+            val pref = findPreference<Preference>("screensaver_logo") ?: return
+            updateScreensaverLogoSummary()
+            pref.setOnPreferenceClickListener {
+                showScreensaverLogoDialog(
+                    hasCustom = hasCustomScreensaverLogo(),
+                    onChoose = { screensaverLogoPicker.launch(arrayOf("image/*")) },
+                    onReset = { setScreensaverLogo(uri = null, tintDefault = true) },
+                )
+                true
+            }
+        }
+
+        private fun hasCustomScreensaverLogo(): Boolean =
+            !preferenceManager.sharedPreferences?.getString(PREF_SCREENSAVER_LOGO_URI, null).isNullOrBlank()
+
+        private fun updateScreensaverLogoSummary() {
+            findPreference<Preference>("screensaver_logo")?.setSummary(
+                if (hasCustomScreensaverLogo()) {
+                    R.string.pref_screensaver_logo_custom
+                } else {
+                    R.string.pref_screensaver_logo_default
+                }
+            )
+        }
+
+        private fun onScreensaverLogoPicked(uri: Uri?) {
+            if (uri == null) return
+            runCatching {
+                requireContext().contentResolver.takePersistableUriPermission(
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            // A custom logo shows in its own colours by default; the built-in mark colour-shifts.
+            setScreensaverLogo(uri = uri.toString(), tintDefault = false)
+        }
+
+        private fun setScreensaverLogo(uri: String?, tintDefault: Boolean) {
+            preferenceManager.sharedPreferences?.edit()?.apply {
+                if (uri == null) remove(PREF_SCREENSAVER_LOGO_URI) else putString(PREF_SCREENSAVER_LOGO_URI, uri)
+                apply()
+            }
+            findPreference<SwitchPreferenceCompat>(PREF_SCREENSAVER_TINT)?.isChecked = tintDefault
+            updateScreensaverLogoSummary()
         }
     }
 

@@ -34,6 +34,7 @@ internal fun MPVActivity.handlePauseUi(paused: Boolean) {
         controlsOverlayAutoPaused = false
         hideControlsFade()
     }
+    onScreensaverPauseChanged(paused)
 }
 
 internal fun MPVActivity.updatePlaybackStatus(paused: Boolean) {

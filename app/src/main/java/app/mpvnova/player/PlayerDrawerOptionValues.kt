@@ -11,6 +11,7 @@ internal fun MPVActivity.drawerOptionValue(option: PlayerDrawerOption): String =
         skipButtonDisplayMode
     )
     PlayerDrawerOption.SEEK_STEP -> seekStepLabel(seekStepMs)
+    PlayerDrawerOption.SCREENSAVER -> screensaverDrawerSummary()
 }
 
 private fun MPVActivity.skipButtonDisplayModeCompactLabel(

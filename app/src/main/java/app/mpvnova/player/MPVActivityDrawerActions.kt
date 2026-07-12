@@ -124,6 +124,9 @@ private fun MPVActivity.handlePlaybackDrawerAction(
         PlayerDrawerAction.SEEK_STEP -> {
             dismissDrawerExpectingReopen(dismiss); pickSeekStep()
         }
+        PlayerDrawerAction.SCREENSAVER -> {
+            dismissDrawerExpectingReopen(dismiss); openScreensaverPanel()
+        }
         else -> Unit
     }
 }

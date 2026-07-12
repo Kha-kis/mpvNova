@@ -63,7 +63,7 @@ private fun MPVActivity.requestAudioFocusModern(manager: AudioManager): Int {
     val request = audioFocusRequest ?: AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
         .setAudioAttributes(
             AudioAttributes.Builder()
-                // libmpv's ao_audiotrack may differ — here we always pretend to be music.
+                // libmpv's ao_audiotrack may differ ï¿½ here we always pretend to be music.
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .build()
@@ -138,6 +138,8 @@ internal fun MPVActivity.keepPlaybackForDialog(): StateRestoreCallback {
             if (keepOpenDialogDepth == 0) {
                 keepOpenSavedValue?.also { mpvSetPropertyString("keep-open", it) }
                 endPlaybackIfParkedAtEof()
+                // Start the screensaver idle countdown fresh from when the UI closed.
+                noteScreensaverActivity()
             }
         }
     }

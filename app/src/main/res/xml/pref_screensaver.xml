@@ -1,0 +1,35 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        android:defaultValue="dim"
+        app:iconSpaceReserved="false"
+        android:key="screensaver_mode"
+        android:entries="@array/screensaver_mode_entries"
+        android:entryValues="@array/screensaver_mode_values"
+        android:summary="@string/pref_screensaver_summary"
+        android:title="@string/pref_screensaver_mode_header" />
+
+    <ListPreference
+        android:defaultValue="600"
+        app:iconSpaceReserved="false"
+        android:key="screensaver_timeout"
+        android:entries="@array/screensaver_timeout_entries"
+        android:entryValues="@array/screensaver_timeout_values"
+        android:summary="@string/pref_screensaver_idle_summary"
+        android:title="@string/pref_screensaver_idle_title" />
+
+    <Preference
+        android:key="screensaver_logo"
+        app:iconSpaceReserved="false"
+        android:title="@string/pref_screensaver_logo_title"
+        android:summary="@string/pref_screensaver_logo_default" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        app:iconSpaceReserved="false"
+        android:key="screensaver_tint"
+        android:summary="@string/pref_screensaver_tint_summary"
+        android:title="@string/pref_screensaver_tint_title" />
+
+</PreferenceScreen>

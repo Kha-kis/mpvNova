@@ -82,6 +82,22 @@ open class MPVActivity : AppCompatActivity() {
     internal val autoHiddenSkipSegmentKeys = HashSet<String>()
     internal val skipButtonAutoHideRunnable = Runnable { autoHideSkipButton() }
 
+    // Paused-inactivity DVD-style screensaver.
+    internal var screensaverTimeoutMs = SCREENSAVER_DEFAULT_TIMEOUT_MS
+    internal var screensaverMode = ScreensaverMode.DIM
+    internal var screensaverActive = false
+    internal var screensaverWaking = false
+    internal var dvdX = 0f
+    internal var dvdY = 0f
+    internal var dvdVx = 0f
+    internal var dvdVy = 0f
+    internal var screensaverLastFrameNanos = 0L
+    internal var screensaverTintIndex = 0
+    internal var screensaverTintEnabled = true
+    internal val screensaverStartRunnable = Runnable { startScreensaver() }
+    internal val screensaverFrameCallback =
+        android.view.Choreographer.FrameCallback { frameTimeNanos -> stepScreensaver(frameTimeNanos) }
+
     // Coalesce ~60/sec time-pos bursts into one UI hop.
     @Volatile internal var timePosUiPending = false
     internal val timePosUiRunnable = Runnable {
@@ -554,6 +570,7 @@ open class MPVActivity : AppCompatActivity() {
     }
 
     internal fun onPauseImpl() {
+        cancelScreensaver()
         val shouldBackground = shouldBackground()
         if (shouldBackground)
             BackgroundPlaybackService.grabThumbnail()
@@ -602,6 +619,7 @@ open class MPVActivity : AppCompatActivity() {
         applyPlayerScreenBrightnessPreference()
 
         activityIsForeground = true
+        scheduleScreensaver()
         stopServiceHandler.removeCallbacks(stopServiceRunnable)
         stopServiceHandler.postDelayed(stopServiceRunnable, BACKGROUND_SERVICE_STOP_DELAY_MS)
 
@@ -632,6 +650,9 @@ open class MPVActivity : AppCompatActivity() {
     internal var clockDateFormatterLocale: Locale? = null
 
     override fun dispatchKeyEvent(ev: KeyEvent): Boolean {
+        // The screensaver eats the first key (just wakes); other keys reset its idle timer.
+        if (consumeScreensaverKey(ev)) return true
+        noteScreensaverActivity()
         val handled = when {
             // Skip button (when shown) gets first crack: OK skips, other keys dismiss it.
             handleSkipButtonKey(ev) -> true

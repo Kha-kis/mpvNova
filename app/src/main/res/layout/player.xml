@@ -724,4 +724,33 @@
         </LinearLayout>
 
     </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/screensaverOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/screensaverLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            android:src="@drawable/dvd_logo" />
+
+        <View
+            android:id="@+id/screensaverScanlines"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/crt_scanlines" />
+
+        <View
+            android:id="@+id/screensaverVignette"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/crt_vignette" />
+    </FrameLayout>
 </RelativeLayout>

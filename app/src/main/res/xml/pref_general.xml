@@ -82,6 +82,12 @@
         android:summary="@string/pref_seek_step_summary"
         android:title="@string/pref_seek_step_title" />
 
+    <Preference
+        app:fragment="app.mpvnova.player.preferences.PreferenceActivity$ScreensaverPreference"
+        app:iconSpaceReserved="false"
+        android:summary="@string/pref_screensaver_summary"
+        android:title="@string/pref_screensaver_title" />
+
     <SwitchPreferenceCompat
         android:defaultValue="false"
         app:iconSpaceReserved="false"

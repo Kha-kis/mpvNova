@@ -24,6 +24,7 @@ internal fun MPVActivity.readPlaybackSettings(
     preferExternalForwardedSubtitles = prefs.getBoolean(PREF_PREFER_EXTERNAL_FORWARDED_SUBTITLES, false)
     readDelayDefaults(prefs)
     fastSeekEnabled = prefs.getBoolean("fast_seek_enabled", false)
+    readScreensaverSettings(prefs)
     controlsAtBottom = prefs.getBoolean("bottom_controls", true)
     showMediaTitle = prefs.getBoolean("display_media_title", true)
     showClockOverlay = prefs.getBoolean("display_clock_overlay", true)
@@ -89,6 +90,19 @@ private fun readSeekStepSeconds(prefs: SharedPreferences): Long {
         prefs.getString("seek_step_seconds", SEEK_STEP_DEFAULT_SEC.toString())?.toLongOrNull()
             ?: SEEK_STEP_DEFAULT_SEC.toLong()
         ).coerceIn(SEEK_STEP_MIN_SEC.toLong(), SEEK_STEP_MAX_SEC.toLong())
+}
+
+private const val SCREENSAVER_DEFAULT_SECONDS = "600"
+
+private fun readScreensaverTimeoutMs(prefs: SharedPreferences): Long {
+    val seconds = prefs.getString("screensaver_timeout", SCREENSAVER_DEFAULT_SECONDS)?.toLongOrNull()
+        ?: SCREENSAVER_DEFAULT_SECONDS.toLong()
+    return seconds.coerceAtLeast(0L) * MILLIS_PER_SECOND_LONG
+}
+
+private fun MPVActivity.readScreensaverSettings(prefs: SharedPreferences) {
+    screensaverTimeoutMs = readScreensaverTimeoutMs(prefs)
+    screensaverMode = ScreensaverMode.fromPref(prefs.getString("screensaver_mode", "dim"))
 }
 
 internal fun MPVActivity.readAudioFilterSettings(prefs: SharedPreferences) {
