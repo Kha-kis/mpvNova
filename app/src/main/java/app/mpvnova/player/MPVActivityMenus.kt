@@ -22,6 +22,8 @@ internal fun MPVActivity.pickSpeed() {
 
 internal fun MPVActivity.goIntoPiP() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+    // External (trampoline) launches don't support PiP — it traps input behind the caller.
+    if (intent.getBooleanExtra(EXTRA_EXTERNAL_PLAYER_RESULT, false)) return
     enterPictureInPictureMode(buildPiPParams())
 }
 

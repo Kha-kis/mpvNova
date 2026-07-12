@@ -38,8 +38,12 @@ internal fun MPVActivity.setupImmersiveWindow() {
     val insetsController = WindowCompat.getInsetsController(window, window.decorView)
     insetsController.systemBarsBehavior =
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    // Drop the PiP icon on devices without the feature (Fire TV, older AOSP).
-    if (!packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_PICTURE_IN_PICTURE))
+    // Drop the PiP icon on devices without the feature (Fire TV, older AOSP), and for external
+    // launches where PiP conflicts with the caller's trampoline handoff and traps remote input.
+    val hasPipFeature =
+        packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    val externalLaunch = intent.getBooleanExtra(EXTRA_EXTERNAL_PLAYER_RESULT, false)
+    if (!hasPipFeature || externalLaunch)
         binding.topPiPBtn.visibility = View.GONE
 }
 
