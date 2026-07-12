@@ -20,6 +20,7 @@ internal fun MPVActivity.refreshTimeInfoPanelVisibility() {
 }
 
 private fun MPVActivity.shouldShowTimeInfoPanel(): Boolean {
+    if (inPictureInPicture()) return false
     return (binding.controls.visibility == View.VISIBLE && showClockOverlay) ||
         shouldShowClockWhileControlsHidden()
 }

@@ -12,12 +12,23 @@ import androidx.annotation.StringRes
 
 /** Picture-in-picture activity-side glue. */
 
+internal fun MPVActivity.inPictureInPicture(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInPictureInPictureMode
+
 internal fun MPVActivity.onPiPModeChangedImpl(state: Boolean) {
     Log.v(MPV_ACTIVITY_TAG, "onPiPModeChanged($state)")
     if (state) {
         hideControls()
+        // The bouncing-logo overlay and the clock are meaningless in the tiny PiP window, so
+        // shut them down while in PiP.
+        cancelScreensaver()
+        refreshTimeInfoPanelVisibility()
         return
     }
+
+    // Back to full screen: restore the clock and re-arm the idle timer.
+    refreshTimeInfoPanelVisibility()
+    scheduleScreensaver()
 
     // No clean PiP-exit signal — finish here or the activity sticks around
     // unreachable from recents. <https://stackoverflow.com/a/56127742>

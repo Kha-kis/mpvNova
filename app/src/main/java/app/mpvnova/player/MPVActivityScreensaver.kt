@@ -36,6 +36,7 @@ internal fun MPVActivity.onScreensaverPauseChanged(paused: Boolean) {
 internal fun MPVActivity.scheduleScreensaver() {
     eventUiHandler.removeCallbacks(screensaverStartRunnable)
     if (screensaverActive || screensaverMode == ScreensaverMode.OFF || !psc.pause) return
+    if (inPictureInPicture()) return
     eventUiHandler.postDelayed(screensaverStartRunnable, screensaverTimeoutMs)
 }
 
@@ -57,6 +58,7 @@ internal fun MPVActivity.consumeScreensaverKey(ev: KeyEvent): Boolean {
 
 internal fun MPVActivity.startScreensaver() {
     if (screensaverActive || !psc.pause || screensaverMode == ScreensaverMode.OFF) return
+    if (inPictureInPicture()) return
     screensaverActive = true
     // Being idle inside a menu/panel still triggers it: close any open player dialogs (without
     // bouncing the drawer back) so the overlay sits on top of everything.
