@@ -386,9 +386,8 @@
         </LinearLayout>
 
         <!-- =============== SKIP INTRO/OUTRO/RECAP BUTTON =============== -->
-        <!-- Shown by SkipSegmentsMode.BUTTON during a skippable segment. Pre-highlighted; OK
-             (routed in handleSkipButtonKey) or a tap confirms. Not focusable so it never fights
-             the isSelected-based control selection. -->
+        <!-- Shown by SkipSegmentsMode.BUTTON during a skippable segment. OK is also routed
+             through handleSkipButtonKey so remote behavior remains available before focus moves. -->
         <LinearLayout
             android:id="@+id/skipSegmentBtn"
             android:layout_width="wrap_content"
@@ -400,7 +399,8 @@
             android:background="@drawable/bg_skip_button"
             android:clickable="true"
             android:elevation="10dp"
-            android:focusable="false"
+            android:focusable="true"
+            android:importantForAccessibility="yes"
             android:gravity="center_vertical"
             android:minWidth="160dp"
             android:minHeight="72dp"

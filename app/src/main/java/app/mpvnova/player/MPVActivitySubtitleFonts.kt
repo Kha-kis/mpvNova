@@ -76,15 +76,16 @@ private fun MPVActivity.copyFontInto(dir: File, path: String): File? = runCatchi
         if (!isFontFileName(name)) return@runCatching null
         val dest = File(dir, sanitizeFontFileName(name))
         contentResolver.openInputStream(uri)?.use { input ->
-            dest.outputStream().use { input.copyTo(it) }
+            installSubtitleFont(input, dest)
         } ?: return@runCatching null
         dest
     } else {
         val src = File(path)
-        if (!isFontFileName(src.name) || !src.canRead()) return@runCatching null
+        if (!isFontFileName(src.name) || !src.canRead() ||
+            src.length() !in 1..SubtitleFontTable.MAX_FONT_FILE_BYTES
+        ) return@runCatching null
         val dest = File(dir, sanitizeFontFileName(src.name))
-        src.inputStream().use { input -> dest.outputStream().use { input.copyTo(it) } }
-        dest
+        src.inputStream().use { input -> installSubtitleFont(input, dest) }
     }
 }.getOrNull()
 

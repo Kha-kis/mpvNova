@@ -40,17 +40,23 @@ internal fun MPVActivity.setupImmersiveWindow() {
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     // Drop the PiP icon on devices without the feature (Fire TV, older AOSP), and for external
     // launches where PiP conflicts with the caller's trampoline handoff and traps remote input.
-    val hasPipFeature =
-        packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    val hasPipFeature = packageManager.hasSystemFeature("android.software.picture_in_picture")
     val externalLaunch = intent.getBooleanExtra(EXTRA_EXTERNAL_PLAYER_RESULT, false)
     if (!hasPipFeature || externalLaunch)
         binding.topPiPBtn.visibility = View.GONE
 }
 
 internal fun MPVActivity.startPlayerForFile(filepath: String) {
-    player.addObserver(mpvEventObserver)
-    addMpvLogObserver(mpvLogObserver)
-    player.initialize(filesDir.path, cacheDir.path)
+    val initialized = player.initialize(filesDir.path, cacheDir.path) {
+        player.addObserver(mpvEventObserver)
+        addMpvLogObserver(mpvLogObserver)
+    }
+    if (!initialized) {
+        Log.e(MPV_ACTIVITY_TAG, "Another screen already owns the libmpv runtime")
+        showToast(getString(R.string.error_player_already_active))
+        finishWithResult(RESULT_CANCELED)
+        return
+    }
     applySavedAudioFilterDefaults()
     applySavedSubFilterDefaults()
     applySavedDelayDefaults()

@@ -20,8 +20,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 
+@Suppress("TooManyFunctions")
 class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
-    private lateinit var binding: FragmentMainScreenBinding
+    private var _binding: FragmentMainScreenBinding? = null
+    private val binding: FragmentMainScreenBinding
+        get() = checkNotNull(_binding)
 
     private lateinit var documentTreeOpener: ActivityResultLauncher<Uri?>
     private lateinit var filePickerLauncher: ActivityResultLauncher<Intent>
@@ -70,7 +73,7 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding = FragmentMainScreenBinding.bind(view)
+        _binding = FragmentMainScreenBinding.bind(view)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.homeScroll) { scroll, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -131,23 +134,21 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
 
     override fun onPause() {
         homeUpdateRunnable?.let { runnable ->
-            if (::binding.isInitialized)
-                binding.root.removeCallbacks(runnable)
+            _binding?.root?.removeCallbacks(runnable)
         }
         homeUpdateRunnable = null
         super.onPause()
     }
 
     private fun scheduleHomeUpdateCheck() {
-        if (!::binding.isInitialized)
-            return
-        homeUpdateRunnable?.let(binding.root::removeCallbacks)
+        val currentBinding = _binding ?: return
+        homeUpdateRunnable?.let(currentBinding.root::removeCallbacks)
         val runnable = Runnable {
             if (isResumed)
                 (activity as? MainActivity)?.checkForHomeUpdatesOnce()
         }
         homeUpdateRunnable = runnable
-        binding.root.postDelayed(runnable, HOME_UPDATE_CHECK_DELAY_MS)
+        currentBinding.root.postDelayed(runnable, HOME_UPDATE_CHECK_DELAY_MS)
     }
 
     private fun saveChoice(type: String, data: String? = null) {
@@ -156,17 +157,25 @@ class MainScreenFragment : Fragment(R.layout.fragment_main_screen) {
         prev = type
         prevData = data
 
-        if (!binding.switch1.isChecked)
+        val currentBinding = _binding ?: return
+        if (!currentBinding.switch1.isChecked)
             return
-        binding.switch1.isChecked = false
+        currentBinding.switch1.isChecked = false
         with (PreferenceManager.getDefaultSharedPreferences(requireContext()).edit()) {
             putString("MainScreenFragment_remember", type)
             if (data == null)
                 remove("MainScreenFragment_remember_data")
             else
                 putString("MainScreenFragment_remember_data", data)
-            commit()
+            apply()
         }
+    }
+
+    override fun onDestroyView() {
+        homeUpdateRunnable?.let { runnable -> _binding?.root?.removeCallbacks(runnable) }
+        homeUpdateRunnable = null
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun restoreChoice(): Boolean {

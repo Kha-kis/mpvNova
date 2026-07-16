@@ -403,6 +403,7 @@ open class MPVActivity : AppCompatActivity() {
     internal var autoDecoderFallback = true
     internal var shieldDecoderModeEnabled = true
     internal var shieldDecoderFallback = MPVView.SHIELD_DECODER_FALLBACK_COPY
+    internal var shieldMpeg2SoftwareFallbackEnabled = true
     internal var preferredDecoderMode = ""
     // Autopause: pause while controls overlay is visible. Shield variant
     // defaults on (Hi10p SW can't share CPU with the UI).

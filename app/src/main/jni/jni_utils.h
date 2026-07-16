@@ -1,6 +1,7 @@
 #pragma once
 
 #include <jni.h>
+#include <string>
 
 // Native entrypoints live on app.mpvnova.player.MPVLib.
 #define jni_func_name(name) Java_app_mpvnova_player_MPVLib_##name
@@ -8,6 +9,8 @@
 
 bool acquire_jni_env(JavaVM *vm, JNIEnv **env);
 void init_methods_cache(JNIEnv *env);
+jstring new_utf8_string(JNIEnv *env, const char *value);
+std::string get_utf8_string(JNIEnv *env, jstring value);
 
 #ifndef UTIL_EXTERN
 #define UTIL_EXTERN extern
@@ -27,4 +30,6 @@ UTIL_EXTERN jmethodID mpv_MPVLib_eventProperty_S,
 	mpv_MPVLib_eventProperty_Sd,
 	mpv_MPVLib_eventProperty_SS,
 	mpv_MPVLib_event,
-	mpv_MPVLib_logMessage_SiS;
+	mpv_MPVLib_logMessage_SiS,
+	mpv_MPVLib_stringFromUtf8,
+	mpv_MPVLib_bytesFromString;

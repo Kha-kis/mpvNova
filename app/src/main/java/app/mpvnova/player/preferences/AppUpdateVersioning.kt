@@ -85,7 +85,7 @@ internal fun chooseBestApkAssetName(
                     lowercaseName.contains("universal")
             }
             val exactMatch = supportedAbis.firstNotNullOfOrNull { abi ->
-                assetNames.firstOrNull { name -> name.contains(abi, ignoreCase = true) }
+                assetNames.firstOrNull { name -> assetAbi(name) == abi.lowercase() }
             }
             val universal = assetNames.firstOrNull { assetName ->
                 val name = assetName.lowercase()
@@ -99,6 +99,14 @@ internal fun chooseBestApkAssetName(
             api29Universal ?: exactMatch ?: universal ?: abiNeutral ?: assetNames.first()
         }
     }
+}
+
+private fun assetAbi(assetName: String): String? {
+    val lowercaseName = assetName.lowercase()
+    return KNOWN_ABIS
+        .sortedByDescending(String::length)
+        .firstOrNull { abi -> lowercaseName.contains(abi.lowercase()) }
+        ?.lowercase()
 }
 
 private val MARKDOWN_HEADING_PREFIX_PATTERN = Regex("^#{1,6}\\s*")

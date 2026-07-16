@@ -633,7 +633,9 @@ private fun FilePickerActivity.finishWithResult(code: Int, path: String? = null)
 }
 
 class ChoiceFragment : Fragment(R.layout.fragment_filepicker_choice) {
-    private lateinit var binding: FragmentFilepickerChoiceBinding
+    private var _binding: FragmentFilepickerChoiceBinding? = null
+    private val binding: FragmentFilepickerChoiceBinding
+        get() = checkNotNull(_binding)
 
     private fun removeMyself() {
         with(requireActivity().supportFragmentManager.beginTransaction()) {
@@ -644,7 +646,7 @@ class ChoiceFragment : Fragment(R.layout.fragment_filepicker_choice) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding = FragmentFilepickerChoiceBinding.bind(view)
+        _binding = FragmentFilepickerChoiceBinding.bind(view)
 
         binding.message.text = requireArguments().getString("title")
         binding.fileBtn.setOnClickListener {
@@ -669,5 +671,10 @@ class ChoiceFragment : Fragment(R.layout.fragment_filepicker_choice) {
         }
         if (!requireArguments().getBoolean("allow_document", false))
             binding.docBtn.visibility = View.GONE
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

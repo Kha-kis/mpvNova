@@ -6,6 +6,16 @@ import org.junit.Test
 
 class AppUpdateVersioningTest {
     @Test
+    fun x86DoesNotSelectX86_64Asset() {
+        val selected = chooseBestApkAssetName(
+            assetNames = listOf("mpvNova-x86_64.apk", "mpvNova-x86.apk"),
+            supportedAbis = listOf("x86"),
+        )
+
+        assertEquals("mpvNova-x86.apk", selected)
+    }
+
+    @Test
     fun chooseBestApkAssetNameForFireTvStickAbi() {
         val selected = chooseBestApkAssetName(
             assetNames = listOf(

@@ -19,28 +19,46 @@ abstract class BaseMPVView(
      *
      * Call this once before the view is shown.
      */
-    fun initialize(configDir: String, cacheDir: String) {
-        mpvCreate(context)
-        BundledFfmpegVersionLogger.log(context)
+    @Suppress("TooGenericExceptionCaught")
+    fun initialize(
+        configDir: String,
+        cacheDir: String,
+        beforeInit: () -> Unit = {},
+    ): Boolean {
+        if (!MpvRuntimeOwnership.tryAcquire(this))
+            return false
+        ownsRuntime = true
 
-        /* set normal options (user-supplied config can override) */
-        mpvSetOptionString("config", "yes")
-        mpvSetOptionString("config-dir", configDir)
-        for (opt in arrayOf("gpu-shader-cache-dir", "icc-cache-dir"))
-            mpvSetOptionString(opt, cacheDir)
-        initOptions()
+        try {
+            mpvCreate(context.applicationContext)
+            BundledFfmpegVersionLogger.log(context.applicationContext)
 
-        mpvInit()
+            /* set normal options (user-supplied config can override) */
+            mpvSetOptionString("config", "yes")
+            mpvSetOptionString("config-dir", configDir)
+            for (opt in arrayOf("gpu-shader-cache-dir", "icc-cache-dir"))
+                mpvSetOptionString(opt, cacheDir)
+            initOptions()
+            beforeInit()
 
-        /* set hardcoded options */
-        postInitOptions()
-        // could mess up VO init before surfaceCreated() is called
-        mpvSetOptionString("force-window", "no")
-        // need to idle at least once for playFile() logic to work
-        mpvSetOptionString("idle", "once")
+            mpvInit()
 
-        holder.addCallback(this)
-        observeProperties()
+            /* set hardcoded options */
+            postInitOptions()
+            // could mess up VO init before surfaceCreated() is called
+            mpvSetOptionString("force-window", "no")
+            // need to idle at least once for playFile() logic to work
+            mpvSetOptionString("idle", "once")
+
+            holder.addCallback(this)
+            observeProperties()
+            return true
+        } catch (error: Throwable) {
+            runCatching { mpvDestroy() }
+            ownsRuntime = false
+            MpvRuntimeOwnership.release(this)
+            throw error
+        }
     }
 
     /**
@@ -49,10 +67,18 @@ abstract class BaseMPVView(
      * Call this once before the view is destroyed.
      */
     fun destroy() {
+        if (!ownsRuntime)
+            return
+
         // Disable surface callbacks to avoid using uninitialized mpv state
         holder.removeCallback(this)
 
-        mpvDestroy()
+        try {
+            mpvDestroy()
+        } finally {
+            ownsRuntime = false
+            MpvRuntimeOwnership.release(this)
+        }
     }
 
     protected abstract fun initOptions()
@@ -61,6 +87,7 @@ abstract class BaseMPVView(
     protected abstract fun observeProperties()
 
     private var filePath: String? = null
+    private var ownsRuntime = false
     private var lastSurfaceWidth = -1
     private var lastSurfaceHeight = -1
 

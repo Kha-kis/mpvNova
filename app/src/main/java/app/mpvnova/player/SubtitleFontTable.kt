@@ -6,6 +6,8 @@ import java.nio.ByteOrder
 
 // Reads a font's real family name so the picker shows it and sub-font matches.
 internal object SubtitleFontTable {
+    internal const val MAX_FONT_FILE_BYTES = 32L * 1024L * 1024L
+    private const val MAX_CACHE_ENTRIES = 64
     private const val TAG_TTCF = 0x74746366 // 'ttcf'
     private const val TAG_NAME = 0x6E616D65 // 'name'
     private const val TAG_HEAD = 0x68656164 // 'head'
@@ -22,13 +24,39 @@ internal object SubtitleFontTable {
     private const val MAC_STYLE_BOLD = 0x1
     private const val MAC_STYLE_ITALIC = 0x2
 
-    fun familyName(file: File): String? = runCatching { parse(file.readBytes()) }.getOrNull()
-
     /** A face's own bold/italic flags (from the 'head' table's macStyle), so the preview can pick
      *  the real matching face the way libass does instead of synthesizing a slant/weight. */
     data class Style(val bold: Boolean, val italic: Boolean)
 
-    fun style(file: File): Style? = runCatching { parseStyle(file.readBytes()) }.getOrNull()
+    private data class CacheKey(val path: String, val size: Long, val modified: Long)
+    private data class Metadata(val family: String?, val style: Style?)
+    private val cache = LinkedHashMap<CacheKey, Metadata?>()
+
+    fun familyName(file: File): String? = metadata(file)?.family
+
+    fun style(file: File): Style? = metadata(file)?.style
+
+    @Synchronized
+    private fun metadata(file: File): Metadata? {
+        val size = file.length()
+        var result: Metadata? = null
+        if (file.isFile && size > 0L && size <= MAX_FONT_FILE_BYTES) {
+            val key = CacheKey(file.absolutePath, size, file.lastModified())
+            result = if (cache.containsKey(key)) {
+                cache[key]
+            } else {
+                val parsed = runCatching {
+                    val data = file.readBytes()
+                    Metadata(parse(data), parseStyle(data))
+                }.getOrNull()
+                cache[key] = parsed
+                while (cache.size > MAX_CACHE_ENTRIES)
+                    cache.remove(cache.keys.first())
+                parsed
+            }
+        }
+        return result
+    }
 
     private fun parseStyle(data: ByteArray): Style? {
         val bb = ByteBuffer.wrap(data).order(ByteOrder.BIG_ENDIAN)

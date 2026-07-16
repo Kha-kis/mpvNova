@@ -29,8 +29,6 @@ internal fun MPVView.cycleAudio() = mpvCommand(arrayOf("cycle", "audio"))
 
 internal fun MPVView.cycleSub() = mpvCommand(arrayOf("cycle", "sub"))
 
-internal fun MPVView.cycleHwdec() = mpvCommand(arrayOf("cycle-values", "hwdec", MPV_VIEW_HWDECS, "no"))
-
 internal fun MPVView.cycleSpeed() {
     val currentSpeed = playbackSpeed ?: DEFAULT_PLAYBACK_SPEED
     val index = MPV_VIEW_PLAYBACK_SPEED_STEPS.indexOfFirst { it > currentSpeed }

@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <stdlib.h>
+#include <string>
 
 #include <mpv/client.h>
 
@@ -25,13 +26,10 @@ extern "C" {
 jni_func(jint, setOptionString, jstring joption, jstring jvalue) {
     CHECK_MPV_INIT();
 
-    const char *option = env->GetStringUTFChars(joption, NULL);
-    const char *value = env->GetStringUTFChars(jvalue, NULL);
+    const std::string option = get_utf8_string(env, joption);
+    const std::string value = get_utf8_string(env, jvalue);
 
-    int result = mpv_set_option_string(g_mpv, option, value);
-
-    env->ReleaseStringUTFChars(joption, option);
-    env->ReleaseStringUTFChars(jvalue, value);
+    int result = mpv_set_option_string(g_mpv, option.c_str(), value.c_str());
 
     return result;
 }
@@ -40,13 +38,12 @@ static int common_get_property(JNIEnv *env, jstring jproperty, mpv_format format
 {
     CHECK_MPV_INIT();
 
-    const char *prop = env->GetStringUTFChars(jproperty, NULL);
-    int result = mpv_get_property(g_mpv, prop, format, output);
+    const std::string prop = get_utf8_string(env, jproperty);
+    int result = mpv_get_property(g_mpv, prop.c_str(), format, output);
     if (result == MPV_ERROR_PROPERTY_UNAVAILABLE)
-        ALOGV("mpv_get_property(%s) format %d was unavailable", prop, format);
+        ALOGV("mpv_get_property(%s) format %d was unavailable", prop.c_str(), format);
     else if (result < 0)
-        ALOGE("mpv_get_property(%s) format %d returned error %s", prop, format, mpv_error_string(result));
-    env->ReleaseStringUTFChars(jproperty, prop);
+        ALOGE("mpv_get_property(%s) format %d returned error %s", prop.c_str(), format, mpv_error_string(result));
 
     return result;
 }
@@ -55,11 +52,10 @@ static int common_set_property(JNIEnv *env, jstring jproperty, mpv_format format
 {
     CHECK_MPV_INIT();
 
-    const char *prop = env->GetStringUTFChars(jproperty, NULL);
-    int result = mpv_set_property(g_mpv, prop, format, value);
+    const std::string prop = get_utf8_string(env, jproperty);
+    int result = mpv_set_property(g_mpv, prop.c_str(), format, value);
     if (result < 0)
-        ALOGE("mpv_set_property(%s, %p) format %d returned error %s", prop, value, format, mpv_error_string(result));
-    env->ReleaseStringUTFChars(jproperty, prop);
+        ALOGE("mpv_set_property(%s, %p) format %d returned error %s", prop.c_str(), value, format, mpv_error_string(result));
 
     return result;
 }
@@ -89,7 +85,7 @@ jni_func(jstring, getPropertyString, jstring jproperty) {
     char *value;
     if (common_get_property(env, jproperty, MPV_FORMAT_STRING, &value) < 0)
         return NULL;
-    jstring jvalue = env->NewStringUTF(value);
+    jstring jvalue = new_utf8_string(env, value);
     mpv_free(value);
     return jvalue;
 }
@@ -110,16 +106,15 @@ jni_func(void, setPropertyBoolean, jstring jproperty, jboolean jvalue) {
 }
 
 jni_func(void, setPropertyString, jstring jproperty, jstring jvalue) {
-    const char *value = env->GetStringUTFChars(jvalue, NULL);
+    const std::string utf8_value = get_utf8_string(env, jvalue);
+    const char *value = utf8_value.c_str();
     common_set_property(env, jproperty, MPV_FORMAT_STRING, &value);
-    env->ReleaseStringUTFChars(jvalue, value);
 }
 
 jni_func(void, observeProperty, jstring property, jint format) {
     CHECK_MPV_INIT();
-    const char *prop = env->GetStringUTFChars(property, NULL);
-    int result = mpv_observe_property(g_mpv, 0, prop, (mpv_format)format);
+    const std::string prop = get_utf8_string(env, property);
+    int result = mpv_observe_property(g_mpv, 0, prop.c_str(), (mpv_format)format);
     if (result < 0)
-        ALOGE("mpv_observe_property(%s) format %d returned error %s", prop, format, mpv_error_string(result));
-    env->ReleaseStringUTFChars(property, prop);
+        ALOGE("mpv_observe_property(%s) format %d returned error %s", prop.c_str(), format, mpv_error_string(result));
 }

@@ -10,7 +10,7 @@ internal fun ensureNativeLibrariesLoaded() {
 
 fun mpvCreate(appctx: Context) {
     ensureNativeLibrariesLoaded()
-    MPVLib.create(appctx)
+    MPVLib.create(appctx.applicationContext)
 }
 
 fun mpvInit() {

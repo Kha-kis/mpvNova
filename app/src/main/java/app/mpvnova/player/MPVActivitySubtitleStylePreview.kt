@@ -83,7 +83,25 @@ internal fun MPVActivity.subtitleTypefaceFor(
 }
 
 private fun typefaceFromFile(file: File): Typeface? =
-    runCatching { Typeface.createFromFile(file) }.getOrNull()
+    SubtitleTypefaceCache.get(file)
+
+private object SubtitleTypefaceCache {
+    private const val MAX_ENTRIES = 32
+    private data class Key(val path: String, val size: Long, val modified: Long)
+    private val entries = LinkedHashMap<Key, Typeface?>()
+
+    @Synchronized
+    fun get(file: File): Typeface? {
+        val key = Key(file.absolutePath, file.length(), file.lastModified())
+        if (entries.containsKey(key))
+            return entries[key]
+        val typeface = runCatching { Typeface.createFromFile(file) }.getOrNull()
+        entries[key] = typeface
+        while (entries.size > MAX_ENTRIES)
+            entries.remove(entries.keys.first())
+        return typeface
+    }
+}
 
 private fun styledTypeface(base: Typeface, bold: Boolean, italic: Boolean): Typeface {
     val style = when {

@@ -27,15 +27,19 @@ import app.mpvnova.player.BuildConfig
 import app.mpvnova.player.MPVView
 import app.mpvnova.player.MpvLogRingBuffer
 import app.mpvnova.player.NativeLibraryVersion
+import app.mpvnova.player.PREF_SHIELD_MPEG2_SOFTWARE_FALLBACK
 import app.mpvnova.player.R
 import app.mpvnova.player.Utils
 import app.mpvnova.player.toShieldDecoderFallback
+import app.mpvnova.player.sanitizeMpvLogText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
 import java.io.IOException
+import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.Executors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -75,12 +79,35 @@ object SupportActions {
     }
 
     fun exportConfigBundle(activity: Activity) {
-        val bundle = createSupportBundle(activity)
-        SupportBundleExportFlow(activity, bundle).show()
+        val progress = MaterialAlertDialogBuilder(activity)
+            .setMessage(R.string.support_export_preparing)
+            .setCancelable(false)
+            .show()
+        val activityReference = WeakReference(activity)
+        val progressReference = WeakReference(progress)
+        val applicationContext = activity.applicationContext
+        SUPPORT_IO_EXECUTOR.execute {
+            val result = runCatching { createSupportBundle(applicationContext) }
+            val currentActivity = activityReference.get() ?: return@execute
+            currentActivity.runOnUiThread {
+                progressReference.get()?.dismiss()
+                if (currentActivity.isFinishing || currentActivity.isDestroyed)
+                    return@runOnUiThread
+                result.onSuccess { bundle ->
+                    SupportBundleExportFlow(currentActivity, bundle).show()
+                }.onFailure {
+                    Toast.makeText(
+                        currentActivity,
+                        R.string.support_export_save_failed,
+                        Toast.LENGTH_LONG,
+                    ).show()
+                }
+            }
+        }
     }
 
-    private fun createSupportBundle(activity: Activity): File {
-        val supportDir = File(activity.cacheDir, "support")
+    private fun createSupportBundle(context: Context): File {
+        val supportDir = File(context.cacheDir, "support")
         if (!supportDir.exists())
             supportDir.mkdirs()
         supportDir.listFiles()?.forEach { it.delete() }
@@ -88,13 +115,13 @@ object SupportActions {
         val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
         val bundle = File(supportDir, "mpvNova-support-$stamp.zip")
         ZipOutputStream(bundle.outputStream()).use { zip ->
-            zip.textEntry("debug-info.txt", buildDebugInfo(activity))
-            zip.textEntry("settings-summary.txt", buildSettingsSummary(activity))
-            zip.textEntry("storage-report.txt", buildStorageReport(activity))
-            zip.configEntry(activity, "mpv.conf")
-            zip.configEntry(activity, "input.conf")
+            zip.textEntry("debug-info.txt", buildDebugInfo(context))
+            zip.textEntry("settings-summary.txt", buildSettingsSummary(context))
+            zip.textEntry("storage-report.txt", buildStorageReport(context))
+            zip.configEntry(context, "mpv.conf")
+            zip.configEntry(context, "input.conf")
             zip.textEntry("logs.txt", buildMpvLogDump())
-            zip.crashEntries(activity)
+            zip.crashEntries(context)
         }
         return bundle
     }
@@ -121,6 +148,10 @@ object SupportActions {
             "shield_decoder_fallback",
             MPVView.SHIELD_DECODER_FALLBACK_DEFAULT,
         ).toShieldDecoderFallback()
+        val shieldMpeg2Fallback = prefs.getBoolean(
+            PREF_SHIELD_MPEG2_SOFTWARE_FALLBACK,
+            true,
+        )
         val preferredDecoder = prefs.getString("preferred_decoder_mode", null)
             ?.takeIf { it.isNotBlank() }
             ?: "default"
@@ -148,6 +179,7 @@ object SupportActions {
             appendLine("Decoder setting: $decoder")
             appendLine("Shield decoder mode: ${if (shieldDecoder) "enabled" else "disabled"}")
             appendLine("Shield Hi10P fallback: $shieldDecoderFallback")
+            appendLine("Shield MPEG2 software fallback: ${if (shieldMpeg2Fallback) "enabled" else "disabled"}")
             appendLine("mpv: ${nativeVersion(context, "libmpv.so", "mpv v")}")
             appendLine("FFmpeg: ${nativeVersion(context, "libavcodec.so", "FFmpeg version ")}")
         }
@@ -160,7 +192,12 @@ object SupportActions {
             prefs.all.toSortedMap().forEach { (key, value) ->
                 if (key == "release_history")
                     return@forEach
-                appendLine("$key=$value")
+                val sanitizedValue = if (SENSITIVE_SETTING_KEY.containsMatchIn(key)) {
+                    "<redacted>"
+                } else {
+                    sanitizeMpvLogText(value.toString())
+                }
+                appendLine("$key=$sanitizedValue")
             }
         }
     }
@@ -331,20 +368,32 @@ private class SupportBundleExportFlow(
     }
 
     fun saveBundleToDownloadsAfterPermission() {
-        runCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                saveBundleToDownloadsMediaStore()
-            } else {
-                saveBundleToLegacyDownloads()
+        val progress = MaterialAlertDialogBuilder(activity)
+            .setMessage(R.string.support_export_saving)
+            .setCancelable(false)
+            .show()
+        SUPPORT_IO_EXECUTOR.execute {
+            val result = runCatching {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    saveBundleToDownloadsMediaStore()
+                } else {
+                    saveBundleToLegacyDownloads()
+                }
             }
-        }.onSuccess { savedName ->
-            Toast.makeText(
-                activity,
-                activity.getString(R.string.support_export_saved, savedName),
-                Toast.LENGTH_LONG
-            ).show()
-        }.onFailure {
-            Toast.makeText(activity, R.string.support_export_save_failed, Toast.LENGTH_LONG).show()
+            activity.runOnUiThread {
+                progress.dismiss()
+                if (activity.isFinishing || activity.isDestroyed)
+                    return@runOnUiThread
+                result.onSuccess { savedName ->
+                    Toast.makeText(
+                        activity,
+                        activity.getString(R.string.support_export_saved, savedName),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }.onFailure {
+                    Toast.makeText(activity, R.string.support_export_save_failed, Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -526,6 +575,12 @@ fun clearPendingSupportExportFlow() {
 private const val LOCALSEND_PACKAGE = "org.localsend.localsend_app"
 private const val SUPPORT_BUNDLE_MIME_TYPE = "application/zip"
 private const val REQUEST_WRITE_DOWNLOADS = 24061
+private val SUPPORT_IO_EXECUTOR = Executors.newSingleThreadExecutor { runnable ->
+    Thread(runnable, "mpvNova-support-io")
+}
+private val SENSITIVE_SETTING_KEY = Regex(
+    "(?i)(authorization|cookie|credential|password|secret|token)",
+)
 
 // Bridges the permission-result round-trip, which has no instance to hang state
 // off. Cleared by the result handler and by PreferenceActivity.onDestroy, so the

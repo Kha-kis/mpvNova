@@ -69,11 +69,7 @@ class ExternalPlayerActivity : Activity() {
     }
 
     private fun resolveCallerPackage(): String? {
-        // Activity.getReferrer() is API 22; minSdk is 21.
-        val referrerPackage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            referrer?.androidAppPackageName()
-        else
-            null
+        val referrerPackage = referrer?.androidAppPackageName()
         return callingPackage ?: callingActivity?.packageName ?: referrerPackage
     }
 

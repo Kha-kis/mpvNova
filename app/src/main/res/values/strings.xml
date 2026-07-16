@@ -31,8 +31,6 @@
     <string name="track_secondary">Secondary</string>
     <string name="btn_play">Play</string>
     <string name="btn_pause">Pause</string>
-    <string name="btn_plus" translatable="false">+</string>
-    <string name="btn_minus" translatable="false">-</string>
     <string name="btn_voice_boost">Voice boost</string>
     <string name="btn_volume_boost">Volume boost</string>
     <string name="btn_dialogue_downmix">Channel Downmix</string>
@@ -336,6 +334,8 @@
     <string name="update_ignore">Ignore</string>
     <string name="update_current_title">mpvNova is up to date</string>
     <string name="update_current_message">You are already running %1$s.</string>
+    <string name="error_player_already_active">The player is already active in another screen</string>
+    <string name="about_features_unavailable_during_playback">Playback is active. Core feature details will be available after playback stops.</string>
     <string name="update_error_title">Update check failed</string>
     <string name="update_check_failed">Couldn\'t check for updates.\n\n%1$s</string>
     <string name="update_downloading">Downloading %1$s...</string>
@@ -395,6 +395,8 @@
     <string name="pref_shield_decoder_mode_summary">Use a Shield-specific fallback for Hi10P H.264. Turn off to keep the normal decoder modes only.</string>
     <string name="pref_shield_decoder_fallback_title">Shield Hi10P fallback</string>
     <string name="pref_shield_decoder_fallback_summary">All options software-decode Hi10P H.264 — no hardware can decode it — they differ only in how far the tuning goes.</string>
+    <string name="pref_shield_mpeg2_software_fallback_title">Shield MPEG2 software fallback</string>
+    <string name="pref_shield_mpeg2_software_fallback_summary">On NVIDIA Shield, automatically use G-NEXT SW for MPEG2 video to avoid freezes and broken timestamps after seeking.</string>
     <string name="shield_fallback_default_title">G-NEXT SW — no tuning</string>
     <string name="shield_fallback_default_desc">Strictly stock playback: software decode through the standard G-NEXT path with no extra tweaks.</string>
     <string name="shield_fallback_light_title">G-NEXT SW — light tuning</string>
@@ -510,8 +512,6 @@
     <!-- Skip button label, e.g. "Skip Intro". -->
     <string name="skip_button_label">Skip %1$s</string>
     <string name="skip_button_eyebrow">Skip</string>
-    <string name="option_picker_selected">ON</string>
-    <string name="option_picker_choose">--</string>
     <string name="option_picker_playback">Playback</string>
 
     <string name="pref_new_intent_replace_title">Play new files immediately</string>
@@ -585,6 +585,8 @@
     <string name="support_export_share_target_title">Share support bundle</string>
     <string name="support_export_saved">Saved to Downloads: %1$s</string>
     <string name="support_export_save_failed">Couldn\'t save the support bundle</string>
+    <string name="support_export_preparing">Preparing support bundle…</string>
+    <string name="support_export_saving">Saving support bundle…</string>
     <string name="support_export_share_failed">Couldn\'t open that share target</string>
     <string name="support_reset_player_ui_done">Player UI settings reset</string>
 

@@ -57,6 +57,17 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/cancelBtn"
+            style="@style/Mpv.SurfaceButton.Compact"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:minWidth="84dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/dialog_cancel" />
+
+        <Button
             android:id="@+id/clearBtn"
             style="@style/Mpv.SurfaceButton.Compact"
             android:layout_width="wrap_content"
@@ -70,17 +81,6 @@
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/cancelBtn"
-            style="@style/Mpv.SurfaceButton.Compact"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
-            android:minWidth="84dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:text="@string/dialog_cancel" />
 
         <Button
             android:id="@+id/saveBtn"

@@ -11,8 +11,8 @@ import java.util.Locale
  * a support bundle (or a crash report) can ship the last N lines without
  * the user having to set up adb or run logcat.
  *
- * Registered once at process start via [install]; reads from a snapshot are
- * lock-free copies so callers don't block the mpv event thread.
+ * Registered once at process start via [install]. Snapshot reads briefly share
+ * the same lock used to append a line.
  */
 internal object MpvLogRingBuffer {
     private const val DEFAULT_CAPACITY = 500
@@ -22,9 +22,11 @@ internal object MpvLogRingBuffer {
     private val lines = ArrayDeque<String>(DEFAULT_CAPACITY)
 
     private val observer = MpvLogObserver { prefix, level, text ->
+        if (level > MpvLogLevel.MPV_LOG_LEVEL_INFO)
+            return@MpvLogObserver
         val stamp = synchronized(timestamp) { timestamp.format(Date()) }
         val levelLabel = levelLabel(level)
-        val formatted = "$stamp [$levelLabel] $prefix: $text"
+        val formatted = "$stamp [$levelLabel] $prefix: ${sanitizeMpvLogText(text)}"
         synchronized(lock) {
             if (lines.size >= DEFAULT_CAPACITY)
                 lines.removeFirst()
@@ -47,6 +49,11 @@ internal object MpvLogRingBuffer {
 
     /** Snapshot rendered as a single string with line breaks, ready to write to a file. */
     fun snapshotText(): String = snapshot().joinToString(separator = "\n")
+
+    fun latestEnabledFeatures(): String? = synchronized(lock) {
+        lines.lastOrNull { it.contains("List of enabled features:", ignoreCase = true) }
+            ?.let { line -> line.substringAfter(": ", missingDelimiterValue = line) }
+    }
 
     private fun levelLabel(level: Int): String = when (level) {
         MpvLogLevel.MPV_LOG_LEVEL_FATAL -> "fatal"

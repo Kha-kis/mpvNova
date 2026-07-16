@@ -139,6 +139,8 @@ private fun Service.notifyBackgroundPlayback(
 
 class BackgroundPlaybackService : Service(), MpvEventObserver {
     override fun onCreate() {
+        super.onCreate()
+        thumbnailHandler = Handler(mainLooper)
         addMpvObserver(this)
     }
 
@@ -156,8 +158,6 @@ class BackgroundPlaybackService : Service(), MpvEventObserver {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.v(TAG, "BackgroundPlaybackService: starting")
-
-        thumbnailHandler = Handler(mainLooper)
 
         cachedMetadata.readAll()
         paused = mpvGetPropertyBoolean("pause") == true
@@ -183,6 +183,7 @@ class BackgroundPlaybackService : Service(), MpvEventObserver {
         notificationManager.cancel(NOTIFICATION_ID)
 
         Log.v(TAG, "BackgroundPlaybackService: destroyed")
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent): IBinder? { return null }

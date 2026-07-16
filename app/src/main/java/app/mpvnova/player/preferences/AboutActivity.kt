@@ -11,6 +11,9 @@ import app.mpvnova.player.AppearanceTheme
 import app.mpvnova.player.BuildConfig
 import app.mpvnova.player.MpvLogLevel
 import app.mpvnova.player.MpvLogObserver
+import app.mpvnova.player.MpvLogRingBuffer
+import app.mpvnova.player.MpvRuntimeOwnership
+import app.mpvnova.player.R
 import app.mpvnova.player.addMpvLogObserver
 import app.mpvnova.player.databinding.ActivityAboutBinding
 import app.mpvnova.player.mpvCreate
@@ -25,8 +28,9 @@ class AboutActivity : AppCompatActivity(), MpvLogObserver {
 
     private lateinit var binding: ActivityAboutBinding
     private var logs = ""
-    private var mpvDestroyed = true
+    private var ownsMpv = false
 
+    @Suppress("TooGenericExceptionCaught")
     override fun onCreate(savedInstanceState: Bundle?) {
         AppearanceTheme.applyPreferences(this)
         super.onCreate(savedInstanceState)
@@ -51,10 +55,24 @@ class AboutActivity : AppCompatActivity(), MpvLogObserver {
 
         logs = "mpvNova ${BuildConfig.VERSION_NAME} / ${BuildConfig.VERSION_CODE} (${BuildConfig.BUILD_TYPE})\n"
 
-        mpvCreate(this)
-        mpvDestroyed = false
-        addMpvLogObserver(this)
-        mpvInit()
+        if (MpvRuntimeOwnership.tryAcquire(this)) {
+            ownsMpv = true
+            try {
+                mpvCreate(applicationContext)
+                addMpvLogObserver(this)
+                mpvInit()
+            } catch (error: Throwable) {
+                removeMpvLogObserver(this)
+                runCatching { mpvDestroy() }
+                ownsMpv = false
+                MpvRuntimeOwnership.release(this)
+                throw error
+            }
+        } else {
+            logs += MpvLogRingBuffer.latestEnabledFeatures()
+                ?: getString(R.string.about_features_unavailable_during_playback)
+            updateLog()
+        }
     }
 
     private fun updateLog() {
@@ -64,15 +82,19 @@ class AboutActivity : AppCompatActivity(), MpvLogObserver {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         // logMessage removes the observer once the features line arrives, but the
         // user can back out before that — without this the destroyed activity
         // stays registered as a log observer for the rest of the process.
         removeMpvLogObserver(this)
-        if (!mpvDestroyed) {
-            mpvDestroy()
-            mpvDestroyed = true
+        if (ownsMpv) {
+            try {
+                mpvDestroy()
+            } finally {
+                ownsMpv = false
+                MpvRuntimeOwnership.release(this)
+            }
         }
+        super.onDestroy()
     }
 
     override fun logMessage(prefix: String, level: Int, text: String) {

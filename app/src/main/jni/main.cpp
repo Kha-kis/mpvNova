@@ -4,6 +4,8 @@
 #include <time.h>
 #include <locale.h>
 #include <atomic>
+#include <string>
+#include <vector>
 
 #include <mpv/client.h>
 
@@ -32,6 +34,7 @@ mpv_handle *g_mpv;
 std::atomic<bool> g_event_thread_request_exit(false);
 
 static pthread_t event_thread_id;
+static jobject global_appctx;
 
 static void prepare_environment(JNIEnv *env, jobject appctx) {
     setlocale(LC_NUMERIC, "C");
@@ -39,9 +42,11 @@ static void prepare_environment(JNIEnv *env, jobject appctx) {
     if (!env->GetJavaVM(&g_vm) && g_vm)
         av_jni_set_java_vm(g_vm, NULL);
 
-    jobject global_appctx = env->NewGlobalRef(appctx);
-    if (global_appctx)
-        av_jni_set_android_app_ctx(global_appctx, NULL);
+    if (!global_appctx) {
+        global_appctx = env->NewGlobalRef(appctx);
+        if (global_appctx)
+            av_jni_set_android_app_ctx(global_appctx, NULL);
+    }
 
     init_methods_cache(env);
 }
@@ -56,9 +61,9 @@ jni_func(void, create, jobject appctx) {
     if (!g_mpv)
         die("context init failed");
 
-    // use terminal log level but request verbose messages
-    // this way --msg-level can be used to adjust later
-    mpv_request_log_messages(g_mpv, "terminal-default");
+    // Renderer recovery watches a verbose cplayer frame confirmation. Keep the
+    // client stream verbose, while release logcat and the support ring filter it.
+    mpv_request_log_messages(g_mpv, "v");
     mpv_set_option_string(g_mpv, "msg-level", "all=v");
 }
 
@@ -98,11 +103,13 @@ jni_func(void, command, jobjectArray jarray) {
     if (len >= ARRAYLEN(arguments))
         die("too many command arguments");
 
-    for (int i = 0; i < len; ++i)
-        arguments[i] = env->GetStringUTFChars((jstring)env->GetObjectArrayElement(jarray, i), NULL);
+    std::vector<std::string> utf8_arguments(static_cast<size_t>(len));
+    for (int i = 0; i < len; ++i) {
+        jstring argument = static_cast<jstring>(env->GetObjectArrayElement(jarray, i));
+        utf8_arguments[static_cast<size_t>(i)] = get_utf8_string(env, argument);
+        arguments[i] = utf8_arguments[static_cast<size_t>(i)].c_str();
+        env->DeleteLocalRef(argument);
+    }
 
     mpv_command(g_mpv, arguments);
-
-    for (int i = 0; i < len; ++i)
-        env->ReleaseStringUTFChars((jstring)env->GetObjectArrayElement(jarray, i), arguments[i]);
 }

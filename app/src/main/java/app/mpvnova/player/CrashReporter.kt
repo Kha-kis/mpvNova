@@ -48,6 +48,7 @@ internal object CrashReporter {
         pruneOldCrashes(dir)
         val stamp = timestampFormat.format(Date())
         val file = File(dir, "crash-$stamp.txt")
+        val mpvLog = MpvLogRingBuffer.snapshot()
         file.writeText(buildString {
             appendLine("mpvNova crash report")
             appendLine("Timestamp: $stamp")
@@ -66,8 +67,8 @@ internal object CrashReporter {
             throwable.printStackTrace(PrintWriter(sw))
             appendLine(sw.toString().trimEnd())
             appendLine()
-            appendLine("--- Recent mpv log (last ${MpvLogRingBuffer.snapshot().size} lines) ---")
-            appendLine(MpvLogRingBuffer.snapshotText())
+            appendLine("--- Recent mpv log (last ${mpvLog.size} lines) ---")
+            appendLine(mpvLog.joinToString(separator = "\n"))
         })
     }
 

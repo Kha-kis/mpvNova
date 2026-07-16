@@ -14,7 +14,11 @@ internal fun MPVActivity.capturePlaybackResultSnapshot(updateCompletion: Boolean
 }
 
 internal fun isPlaybackCompleteForResult(positionMs: Long, durationMs: Long): Boolean {
-    return durationMs > 0L && positionMs >= durationMs - RESUME_NEAR_END_MS
+    if (durationMs <= 0L || positionMs <= 0L)
+        return false
+    val completionWindowMs = minOf(RESUME_NEAR_END_MS, durationMs / 10L)
+        .coerceAtLeast(1L)
+    return positionMs >= durationMs - completionWindowMs
 }
 
 internal fun MPVActivity.shouldFinishExternalPlaybackOnEndFile(): Boolean {

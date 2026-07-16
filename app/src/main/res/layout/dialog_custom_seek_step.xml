@@ -20,6 +20,7 @@
         android:background="@drawable/bg_list_row"
         android:gravity="center_vertical"
         android:hint="@string/pref_seek_step_custom_hint"
+        android:importantForAutofill="no"
         android:inputType="number"
         android:maxLines="1"
         android:paddingStart="16dp"

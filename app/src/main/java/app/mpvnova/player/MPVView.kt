@@ -1,7 +1,6 @@
 package app.mpvnova.player
 
 import android.content.Context
-import android.os.Build
 import android.os.Environment
 import android.util.AttributeSet
 import android.util.Log
@@ -21,6 +20,8 @@ internal const val MPV_VIEW_HWDECS = "mediacodec,mediacodec-copy"
 internal const val MPV_VIEW_HWDEC_MEDIACODEC = "mediacodec"
 internal const val MPV_VIEW_HWDEC_MEDIACODEC_COPY = "mediacodec-copy"
 internal const val MPV_VIEW_HWDEC_NONE = "no"
+internal const val MPV_VIEW_HWDEC_CODECS = "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1"
+internal const val MPV_VIEW_HWDEC_CODECS_WITHOUT_MPEG2 = "h264,hevc,mpeg4,vp8,vp9,av1"
 internal const val MPV_VIEW_VO_GPU = "gpu"
 internal const val MPV_VIEW_VO_GPU_NEXT = "gpu-next"
 internal const val MPV_VIEW_MIN_VALID_ASPECT = 0.001
@@ -47,6 +48,8 @@ internal val MPV_VIEW_PLAYBACK_SPEED_STEPS = doubleArrayOf(
 )
 
 internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(context, attrs) {
+    internal var configuredHwdecCodecs = MPV_VIEW_HWDEC_CODECS
+
     override fun initOptions() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val startupDecoderMode = startupPreferredDecoderMode(sharedPreferences)
@@ -64,16 +67,11 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
     }
 
     private fun applyDisplayRefreshRate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val disp = ContextCompat.getDisplayOrDefault(context)
-            val refreshRate = disp.mode.refreshRate
+        val disp = ContextCompat.getDisplayOrDefault(context)
+        val refreshRate = disp.mode.refreshRate
 
-            Log.v(MPV_VIEW_LOG_TAG, "Display ${disp.displayId} reports FPS of $refreshRate")
-            mpvSetOptionString("display-fps-override", refreshRate.toString())
-        } else {
-            Log.v(MPV_VIEW_LOG_TAG, "Android version too old, disabling refresh rate functionality " +
-                       "(${Build.VERSION.SDK_INT} < ${Build.VERSION_CODES.M})")
-        }
+        Log.v(MPV_VIEW_LOG_TAG, "Display ${disp.displayId} reports FPS of $refreshRate")
+        mpvSetOptionString("display-fps-override", refreshRate.toString())
     }
 
     private fun applyPreferredOptions(sharedPreferences: android.content.SharedPreferences) {
@@ -135,7 +133,7 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
         mpvSetOptionString("opengl-es", "yes")
         if (hwdec != null)
             mpvSetOptionString("hwdec", hwdec)
-        mpvSetOptionString("hwdec-codecs", "h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1")
+        mpvSetOptionString("hwdec-codecs", MPV_VIEW_HWDEC_CODECS)
         mpvSetOptionString("ao", "audiotrack,opensles")
         mpvSetOptionString("audio-set-media-role", "yes")
         mpvSetOptionString("tls-verify", "yes")
@@ -159,6 +157,11 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
     }
 
     override fun postInitOptions() {
+        configuredHwdecCodecs = getOptionString("hwdec-codecs").ifBlank { MPV_VIEW_HWDEC_CODECS }
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        applyShieldMpeg2FallbackSetting(
+            preferences.getBoolean(PREF_SHIELD_MPEG2_SOFTWARE_FALLBACK, true)
+        )
         mpvSetOptionString("save-position-on-quit", "no")
     }
 

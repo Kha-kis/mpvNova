@@ -46,10 +46,15 @@ private const val MILLIS_PER_SECOND_DOUBLE = 1_000.0
 private val IGNORED_MOUNT_PREFIXES = listOf("/proc", "/sys", "/dev", "/apex")
 
 private object AssetCopier {
-    fun copyFile(assetManager: AssetManager, filename: String, outFile: File): Boolean {
+    fun copyFile(
+        assetManager: AssetManager,
+        filename: String,
+        outFile: File,
+        force: Boolean = false,
+    ): Boolean {
         return try {
             assetManager.open(filename, AssetManager.ACCESS_STREAMING).use { input ->
-                copyIfNeeded(input, outFile, filename)
+                copyIfNeeded(input, outFile, filename, force)
             }
         } catch (e: IOException) {
             Log.e(TAG, "Failed to copy asset file: $filename", e)
@@ -57,11 +62,16 @@ private object AssetCopier {
         }
     }
 
-    private fun copyIfNeeded(input: InputStream, outFile: File, filename: String): Boolean {
+    private fun copyIfNeeded(
+        input: InputStream,
+        outFile: File,
+        filename: String,
+        force: Boolean,
+    ): Boolean {
         // Note that .available() will return the full file size for asset streams, and it even works
         // for compressed assets. Though none of this is documented...
         val avail = input.available().toLong()
-        if (outFile.length() == avail) {
+        if (!force && outFile.isFile && outFile.length() == avail) {
             Log.v(TAG, "Skipping copy of asset file (exists same size): $filename")
             return true
         }
@@ -69,14 +79,26 @@ private object AssetCopier {
     }
 
     private fun copyStream(input: InputStream, outFile: File, avail: Long, filename: String): Boolean {
-        outFile.outputStream().use { output -> input.copyTo(output) }
+        outFile.parentFile?.mkdirs()
+        val temporaryFile = File(outFile.parentFile, ".${outFile.name}.tmp")
+        try {
+            temporaryFile.outputStream().use { output -> input.copyTo(output) }
+            if (!temporaryFile.renameTo(outFile)) {
+                if (outFile.exists() && !outFile.delete())
+                    throw IOException("Could not replace ${outFile.path}")
+                if (!temporaryFile.renameTo(outFile))
+                    throw IOException("Could not move asset into ${outFile.path}")
+            }
+        } finally {
+            temporaryFile.delete()
+        }
         Log.w(TAG, "Copied asset file ($avail bytes): $filename")
         return true
     }
 }
 
 /** Write the 'fonts.conf' for fontconfig. */
-private fun writeFontsConf(context: Context, configFile: File) {
+private fun writeFontsConf(context: Context, configFile: File): Boolean {
     val parts = mutableListOf(
         "<fontconfig>",
         // Android system fonts reside here
@@ -105,8 +127,10 @@ private fun writeFontsConf(context: Context, configFile: File) {
     )
     try {
         configFile.writeText(parts.joinToString("\n"))
+        return true
     } catch (e: IOException) {
         Log.w(TAG, "Failed to write fonts.conf", e)
+        return false
     }
 }
 
@@ -244,35 +268,71 @@ internal object Utils {
         val assetManager = context.assets
         val files = arrayOf("cacert.pem")
         val configDir = context.filesDir.path
+        val marker = File(configDir, ".bundled-assets-version")
+        val sourceModified = File(context.applicationInfo.sourceDir).lastModified()
+        val assetVersion = "${BuildConfig.VERSION_CODE}:$sourceModified"
+        val recordedAssetVersion = runCatching { marker.readText() }.getOrNull()
+        val refreshBundledAssets = recordedAssetVersion != assetVersion
+        var copiedSuccessfully = true
 
         for (name in files) {
-            AssetCopier.copyFile(assetManager, name, File("$configDir/$name"))
+            copiedSuccessfully = AssetCopier.copyFile(
+                assetManager,
+                name,
+                File("$configDir/$name"),
+                force = refreshBundledAssets,
+            ) && copiedSuccessfully
         }
 
         File("$configDir/subfont.ttf").delete()
-        // Earlier builds copied a `scripts/auto_subs.lua` here; track-memory
-        // is now handled in MPVActivity directly so the script (and a stale
-        // empty scripts/ dir) can go.
         File("$configDir/scripts/auto_subs.lua").delete()
-        File("$configDir/scripts").delete()
+        val scriptsDir = File("$configDir/scripts").apply { mkdirs() }
+        copiedSuccessfully = AssetCopier.copyFile(
+            assetManager,
+            "scripts/shield_mpeg2_fallback.lua",
+            File(scriptsDir, "shield_mpeg2_fallback.lua"),
+            force = refreshBundledAssets,
+        ) && copiedSuccessfully
 
-        copyBundledFonts(assetManager, configDir)
-        writeFontsConf(context, File("$configDir/fonts.conf"))
+        copiedSuccessfully = copyBundledFonts(
+            assetManager,
+            configDir,
+            force = refreshBundledAssets,
+        ) && copiedSuccessfully
+        val fontsConf = File("$configDir/fonts.conf")
+        if (refreshBundledAssets || !fontsConf.isFile)
+            copiedSuccessfully = writeFontsConf(context, fontsConf) && copiedSuccessfully
+
+        if (copiedSuccessfully && refreshBundledAssets) {
+            runCatching { marker.writeText(assetVersion) }
+                .onFailure { Log.w(TAG, "Failed to record bundled asset version", it) }
+        }
     }
 
-    private fun copyBundledFonts(assetManager: android.content.res.AssetManager, configDir: String) {
+    private fun copyBundledFonts(
+        assetManager: android.content.res.AssetManager,
+        configDir: String,
+        force: Boolean,
+    ): Boolean {
         val fontsDir = File("$configDir/fonts").apply { mkdirs() }
-        val names = assetManager.list("fonts") ?: return
-        for (name in names) {
-            val dest = File(fontsDir, name)
-            // Copy when missing, or re-copy when the bundled asset changed (size differs)
-            // so a fixed font replaces a stale/broken copy. User-imported fonts are untouched.
-            val assetLen = runCatching {
-                assetManager.open("fonts/$name").use { it.available().toLong() }
-            }.getOrDefault(-1L)
-            if (!dest.exists() || (assetLen > 0L && dest.length() != assetLen))
-                AssetCopier.copyFile(assetManager, "fonts/$name", dest)
+        val names = runCatching { assetManager.list("fonts") }
+            .onFailure { error -> Log.e(TAG, "Failed to list bundled fonts", error) }
+            .getOrNull()
+        var copiedSuccessfully = true
+        if (names == null) {
+            copiedSuccessfully = false
+        } else {
+            for (name in names) {
+                val dest = File(fontsDir, name)
+                copiedSuccessfully = AssetCopier.copyFile(
+                    assetManager,
+                    "fonts/$name",
+                    dest,
+                    force = force,
+                ) && copiedSuccessfully
+            }
         }
+        return copiedSuccessfully
     }
 
     fun findRealPath(fd: Int): String? {

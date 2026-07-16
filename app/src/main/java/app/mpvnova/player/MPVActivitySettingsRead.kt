@@ -56,15 +56,23 @@ internal fun MPVActivity.readPlaybackSettings(
     ignoreAudioFocus = prefs.getBoolean("ignore_audio_focus", false)
     playlistExitWarning = prefs.getBoolean("playlist_exit_warning", true)
     newIntentReplace = prefs.getBoolean("new_intent_replace", false)
+    readDecoderSettings(prefs)
+    autoPauseControlsOverlayEnabled = prefs.getBoolean("autopause_controls_overlay", false)
+    autoPauseShieldHi10pEnabled = prefs.getBoolean("autopause_shield_hi10p", true)
+}
+
+private fun MPVActivity.readDecoderSettings(prefs: SharedPreferences) {
     autoDecoderFallback = prefs.getBoolean("decoder_auto_fallback", true)
     shieldDecoderModeEnabled = prefs.getBoolean("shield_decoder_mode", true)
     shieldDecoderFallback = prefs.getString(
         "shield_decoder_fallback",
         MPVView.SHIELD_DECODER_FALLBACK_DEFAULT,
     ).toShieldDecoderFallback()
+    shieldMpeg2SoftwareFallbackEnabled = prefs.getBoolean(
+        PREF_SHIELD_MPEG2_SOFTWARE_FALLBACK,
+        true,
+    )
     preferredDecoderMode = prefs.getString("preferred_decoder_mode", "") ?: ""
-    autoPauseControlsOverlayEnabled = prefs.getBoolean("autopause_controls_overlay", false)
-    autoPauseShieldHi10pEnabled = prefs.getBoolean("autopause_shield_hi10p", true)
 }
 
 private fun MPVActivity.readDelayDefaults(prefs: SharedPreferences) {

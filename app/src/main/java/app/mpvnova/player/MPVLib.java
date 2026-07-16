@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.Surface;
 
+import java.nio.charset.StandardCharsets;
+
 @SuppressWarnings("unused")
 public final class MPVLib {
     static {
@@ -66,5 +68,13 @@ public final class MPVLib {
 
     public static void logMessage(String prefix, int level, String text) {
         MpvLogBridgeKt.dispatchMpvLogMessage(prefix, level, text);
+    }
+
+    public static String stringFromUtf8(byte[] value) {
+        return new String(value, StandardCharsets.UTF_8);
+    }
+
+    public static byte[] bytesFromString(String value) {
+        return value.getBytes(StandardCharsets.UTF_8);
     }
 }

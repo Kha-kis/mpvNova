@@ -7,6 +7,17 @@ import org.junit.Test
 
 class ExternalPlayerResultTest {
     @Test
+    fun shortVideoIsNotCompleteAtItsBeginning() {
+        assertFalse(isPlaybackCompleteForResult(positionMs = 0L, durationMs = 20_000L))
+    }
+
+    @Test
+    fun shortVideoUsesTenPercentCompletionWindow() {
+        assertFalse(isPlaybackCompleteForResult(positionMs = 17_999L, durationMs = 20_000L))
+        assertTrue(isPlaybackCompleteForResult(positionMs = 18_000L, durationMs = 20_000L))
+    }
+
+    @Test
     fun playbackIsCompleteAtDuration() {
         assertTrue(isPlaybackCompleteForResult(positionMs = 600_000L, durationMs = 600_000L))
     }

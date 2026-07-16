@@ -35,6 +35,13 @@
         android:title="@string/pref_shield_decoder_fallback_title"
         app:iconSpaceReserved="false" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="shield_mpeg2_software_fallback"
+        android:summary="@string/pref_shield_mpeg2_software_fallback_summary"
+        android:title="@string/pref_shield_mpeg2_software_fallback_title"
+        app:iconSpaceReserved="false" />
+
     <ListPreference
         android:defaultValue=""
         android:key="preferred_decoder_mode"
