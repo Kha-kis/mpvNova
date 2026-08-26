@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_tv_dialog_shell"
     android:orientation="vertical"
-    android:paddingHorizontal="24dp"
-    android:paddingTop="16dp">
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/tv_text"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switch1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/interpolation_switch" />
 
 
@@ -20,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp">
 
-        <AutoCompleteTextView
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/video_sync"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,5 +37,30 @@
             android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/dialogCancel"
+            style="@style/Mpv.SurfaceButton.Compact"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="84dp"
+            android:text="@string/dialog_cancel" />
+
+        <Button
+            android:id="@+id/dialogOk"
+            style="@style/Mpv.SurfaceButton.Compact"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:minWidth="84dp"
+            android:text="@string/dialog_ok" />
+    </LinearLayout>
 
 </LinearLayout>
