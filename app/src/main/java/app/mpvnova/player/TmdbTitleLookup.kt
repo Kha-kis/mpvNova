@@ -11,6 +11,7 @@ internal data class TmdbTitleQuery(
     val year: Int?,
     val season: Int?,
     val episode: Int?,
+    val episodeTitle: String? = null,
 ) {
     val isEpisode: Boolean get() = season != null && episode != null
 

@@ -20,7 +20,9 @@ internal object PlayerTitleResolver {
         AnimeReleaseTitle.cleanSource(fileName, fileName),
         AnimeReleaseTitle.parse(sourceTitle) ?: AnimeReleaseTitle.parse(fileName),
         sourceTitle?.let(AnimeReleaseTitle::parse) != null,
-    )
+    )?.let { presentation ->
+        presentation.copy(episodeTitle = presentation.episodeTitle ?: filenameEpisodeTitle(fileName, presentation))
+    }
 
     private fun resolveCleaned(
         displayTitle: String?,
@@ -65,6 +67,21 @@ internal object PlayerTitleResolver {
                 )
             }
         }?.let(::cleanEpisodeTitle)
+    }
+
+    @Suppress("ReturnCount") // Only an explicit, matching leading marker can identify an episode-only filename.
+    private fun filenameEpisodeTitle(filename: String?, identity: PlayerTitlePresentation): String? {
+        val name = VlcTitleResolver.titleSourceFromExtra(filename)
+            ?.replace(FINAL_MEDIA_EXTENSION_PATTERN, "") ?: return null
+        val marker = SEASON_EPISODE_CAPTURE_PATTERN.find(name) ?: return null
+        // Episode-only filenames can supply a subtitle, never a series identity.
+        if (marker.range.first != 0 || marker.groupValues[1].toIntOrNull() != identity.season ||
+            marker.groupValues[2].toIntOrNull() != identity.episode) return null
+        val suffix = cleanEpisodeTitle(identity.copy(episodeTitle = name)).episodeTitle ?: return null
+        val releaseTag = RELEASE_TAG_PATTERN.find(suffix)
+        val title = normalizeTitle(releaseTag?.let { suffix.substring(0, it.range.first) } ?: suffix)
+        return title?.takeUnless { isReleaseMetadata(it) || isReleaseGroupCredit(it) ||
+            sameSeriesTitle(it, identity.title) }
     }
 
     private fun acceptsRelease(

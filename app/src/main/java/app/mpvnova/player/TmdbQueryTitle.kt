@@ -41,7 +41,10 @@ internal object TmdbQueryTitle {
 
         // Preserve the existing explicit TV-year identity contract: dropping it can select a remake.
         // Never infer a premiere year from season numbers or recover TV years from a raw filename.
-        if (isEpisode) return TmdbTitleQuery(name, explicitYear, season, episode)
+        if (isEpisode) return TmdbTitleQuery(
+            name, explicitYear, season, episode,
+            cleanEpisodeTitle(local).episodeTitle?.takeIf { it.any(Char::isLetter) }?.let(::normalize),
+        )
         return movieQuery(name, explicitYear, filename)
     }
 

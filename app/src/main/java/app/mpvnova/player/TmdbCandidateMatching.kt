@@ -30,7 +30,7 @@ internal class TmdbCandidateMatching(
         }
         if (exact.size > 1) {
             report("ambiguous title; keeping local title")
-            return null
+            return distinguishEpisodes(exact)
         }
         if (exact.size == 1) return exact.single()
         if (eligible.size > MAX_ALIAS_CANDIDATES) {
@@ -40,8 +40,31 @@ internal class TmdbCandidateMatching(
         report("incomplete alias response")
         val aliases = aliasMatches(eligible, name, nameKey) ?: return null
         report("no verified title match")
-        if (aliases.size > 1) report("ambiguous alias; keeping local title")
+        if (aliases.size > 1) {
+            report("ambiguous alias; keeping local title")
+            return distinguishEpisodes(aliases)
+        }
         return aliases.singleOrNull()
+    }
+
+    @Suppress("ReturnCount") // Missing or conflicting episode evidence must leave the series ambiguous.
+    private fun distinguishEpisodes(candidates: List<JSONObject>): JSONObject? {
+        val episodeTitle = query.episodeTitle?.let(::normalizedTmdbTitle) ?: return null
+        if (!query.isEpisode || candidates.size > MAX_ALIAS_CANDIDATES) return null
+        val matches = candidates.filter { candidate ->
+            val id = candidate.strictInt("id") ?: return null
+            val episode = try {
+                request("tv/$id/season/${query.season}/episode/${query.episode}?language=en-US", token)
+            } catch (error: TmdbHttpException) {
+                if (error.status == java.net.HttpURLConnection.HTTP_NOT_FOUND) return@filter false
+                throw error
+            }
+            if (episode.strictInt("season_number") != query.season ||
+                episode.strictInt("episode_number") != query.episode) return null
+            val name = episode.safeTitle("name") ?: return null
+            normalizedTmdbTitle(name) == episodeTitle
+        }
+        return matches.singleOrNull()
     }
 
     private fun aliasMatches(eligible: List<JSONObject>, name: String, nameKey: String): List<JSONObject>? =
