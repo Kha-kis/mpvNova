@@ -4,6 +4,7 @@ internal fun cleanEpisodeTitle(presentation: PlayerTitlePresentation): PlayerTit
     val value = VlcTitleResolver.titleSourceFromExtra(presentation.episodeTitle)
         ?: return presentation.copy(episodeTitle = null)
     val cleaned = VlcTitleResolver.titleSourceFromExtra(EpisodeTitlePrefix.remove(value, presentation))
+        ?.takeUnless(::isReleaseGroupCredit)
     return if (cleaned == presentation.episodeTitle) presentation else presentation.copy(episodeTitle = cleaned)
 }
 
