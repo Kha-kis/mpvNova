@@ -32,7 +32,7 @@ internal object PlayerTitleResolver {
         release: PlayerTitlePresentation?,
         sourceIsFilename: Boolean,
     ): PlayerTitlePresentation? {
-        return VlcTitleResolver.titleSourceFromExtra(displayTitle)
+        return MediaTitleResolver.titleSourceFromExtra(displayTitle)
             ?.replace(FINAL_MEDIA_EXTENSION_PATTERN, "")?.let { fallbackTitle ->
             val candidates = listOfNotNull(sourceTitle, fallbackTitle, mediaTitle, fileName)
                 .mapNotNull(::episodeTitleParts)
@@ -71,7 +71,7 @@ internal object PlayerTitleResolver {
 
     @Suppress("ReturnCount") // Only an explicit, matching leading marker can identify an episode-only filename.
     private fun filenameEpisodeTitle(filename: String?, identity: PlayerTitlePresentation): String? {
-        val name = VlcTitleResolver.titleSourceFromExtra(filename)
+        val name = MediaTitleResolver.titleSourceFromExtra(filename)
             ?.replace(FINAL_MEDIA_EXTENSION_PATTERN, "") ?: return null
         val marker = SEASON_EPISODE_CAPTURE_PATTERN.find(name) ?: return null
         // Episode-only filenames can supply a subtitle, never a series identity.
@@ -89,7 +89,7 @@ internal object PlayerTitleResolver {
     ): Boolean =
         sourceTitle.isNullOrBlank() || sourceIsFilename ||
             sameSeriesTitle(sourceTitle, release.title) ||
-            sourceTitle == VlcTitleResolver.titleFromFileName(fileName)
+            sourceTitle == MediaTitleResolver.titleFromFileName(fileName)
 
     private fun reconcileAbsoluteEpisode(primary: EpisodeTitleParts, release: PlayerTitlePresentation?): String {
         val title = release?.takeIf {
@@ -103,7 +103,7 @@ internal object PlayerTitleResolver {
     private fun embeddedEpisodeTitle(
         mediaTitle: String?, identity: PlayerTitlePresentation, sourceTitle: String?, fileName: String?,
     ): String? {
-        val title = VlcTitleResolver.titleSourceFromExtra(mediaTitle)
+        val title = MediaTitleResolver.titleSourceFromExtra(mediaTitle)
             ?.takeIf { it.length <= MAX_EMBEDDED_TITLE_LENGTH }
             ?: return null
         val duplicatesSource = title == fileName || title == sourceTitle || sameSeriesTitle(title, identity.title)
@@ -122,7 +122,7 @@ internal object PlayerTitleResolver {
     }
 
     private fun episodeTitleParts(candidate: String?): EpisodeTitleParts? {
-        val decoded = VlcTitleResolver.titleSourceFromExtra(candidate)
+        val decoded = MediaTitleResolver.titleSourceFromExtra(candidate)
             ?.trim()
             ?.takeIf { it.isNotBlank() }
             ?: return null
@@ -146,14 +146,14 @@ internal object PlayerTitleResolver {
     }
 
     private fun normalizeTitle(value: String): String? {
-        val safeValue = VlcTitleResolver.titleSourceFromExtra(value) ?: return null
+        val safeValue = MediaTitleResolver.titleSourceFromExtra(value) ?: return null
         return safeValue
             .replace(RELEASE_SEPARATOR_PATTERN, " ")
             .let(::cleanTitleBrackets)
             .trim(' ', '-', '_', '.')
             .replace(RELEASE_WHITESPACE_PATTERN, " ")
             .trim()
-            .let(VlcTitleResolver::titleSourceFromExtra)
+            .let(MediaTitleResolver::titleSourceFromExtra)
     }
 
     private fun looksLikeMediaExtension(value: String): Boolean =

@@ -217,7 +217,7 @@ internal const val VOLUME_BOOST_STEP_EXTREME_DB = 21
 internal const val SUB_SCALE_MIN_HUNDREDTHS = 50
 internal const val SUB_SCALE_MAX_HUNDREDTHS = 200
 internal const val SUB_SCALE_STEP_HUNDREDTHS = 5
-internal val VLC_TITLE_EXTRA_KEYS = arrayOf(
+internal val MEDIA_TITLE_EXTRA_KEYS = arrayOf(
     "title",
     Intent.EXTRA_TITLE,
     Intent.EXTRA_SUBJECT,

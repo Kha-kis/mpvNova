@@ -6,7 +6,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.Locale
 
-object VlcTitleResolver {
+object MediaTitleResolver {
     fun titleSourceFromExtra(title: String?): String? {
         val decoded = title?.let { percentDecode(percentDecode(it)).trim() }
             ?.takeIf { it.isNotBlank() && !it.contains("://") } ?: return null

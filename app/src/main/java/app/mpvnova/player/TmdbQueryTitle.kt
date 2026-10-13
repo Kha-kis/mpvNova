@@ -62,12 +62,12 @@ internal object TmdbQueryTitle {
         if (value.length !in 1..MAX_QUERY_LENGTH || hasUnsafeCodePoint(value)) return null
         // The shared sanitizer removes recognized source-query/credential suffixes and rejects URLs
         // and opaque stream IDs. Only its cleaned result may become an outbound title.
-        val cleaned = VlcTitleResolver.titleSourceFromExtra(value) ?: return null
+        val cleaned = MediaTitleResolver.titleSourceFromExtra(value) ?: return null
         if (hasUnsafeCodePoint(cleaned)) return null
         val title = Normalizer.normalize(cleaned, Normalizer.Form.NFC).replace(spaces, " ").trim()
         if (title.isEmpty() || title.length > MAX_QUERY_LENGTH || encodedByte.containsMatchIn(title)) return null
         // Require a fixed point after the source sanitizer's bounded decoding passes.
-        if (VlcTitleResolver.titleSourceFromExtra(title) != title) return null
+        if (MediaTitleResolver.titleSourceFromExtra(title) != title) return null
         if ('\\' in title || uri.containsMatchIn(title) || mediaExtension.containsMatchIn(title)) return null
         // One interior slash is legitimate title punctuation (Fate/stay night, 50/50). Absolute,
         // traversal and multi-component paths remain rejected. A bare relative pair is inherently
