@@ -24,6 +24,7 @@ import android.widget.SeekBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.IntentCompat
 import androidx.core.view.updateLayoutParams
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -803,6 +804,20 @@ open class MPVActivity : AppCompatActivity() {
     internal val presetTransfer = PlayerAppearancePresetTransfer(this)
 
     internal val mediaSessionCallback = object : MediaSession.Callback() {
+        override fun onMediaButtonEvent(mediaButtonIntent: Intent): Boolean {
+            val event = IntentCompat.getParcelableExtra(
+                mediaButtonIntent, Intent.EXTRA_KEY_EVENT, KeyEvent::class.java,
+            )
+            if (mediaButtonIntent.action != Intent.ACTION_MEDIA_BUTTON ||
+                event?.keyCode != KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+                return super.onMediaButtonEvent(mediaButtonIntent)
+            // Android's default handler waits for a double tap. A remote's play/pause
+            // button should act immediately, once per press, without waiting for release.
+            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+                player.cyclePause()
+            }
+            return true
+        }
         override fun onPause() {
             player.paused = true
         }
