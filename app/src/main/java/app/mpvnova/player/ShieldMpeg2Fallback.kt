@@ -24,10 +24,10 @@ internal fun shieldMpeg2HwdecCodecs(
     } else {
         val configured = configuredCodecs.split(',').map(String::trim).filter(String::isNotEmpty)
         if (configured.any { it.equals("all", ignoreCase = true) }) {
-            MPV_VIEW_HWDEC_CODECS_WITHOUT_MPEG2
+            MPV_VIEW_HWDEC_CODECS_WITHOUT_MPEG2_AND_MPEG4
         } else {
             configured
-                .filterNot { it.equals("mpeg2video", ignoreCase = true) }
+                .filterNot { it.equals("mpeg2video", ignoreCase = true) || it.equals("mpeg4", ignoreCase = true) }
                 .joinToString(",")
                 .ifEmpty { "none" }
         }

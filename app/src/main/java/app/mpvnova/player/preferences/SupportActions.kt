@@ -200,7 +200,7 @@ object SupportActions {
                     if (hi10pFallback) "enabled" else "disabled"
             )
             appendLine("Hi10P fallback tuning: $hi10pTuning")
-            appendLine("MPEG2 software fallback: ${if (mpeg2Fallback) "enabled" else "disabled"}")
+            appendLine("MPEG2 / Xvid software fallback: ${if (mpeg2Fallback) "enabled" else "disabled"}")
             appendLine("Pause Hi10P while controls are open: ${if (autoPauseHi10p) "enabled" else "disabled"}")
             appendLine("mpv: ${nativeVersion(context, "libmpv.so", "mpv v")}")
             appendLine("FFmpeg: ${nativeVersion(context, "libavcodec.so", "FFmpeg version ")}")
