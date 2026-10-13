@@ -395,8 +395,8 @@
     <string name="pref_decoder_auto_fallback_summary">Let mpvNova temporarily override your preferred decoder for known trouble cases.</string>
     <string name="pref_hi10p_fallback_title">Hi10P fallback on this device</string>
     <string name="pref_hi10p_fallback_summary">Automatically use G-NEXT SW for Hi10P H.264 when automatic decoder fallback is on. Manual decoder selection is always available. Defaults on for NVIDIA Shield and off for other devices.</string>
-    <string name="pref_mpeg2_software_fallback_title">MPEG2 software fallback on this device</string>
-    <string name="pref_mpeg2_software_fallback_summary">Use G-NEXT software decoding for MPEG2 video to avoid hardware decoder freezes and broken timestamps after seeking. Defaults on for NVIDIA Shield and off for other devices.</string>
+    <string name="pref_mpeg2_software_fallback_title">MPEG2 / Xvid software fallback on this device</string>
+    <string name="pref_mpeg2_software_fallback_summary">Use G-NEXT software decoding for MPEG2 and MPEG4 (Xvid/DivX) video to avoid hardware decoder freezes and broken timestamps after seeking. Defaults on for NVIDIA Shield and off for other devices.</string>
     <string name="pref_shield_decoder_fallback_title">Hi10P fallback tuning</string>
     <string name="pref_shield_decoder_fallback_summary">All options software-decode Hi10P H.264 through G-NEXT. They differ only in the tuning applied.</string>
     <string name="shield_fallback_default_title">G-NEXT SW — no tuning</string>
