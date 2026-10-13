@@ -14,7 +14,7 @@ internal object TmdbFilenameYear {
     @Suppress("ReturnCount") // Never extract years from paths or unrecognized filename formats.
     fun matchingYear(title: String, filename: String?): Int? {
         val name = filename?.takeIf { it.length <= MAX_FILENAME_LENGTH }
-            ?.let(VlcTitleResolver::titleSourceFromExtra) ?: return null
+            ?.let(MediaTitleResolver::titleSourceFromExtra) ?: return null
         val pathLike = name.contains('/') || name.contains('\\')
         if (pathLike || !extension.containsMatchIn(name)) return null
         val stem = name.replace(extension, "")

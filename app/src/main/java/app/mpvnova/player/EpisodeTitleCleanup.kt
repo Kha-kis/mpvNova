@@ -1,9 +1,9 @@
 package app.mpvnova.player
 
 internal fun cleanEpisodeTitle(presentation: PlayerTitlePresentation): PlayerTitlePresentation {
-    val value = VlcTitleResolver.titleSourceFromExtra(presentation.episodeTitle)
+    val value = MediaTitleResolver.titleSourceFromExtra(presentation.episodeTitle)
         ?: return presentation.copy(episodeTitle = null)
-    val cleaned = VlcTitleResolver.titleSourceFromExtra(EpisodeTitlePrefix.remove(value, presentation))
+    val cleaned = MediaTitleResolver.titleSourceFromExtra(EpisodeTitlePrefix.remove(value, presentation))
         ?.takeUnless(::isReleaseGroupCredit)
     return if (cleaned == presentation.episodeTitle) presentation else presentation.copy(episodeTitle = cleaned)
 }

@@ -141,7 +141,7 @@ internal fun MPVActivity.updateMetadataDisplay() {
         binding.titleTextView.setTextIfChanged(psc.meta.formatTitle())
         binding.minorTitleTextView.setTextIfChanged(psc.meta.formatArtistAlbum())
     } else if (showMediaTitle) {
-        currentVideoTitle = resolveVlcStyleVideoTitle()
+        currentVideoTitle = resolveVideoTitle()
         updatePlayerTitleOverlay()
         binding.fullTitleTextView.setTextIfChanged(currentVideoTitle)
     } else {

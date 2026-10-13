@@ -29,7 +29,7 @@ internal object AnimeReleaseTitle {
 
     fun parse(candidate: String?): PlayerTitlePresentation? {
         val name = candidate?.takeIf { it.length <= MAX_FILENAME_LENGTH }
-            ?.let(VlcTitleResolver::titleSourceFromExtra)?.takeIf(::isReleaseFilename) ?: return null
+            ?.let(MediaTitleResolver::titleSourceFromExtra)?.takeIf(::isReleaseFilename) ?: return null
         return parseRelease(name)
     }
 

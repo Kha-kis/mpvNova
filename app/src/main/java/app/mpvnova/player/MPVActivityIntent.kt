@@ -9,32 +9,32 @@ import java.io.FileNotFoundException
 internal fun MPVActivity.prepareMediaTitleFromIntent(intent: Intent?, filepath: String?) {
     pendingPlayerTitleSource = titleSourceFromIntentExtras(intent)
     pendingItemTitle = pendingPlayerTitleSource
-        ?.let(VlcTitleResolver::itemTitleFromExtra)
-        ?: VlcTitleResolver.queryTitleFromPathLike(filepath)
-    pendingFileName = VlcTitleResolver.fileNameFromPathLike(filepath)
+        ?.let(MediaTitleResolver::itemTitleFromExtra)
+        ?: MediaTitleResolver.queryTitleFromPathLike(filepath)
+    pendingFileName = MediaTitleResolver.fileNameFromPathLike(filepath)
 }
 
 internal fun MPVActivity.titleSourceFromIntentExtras(intent: Intent?): String? {
     val extras = intent?.extras ?: return null
-    return VLC_TITLE_EXTRA_KEYS.firstNotNullOfOrNull { key ->
+    return MEDIA_TITLE_EXTRA_KEYS.firstNotNullOfOrNull { key ->
         val title = if (extras.containsKey(key)) {
             extras.getString(key) ?: extras.getCharSequence(key)?.toString()
         } else {
             null
         }
-        VlcTitleResolver.titleSourceFromExtra(title)
+        MediaTitleResolver.titleSourceFromExtra(title)
     }
 }
 
 internal fun MPVActivity.titleFromIntentExtras(intent: Intent?): String? {
-    return titleSourceFromIntentExtras(intent)?.let(VlcTitleResolver::itemTitleFromExtra)
+    return titleSourceFromIntentExtras(intent)?.let(MediaTitleResolver::itemTitleFromExtra)
 }
 
-internal fun MPVActivity.resolveVlcStyleVideoTitle(): String? {
+internal fun MPVActivity.resolveVideoTitle(): String? {
     currentItemTitle?.let { return it }
     val path = currentMpvPath()
-    val fileName = pendingFileName ?: VlcTitleResolver.fileNameFromPathLike(path)
-    return VlcTitleResolver.resolve(
+    val fileName = pendingFileName ?: MediaTitleResolver.fileNameFromPathLike(path)
+    return MediaTitleResolver.resolve(
         itemTitle = null,
         mediaTitle = psc.meta.mediaTitle,
         fileName = fileName,
