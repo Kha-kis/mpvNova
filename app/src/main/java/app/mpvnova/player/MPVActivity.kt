@@ -379,6 +379,13 @@ open class MPVActivity : AppCompatActivity() {
     internal var currentTrackSeriesKey: String? = null
     internal var currentAspectSeriesKey: String? = null
     internal val tmdbTitleController by lazy { TmdbTitleController(this) { updatePlayerTitleOverlay() } }
+    internal var openSubtitlesSearchDialog: OpenSubtitlesSearchDialog? = null
+    internal val openSubtitlesPlaybackFiles = mutableSetOf<java.io.File>()
+    internal val openSubtitlesPlaybackDownloads = mutableMapOf<Int, Pair<java.io.File, OpenSubtitlesResult>>()
+    internal val pendingOpenSubtitlesRemovals = mutableSetOf<java.io.File>()
+    internal val pendingOpenSubtitlesAdds = mutableSetOf<java.io.File>()
+    internal val pendingOpenSubtitlesRemoveCommands = mutableSetOf<java.io.File>()
+    internal var pendingOpenSubtitlesFocus: java.io.File? = null
     internal var playerTitleStyle = PlayerTitleStyle.DEFAULT
     internal var appliedPlayerTitleStyle: PlayerTitleStyle? = null
     internal var playerTextStylePreviewActive = false
@@ -537,6 +544,7 @@ open class MPVActivity : AppCompatActivity() {
     override fun onDestroy() {
         Log.v(MPV_ACTIVITY_TAG, "Exiting.")
         tmdbTitleController.close()
+        closeOpenSubtitlesSearch(restorePlayback = false)
         activityIsForeground = false
         player.releaseAllMpvKeys()
         cancelAllScheduledWork()
@@ -546,6 +554,7 @@ open class MPVActivity : AppCompatActivity() {
         player.removeObserver(mpvEventObserver)
         removeMpvLogObserver(mpvLogObserver)
         player.destroy()
+        releaseOpenSubtitlesPlaybackFiles()
         super.onDestroy()
     }
 

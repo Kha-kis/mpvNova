@@ -29,6 +29,7 @@ internal enum class PlayerDrawerAction(val group: PlayerDrawerActionGroup) {
     AUDIO_DELAY(PlayerDrawerActionGroup.AUDIO_SUBTITLE),
     SUB_TRACK(PlayerDrawerActionGroup.AUDIO_SUBTITLE),
     OPEN_SUB(PlayerDrawerActionGroup.AUDIO_SUBTITLE),
+    SEARCH_SUBTITLES(PlayerDrawerActionGroup.AUDIO_SUBTITLE),
     SUB_DELAY(PlayerDrawerActionGroup.AUDIO_SUBTITLE),
     SUB_SEEK_PREV(PlayerDrawerActionGroup.AUDIO_SUBTITLE),
     SUB_SEEK_NEXT(PlayerDrawerActionGroup.AUDIO_SUBTITLE),
@@ -436,6 +437,8 @@ private fun MPVActivity.addAudioRows(rows: MutableList<PlayerDrawerRow>) {
 
 private fun MPVActivity.addSubtitleRows(rows: MutableList<PlayerDrawerRow>) {
     rows.addButton(PlayerDrawerAction.OPEN_SUB, R.string.open_external_sub)
+    if (OpenSubtitlesSettings.isAvailable(this))
+        rows.addButton(PlayerDrawerAction.SEARCH_SUBTITLES, R.string.opensubtitles_search_title)
     rows.addButton(PlayerDrawerAction.SUB_TRACK, R.string.btn_sub_track)
     if (player.sid != -1) {
         rows.addButton(PlayerDrawerAction.SUB_DELAY, R.string.sub_delay)

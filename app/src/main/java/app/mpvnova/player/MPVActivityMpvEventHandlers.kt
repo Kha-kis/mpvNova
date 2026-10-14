@@ -65,6 +65,10 @@ private fun MPVActivity.handleMpvEndFile() {
 }
 
 private fun MPVActivity.handleMpvStartFile() {
+    eventUiHandler.post {
+        closeOpenSubtitlesSearch(restorePlayback = false)
+        releaseOpenSubtitlesPlaybackFiles()
+    }
     diagnosticAudioTrack = "unavailable"
     recordPlaybackDiagnostic("start-file")
     restoreLocalAutoNextLaunchTitle()

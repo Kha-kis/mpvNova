@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="os_downloads_title">Downloaded subtitles</string>
+    <string name="os_downloads_action">Downloads</string>
+    <string name="os_downloads_remove">Remove subtitle</string>
+    <string name="os_downloads_empty">No downloaded subtitles for this video.</string>
+    <string name="os_downloads_track_title">OpenSubtitles (Downloaded): %1$s</string>
+</resources>

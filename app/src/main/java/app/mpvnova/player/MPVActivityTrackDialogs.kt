@@ -185,6 +185,23 @@ internal fun MPVActivity.pickSub(
     }
     lateinit var dialog: AlertDialog
     configureSubPickerCallbacks(impl) { dialog.dismiss() }
+    impl.onOnlineSubtitleSearch = {
+        trackPanelChildTransition = true
+        dialog.dismiss()
+        openOpenSubtitlesSearch {
+            if (!isFinishing && !isDestroyed && !playbackEnded) pickSub()
+            trackPanelChildTransition = false
+        }
+    }
+    impl.onOnlineSubtitleDownloads = {
+        val restoreDownloads = keepPlaybackForDialog()
+        trackPanelChildTransition = true
+        dialog.dismiss()
+        showOpenSubtitlesDownloads(restoreDownloads) {
+            if (!isFinishing && !isDestroyed && !playbackEnded) pickSub()
+            trackPanelChildTransition = false
+        }
+    }
     impl.onDelayClick = {
         trackPanelChildTransition = true
         dialog.dismiss()
@@ -212,6 +229,7 @@ internal fun MPVActivity.pickSub(
             TrackPanelReturnFocus.SUBTITLE_STYLE -> impl.focusSubtitleStyleRow()
             TrackPanelReturnFocus.TRACK -> Unit
         }
+        if (returnFocus == TrackPanelReturnFocus.TRACK) refreshSubPickerAfterTrackChange()
     }
 }
 

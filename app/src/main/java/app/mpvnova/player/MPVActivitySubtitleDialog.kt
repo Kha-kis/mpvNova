@@ -92,12 +92,27 @@ private fun MPVActivity.subPickerOptions(delayValue: String): MediaPickerDialog.
         subStyleStateText = subtitleStyleToggleText(),
         showSubPresetCycler = hasSubtitleStylePresets(),
         initialSubPresetName = currentSubtitleStylePresetName(),
+        showOnlineSubtitleSearch = OpenSubtitlesSettings.isAvailable(this),
+        showOnlineSubtitleDownloads = openSubtitlesPlaybackDownloads.isNotEmpty(),
     )
 }
 
 internal fun MPVActivity.currentSubtitleDelayText(): String {
     val delayMs = ((player.subDelay ?: 0.0) * MPV_MILLIS_PER_SECOND_DOUBLE).roundToLong()
     return formatAudioDelayMs(delayMs)
+}
+
+internal fun MPVActivity.refreshSubPickerAfterTrackChange(tracksChanged: Boolean = false) {
+    if (tracksChanged) finishOpenSubtitlesRemovals()
+    val picker = subtitlePickerDialog?.takeIf { it.isAttached } ?: return
+    picker.downloadedSubtitlesVisible = openSubtitlesPlaybackDownloads.isNotEmpty()
+    picker.updateItems(buildSubItems())
+    val downloaded = pendingOpenSubtitlesFocus ?: return
+    if (mpvGetPropertyString("current-tracks/sub/external-filename") == downloaded.absolutePath &&
+        picker.items.any { it.tag == player.sid && it.selected }) {
+        pendingOpenSubtitlesFocus = null
+        picker.focusInitialSelection()
+    }
 }
 
 private fun MPVActivity.subtitleStyleToggleText(): String = getString(

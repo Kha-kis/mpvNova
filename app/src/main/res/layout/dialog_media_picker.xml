@@ -91,7 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:clipToPadding="false"
+                android:clipToPadding="true"
                 android:minHeight="250dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="10dp"
@@ -107,6 +107,7 @@
                 app:layoutManager="LinearLayoutManager"
                 tools:ignore="NestedWeights"
                 tools:listitem="@layout/dialog_track_item" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -851,6 +852,39 @@
                             android:contentDescription="@string/accessibility_selected"
                             android:src="@drawable/ic_tv_check"
                             android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/onlineSubtitleActions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <Button
+                            android:id="@+id/onlineSubtitleSearch"
+                            style="@style/Mpv.SurfaceButton.Compact"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:nextFocusUp="@id/persistSubFiltersRow"
+                            android:nextFocusRight="@id/onlineSubtitleDownloads"
+                            android:nextFocusDown="@id/delayRow"
+                            android:text="@string/opensubtitles_search_title" />
+
+                        <Button
+                            android:id="@+id/onlineSubtitleDownloads"
+                            style="@style/Mpv.SurfaceButton.Compact"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:nextFocusUp="@id/persistSubFiltersRow"
+                            android:nextFocusLeft="@id/onlineSubtitleSearch"
+                            android:nextFocusDown="@id/delayRow"
+                            android:text="@string/os_downloads_action"
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <LinearLayout
