@@ -125,7 +125,7 @@ internal fun MPVActivity.endPlaybackIfParkedAtEof() {
     }
 }
 
-internal fun MPVActivity.keepPlaybackForDialog(): StateRestoreCallback {
+internal fun MPVActivity.keepPlaybackForDialog(restorePlayback: () -> Boolean = { true }): StateRestoreCallback {
     // Only the outermost dialog records the real baseline; nested ones would capture the forced "yes".
     if (keepOpenDialogDepth == 0)
         keepOpenSavedValue = mpvGetPropertyString("keep-open")
@@ -136,11 +136,16 @@ internal fun MPVActivity.keepPlaybackForDialog(): StateRestoreCallback {
         if (!restored) {
             restored = true
             keepOpenDialogDepth = (keepOpenDialogDepth - 1).coerceAtLeast(0)
-            if (keepOpenDialogDepth == 0) {
-                keepOpenSavedValue?.also { mpvSetPropertyString("keep-open", it) }
-                endPlaybackIfParkedAtEof()
-                // Start the screensaver idle countdown fresh from when the UI closed.
-                noteScreensaverActivity()
+            if (keepOpenDialogDepth == 0 && !isFinishing && !isDestroyed) {
+                if (restorePlayback()) {
+                    keepOpenSavedValue?.also { mpvSetPropertyString("keep-open", it) }
+                    endPlaybackIfParkedAtEof()
+                    // Start the screensaver idle countdown fresh from when the UI closed.
+                    noteScreensaverActivity()
+                } else {
+                    // A replacement file still needs its baseline, without probing the old file's EOF.
+                    keepOpenSavedValue?.also { mpvCommand(arrayOf("async", "set", "keep-open", it)) }
+                }
             }
         }
     }

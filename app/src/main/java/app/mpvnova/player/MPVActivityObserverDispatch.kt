@@ -31,6 +31,7 @@ internal fun MPVActivity.updateMediaSessionNow() {
 private val METADATA_UI_HANDLERS: Map<String, MPVActivity.() -> Unit> = mapOf(
     "track-list" to {
         player.loadTracks()
+        refreshSubPickerAfterTrackChange(tracksChanged = true)
         refreshCompanionSubtitleStyle()
         applyFireTvVideoEdgeCropIfNeeded()
         maybeApplyShieldHi10pFallback()
@@ -39,7 +40,10 @@ private val METADATA_UI_HANDLERS: Map<String, MPVActivity.() -> Unit> = mapOf(
         updateAudioUI()
         maybeApplyShieldHi10pFallback()
     },
-    "sid" to { refreshCompanionSubtitleStyle() },
+    "sid" to {
+        refreshCompanionSubtitleStyle()
+        refreshSubPickerAfterTrackChange()
+    },
     "current-tracks/video/image" to {
         updateAudioUI()
         maybeApplyShieldHi10pFallback()

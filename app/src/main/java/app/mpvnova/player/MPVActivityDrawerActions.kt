@@ -99,6 +99,10 @@ private fun MPVActivity.handleAudioSubtitleDrawerAction(
         PlayerDrawerAction.OPEN_SUB -> {
             openExternalSubFromDrawer(dismiss)
         }
+        PlayerDrawerAction.SEARCH_SUBTITLES -> {
+            dismissDrawerExpectingReopen(dismiss)
+            openOpenSubtitlesSearch { if (!isFinishing && !isDestroyed) reopenDrawerIfPending() }
+        }
         PlayerDrawerAction.SUB_DELAY -> {
             dismissDrawerExpectingReopen(dismiss)
             showSubDelayPicker(pauseForDialog())

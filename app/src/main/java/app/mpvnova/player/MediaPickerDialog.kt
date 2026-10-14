@@ -87,6 +87,8 @@ internal class MediaPickerDialog {
         val subStyleStateText: String = "",
         val showSubPresetCycler: Boolean = false,
         val initialSubPresetName: String = "",
+        val showOnlineSubtitleSearch: Boolean = false,
+        val showOnlineSubtitleDownloads: Boolean = false,
     )
 
     private lateinit var binding: DialogMediaPickerBinding
@@ -95,6 +97,7 @@ internal class MediaPickerDialog {
      *  item index back to its tag without holding their own parallel list. */
     var items: List<Item> = emptyList()
         private set
+    val isAttached: Boolean get() = ::binding.isInitialized && binding.root.isAttachedToWindow
     private var voiceBoostState = ValueState("", false)
     private var volumeBoostState = ValueState("", false)
     private var nightModeState = ValueState("", false)
@@ -143,8 +146,19 @@ internal class MediaPickerDialog {
     var onSecondarySubSwap: (() -> Unit)? = null
     var onPersistSubClick: (() -> Unit)? = null
     var onSubStyleClick: (() -> Unit)? = null
+    var onOnlineSubtitleSearch: (() -> Unit)? = null
+    var onOnlineSubtitleDownloads: (() -> Unit)? = null
     var onSubPresetAdjust: ((Int) -> SubPresetState)? = null
     var onSubFilterStatesRefresh: (() -> SubFilterStates)? = null
+
+    var downloadedSubtitlesVisible: Boolean = false
+        set(value) {
+            field = value
+            if (::binding.isInitialized) {
+                binding.onlineSubtitleDownloads.isVisible = value
+                binding.onlineSubtitleActions.isVisible = value || binding.onlineSubtitleSearch.isVisible
+            }
+        }
 
     fun buildView(layoutInflater: LayoutInflater, options: Options): View {
         val firstBuild = !::binding.isInitialized
@@ -156,6 +170,12 @@ internal class MediaPickerDialog {
         }
 
         binding.bindHeader(options)
+        binding.onlineSubtitleActions.isVisible = options.showSubFilters &&
+            (options.showOnlineSubtitleSearch || options.showOnlineSubtitleDownloads)
+        binding.onlineSubtitleSearch.isVisible = options.showSubFilters && options.showOnlineSubtitleSearch
+        binding.onlineSubtitleSearch.setOnClickListener { onOnlineSubtitleSearch?.invoke() }
+        binding.onlineSubtitleDownloads.isVisible = options.showSubFilters && options.showOnlineSubtitleDownloads
+        binding.onlineSubtitleDownloads.setOnClickListener { onOnlineSubtitleDownloads?.invoke() }
         configureList(options)
         binding.configurePanelVisibility(options)
         binding.configureResponsiveSizing(options.showDelay, options.showFilters, options.showSubFilters)
@@ -167,7 +187,7 @@ internal class MediaPickerDialog {
         focusSubtitleStyleRow = { binding.subStyleRow.post { binding.subStyleRow.requestFocus() } }
         focusInitialSelection = {
             if (::binding.isInitialized)
-                binding.requestInitialFocus(options)
+                binding.requestInitialFocus(items, options.showDelay)
         }
         binding.root.post { focusInitialSelection() }
 
@@ -564,11 +584,11 @@ private fun DialogMediaPickerBinding.configureResponsiveSizing(
     }
 }
 
-private fun DialogMediaPickerBinding.requestInitialFocus(options: MediaPickerDialog.Options) {
-    val selectedIdx = options.items.indexOfFirst { it.selected }
+private fun DialogMediaPickerBinding.requestInitialFocus(items: List<MediaPickerDialog.Item>, showDelay: Boolean) {
+    val selectedIdx = items.indexOfFirst { it.selected }
     if (selectedIdx >= 0) {
         focusListItem(selectedIdx)
-    } else if (options.showDelay) {
+    } else if (showDelay) {
         delayRow.post { delayRow.requestFocus() }
     }
 }

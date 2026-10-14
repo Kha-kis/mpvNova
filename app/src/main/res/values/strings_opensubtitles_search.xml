@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="opensubtitles_search_title">Search subtitles</string>
+    <string name="os_search_title">OpenSubtitles.com</string>
+    <string name="os_search_title_hint">Movie or series title</string>
+    <string name="os_search_season">Season</string>
+    <string name="os_search_episode">Episode</string>
+    <string name="os_search_movie">Movie</string>
+    <string name="os_search_language">Language</string>
+    <string name="os_search_search">Search</string>
+    <string name="os_search_more">More</string>
+    <string name="os_search_close">Close</string>
+    <string name="os_search_loading">Searching…</string>
+    <string name="os_search_downloading">Downloading subtitle…</string>
+    <string name="os_search_downloaded">Downloaded</string>
+    <string name="os_search_empty">No subtitles found.</string>
+    <string name="os_search_unavailable">Subtitle search is unavailable.</string>
+    <string name="os_search_title_required">Enter a movie or series title.</string>
+    <string name="os_search_episode_pair">Enter both season and episode, or leave both blank.</string>
+    <string name="os_search_episode_invalid">Enter valid season and episode numbers.</string>
+    <string name="os_search_error">Subtitle search failed. Try again.</string>
+    <string name="os_search_download_error">Subtitle download failed. Try again.</string>
+    <string name="os_search_auth_expired">OpenSubtitles session expired. Sign in again.</string>
+    <string name="os_search_quota">OpenSubtitles download quota reached.</string>
+    <string name="os_search_download_remaining">Subtitle downloaded. Downloads remaining: %1$d.</string>
+    <string name="os_search_download_remaining_reset">Subtitle downloaded. Downloads remaining: %1$d. Resets %2$s.</string>
+    <string name="os_search_language_error">Could not load languages. Try again.</string>
+    <string name="os_search_result_meta">%1$s · %2$s</string>
+    <string name="os_search_hearing_impaired">Hearing impaired</string>
+    <string name="os_search_hash_match">Hash match</string>
+    <string name="os_search_result_count">Results: %1$d</string>
+    <string name="os_search_limit">Result limit reached. Refine your search.</string>
+    <string name="os_search_retry">Retry</string>
+    <string name="os_search_unnamed">Unnamed subtitle</string>
+    <string name="os_search_languages_loading">Loading languages…</string>
+</resources>
