@@ -74,6 +74,10 @@ For phones and tablets, see [mpvEx](https://github.com/marlboro-advance/mpvEx), 
 </div>
 
 <div align="center">
+  <img src="docs/screenshots/player-opensubtitles.png" alt="OpenSubtitles.com subtitle search" width="96%" />
+</div>
+
+<div align="center">
   <img src="docs/screenshots/player-custom-advanced-panel.png" alt="Custom advanced panel" width="96%" />
 </div>
 
