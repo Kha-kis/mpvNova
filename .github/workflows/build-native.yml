@@ -99,6 +99,28 @@ jobs:
             test -s "collected/$lib.so"
           done
 
+      - name: Verify 16 KB ELF and RELRO alignment (${{ matrix.arch }})
+        if: matrix.arch == 'arm64' || matrix.arch == 'x86_64'
+        run: |
+          NDK_DIR=$(echo buildscripts/sdk/android-ndk-*)
+          readelf="$NDK_DIR/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          for lib in collected/*.so; do
+            headers=$("$readelf" -lW "$lib")
+            while read -r align; do
+              if (( align < 16384 )); then
+                echo "Invalid 16 KB load alignment: $lib ($align)" >&2
+                exit 1
+              fi
+            done < <(printf '%s\n' "$headers" | awk '$1 == "LOAD" { print $NF }')
+            while read -r address size; do
+              if (( (address + size) % 16384 != 0 )); then
+                echo "Invalid 16 KB RELRO alignment: $lib" >&2
+                exit 1
+              fi
+            done < <(printf '%s\n' "$headers" | awk '$1 == "GNU_RELRO" { print $3, $6 }')
+            echo "16 KB ELF and RELRO alignment verified: $lib"
+          done
+
       - name: Upload .so files
         uses: actions/upload-artifact@v7
         with:

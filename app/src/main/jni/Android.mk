@@ -68,6 +68,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := libplayer
 LOCAL_CFLAGS    := -Werror
 LOCAL_CPPFLAGS  += -std=c++11
+LOCAL_LDFLAGS   += -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384
 LOCAL_SRC_FILES := \
 	main.cpp \
 	render.cpp \
