@@ -91,6 +91,7 @@ private class OpenSubtitlesPreferenceController(
             initialValue = OpenSubtitlesSettings.credentials(context)?.apiKey.orEmpty(),
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
             secure = true,
+            showClearAll = true,
             validate = { if (it.isBlank() || OpenSubtitlesSettings.validApiKey(it.trim())) null
                 else fragment.getString(R.string.os_settings_key_invalid) },
         ) { value -> verifyKey(value.trim()) }
@@ -129,6 +130,17 @@ private class OpenSubtitlesPreferenceController(
         val dialog = AlertDialog.Builder(fragment.requireContext()).setView(binding.root).create()
         loginDialog = dialog
         binding.osLoginCancel.setOnClickListener { dialog.dismiss() }
+        binding.osLoginClear.setOnClickListener {
+            cancel()
+            binding.osUsername.text?.clear()
+            binding.osPassword.text?.clear()
+            binding.osUsername.error = null
+            binding.osPassword.error = null
+            binding.osLoginStatus.text = ""
+            binding.osLoginConfirm.isEnabled = true
+            binding.osUsername.requestFocus()
+            refresh()
+        }
         binding.osLoginConfirm.setOnClickListener {
             val username = binding.osUsername.text.toString().trim()
             val password = binding.osPassword.text.toString()

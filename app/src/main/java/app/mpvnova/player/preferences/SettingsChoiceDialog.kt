@@ -92,6 +92,7 @@ internal fun Fragment.showSettingsInputDialog(
     initialValue: String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     secure: Boolean = false,
+    showClearAll: Boolean = false,
     validate: (String) -> CharSequence? = { null },
     onConfirm: (String) -> Unit,
 ) {
@@ -110,6 +111,13 @@ internal fun Fragment.showSettingsInputDialog(
     binding.inputValue.selectAll()
     val dialog = AlertDialog.Builder(requireActivity()).setView(binding.root).create()
     binding.inputCancelBtn.setOnClickListener { dialog.dismiss() }
+    binding.inputClearBtn.isVisible = showClearAll
+    binding.inputActionSpacer.isVisible = showClearAll
+    binding.inputClearBtn.setOnClickListener {
+        binding.inputValue.text?.clear()
+        binding.inputValue.error = null
+        binding.inputValue.requestFocus()
+    }
     binding.inputOkBtn.setOnClickListener {
         val value = binding.inputValue.text?.toString().orEmpty()
         val error = validate(value)
