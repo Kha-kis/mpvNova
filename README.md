@@ -162,7 +162,7 @@ If a separate enhancement track contains the only RPU metadata, playback falls b
 - JDK 21
 - Android SDK with current build tools
 - Git for version information in builds
-- Gradle wrapper `9.7.1`
+- Gradle wrapper `9.8.1`
 - Android Gradle Plugin `9.4.0`
 - Kotlin `2.4.20`
 
