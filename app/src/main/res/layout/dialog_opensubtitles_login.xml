@@ -58,6 +58,7 @@
             style="@style/Mpv.SurfaceButton.Compact"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
+            android:minWidth="84dp"
             android:text="@string/dialog_cancel" />
 
         <Button
@@ -80,6 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
+            android:minWidth="84dp"
             android:text="@string/os_settings_sign_in" />
     </LinearLayout>
 </LinearLayout>
