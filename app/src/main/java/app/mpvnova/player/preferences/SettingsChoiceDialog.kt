@@ -2,6 +2,7 @@ package app.mpvnova.player.preferences
 
 import android.app.Dialog
 import android.app.Activity
+import android.os.Build
 import android.text.InputType
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -90,6 +91,7 @@ internal fun Fragment.showSettingsInputDialog(
     message: CharSequence?,
     initialValue: String,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
+    secure: Boolean = false,
     validate: (String) -> CharSequence? = { null },
     onConfirm: (String) -> Unit,
 ) {
@@ -99,6 +101,11 @@ internal fun Fragment.showSettingsInputDialog(
     binding.inputMessage.text = message ?: ""
     binding.inputMessage.isVisible = !message.isNullOrBlank()
     binding.inputValue.inputType = inputType
+    if (secure) {
+        binding.inputValue.isSaveEnabled = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            binding.inputValue.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+    }
     binding.inputValue.setText(initialValue)
     binding.inputValue.selectAll()
     val dialog = AlertDialog.Builder(requireActivity()).setView(binding.root).create()
@@ -116,6 +123,7 @@ internal fun Fragment.showSettingsInputDialog(
     }
     dialog.show()
     dialog.styleAsTvPanel()
+    if (secure) dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
     binding.inputValue.requestFocus()
 }
 
