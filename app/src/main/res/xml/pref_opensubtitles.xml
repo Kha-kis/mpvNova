@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/os_settings_title" app:iconSpaceReserved="false">
+        <SwitchPreferenceCompat android:key="opensubtitles_enabled" android:defaultValue="false" android:title="@string/os_settings_enable" android:summary="@string/os_settings_enable_summary" app:iconSpaceReserved="false" />
+        <Preference android:key="opensubtitles_api_key" android:title="@string/os_settings_api_key" app:iconSpaceReserved="false" />
+        <Preference android:key="opensubtitles_account" android:title="@string/os_settings_account" app:iconSpaceReserved="false" />
+        <Preference android:key="opensubtitles_sign_out" android:title="@string/os_settings_sign_out" app:iconSpaceReserved="false" />
+        <Preference android:key="opensubtitles_setup" android:title="@string/os_settings_get_key" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

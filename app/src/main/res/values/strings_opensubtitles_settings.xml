@@ -1,0 +1,28 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="os_settings_remove_failed">Could not remove saved credentials. Subtitle search has been disabled.</string>
+    <string name="os_settings_title">OpenSubtitles.com</string>
+    <string name="os_settings_enable">Online subtitle search</string>
+    <string name="os_settings_enable_summary">Search and download subtitles from OpenSubtitles.com.</string>
+    <string name="os_settings_api_key">API key</string>
+    <string name="os_settings_key_help">OpenSubtitles.com API Consumers key</string>
+    <string name="os_settings_key_missing">Not configured</string>
+    <string name="os_settings_key_saved">Verified</string>
+    <string name="os_settings_key_invalid">Enter a valid API key.</string>
+    <string name="os_settings_checking">Checking API key…</string>
+    <string name="os_settings_account">Account</string>
+    <string name="os_settings_guest">Not signed in. Guest download limits apply.</string>
+    <string name="os_settings_signed_in">Signed in as %1$s</string>
+    <string name="os_settings_sign_out">Sign out</string>
+    <string name="os_settings_get_key">Open API Consumers page</string>
+    <string name="os_settings_username">Username</string>
+    <string name="os_settings_password">Password</string>
+    <string name="os_settings_sign_in">Sign in</string>
+    <string name="os_settings_signing_in">Signing in…</string>
+    <string name="os_settings_credentials_required">Enter your username and password.</string>
+    <string name="os_settings_login_failed">Sign-in failed. Check your username and password.</string>
+    <string name="os_settings_key_rejected">OpenSubtitles rejected this API key.</string>
+    <string name="os_settings_unavailable">Could not reach OpenSubtitles. Try again.</string>
+    <string name="os_settings_rate_limit">Too many requests. Try again later.</string>
+    <string name="os_settings_save_failed">Could not save OpenSubtitles settings.</string>
+    <string name="os_settings_browser_unavailable">No browser is available.</string>
+</resources>

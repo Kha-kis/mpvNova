@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_tv_dialog_shell"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/os_settings_sign_in"
+        android:textColor="@color/tv_text"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/osUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:hint="@string/os_settings_username"
+        android:importantForAutofill="no"
+        android:inputType="textNoSuggestions"
+        android:maxLength="128"
+        android:maxLines="1"
+        android:minHeight="48dp" />
+
+    <EditText
+        android:id="@+id/osPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/os_settings_password"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:maxLength="1024"
+        android:maxLines="1"
+        android:minHeight="48dp"
+        android:saveEnabled="false" />
+
+    <TextView
+        android:id="@+id/osLoginStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:accessibilityLiveRegion="polite"
+        android:textColor="@color/tv_text_dim"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/osLoginCancel"
+            style="@style/Mpv.SurfaceButton.Compact"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="@string/dialog_cancel" />
+
+        <Button
+            android:id="@+id/osLoginConfirm"
+            style="@style/Mpv.SurfaceButton.Compact"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/os_settings_sign_in" />
+    </LinearLayout>
+</LinearLayout>
