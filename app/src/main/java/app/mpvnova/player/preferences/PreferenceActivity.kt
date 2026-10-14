@@ -189,7 +189,8 @@ class PreferenceActivity : AppCompatActivity(),
     }
 
     override fun onBackStackChanged() {
-        if (supportFragmentManager.backStackEntryCount == 0) {
+        val page = supportFragmentManager.findFragmentById(R.id.main)
+        if (page is SettingsFragment) {
             currentTitle = getString(R.string.settings_hero_title)
             currentSubtitle = getString(R.string.settings_root_subtitle)
             val position = lastNavigatedPosition
@@ -207,6 +208,9 @@ class PreferenceActivity : AppCompatActivity(),
                     }
                 }
             }
+        } else {
+            currentTitle = page?.arguments?.getCharSequence(STATE_HERO_TITLE) ?: currentTitle
+            currentSubtitle = page?.arguments?.getCharSequence(STATE_HERO_SUBTITLE) ?: currentSubtitle
         }
         updateChrome()
     }
@@ -271,7 +275,12 @@ class PreferenceActivity : AppCompatActivity(),
     ): Boolean {
         val fragment = supportFragmentManager.fragmentFactory.instantiate(
             classLoader, pref.fragment ?: return false
-        ).apply { arguments = pref.extras }
+        ).apply {
+            arguments = Bundle(pref.extras).apply {
+                putCharSequence(STATE_HERO_TITLE, pref.title)
+                putCharSequence(STATE_HERO_SUBTITLE, pref.summary ?: pref.title)
+            }
+        }
 
         val screen = caller.preferenceScreen
         for (i in 0 until screen.preferenceCount) {
