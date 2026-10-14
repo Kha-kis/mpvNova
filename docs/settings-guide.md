@@ -202,6 +202,29 @@ Open the player's **Subtitles** panel for tracks, **Open external subtitle**, an
 
 A manual choice can override automatic selection. Remembered choices depend on matching available tracks; missing or inconsistently labeled tracks cannot always be matched. Forced flags and Signs & Songs labels are hints, not an analysis of the subtitle dialogue.
 
+### OpenSubtitles.com
+
+Open **Settings > General > OpenSubtitles.com**, enter your API key from the
+[API Consumers page](https://www.opensubtitles.com/en/consumers), and turn on **Online subtitle search**.
+The setting defaults off. **Search subtitles** stays hidden in the player until a key is verified and search is enabled.
+
+During playback, open **Subtitles > Search subtitles**. Check the title and language, then select **Search**.
+**Movie** hides the season and episode fields; **Episode** includes them. The initial mode follows the
+resolved playback title and can be changed. Choose a result to download and select that subtitle.
+**More** loads another page.
+Local videos also supply a file hash to help find matching releases; the video is not uploaded.
+
+Account sign-in is optional when your API key permits guest downloads. Download limits come from
+OpenSubtitles; signing in uses your account's allowance. Sign out keeps the API key. Clear the key to
+remove the saved account and disable search. Keys and account tokens are encrypted on the device,
+excluded from backups and support exports; passwords are not saved.
+
+mpvNova does not rewrite downloaded subtitle timing or styling. Use **Subtitle delay** if a result is
+out of sync, or choose another release. Files are kept in a small temporary cache, not alongside your video.
+Results already downloaded for the current video are marked **Downloaded**. Selecting one again
+uses the cached file without spending another download. Open **Subtitles > Downloads** and select
+the subtitle you want to remove. This unloads it from the player and deletes its cached file.
+
 ## Subtitle Customization
 
 Open **Subtitle customization** from the subtitle controls. **Enabled** turns the custom style on or off. The separate preview is a sample of your style, not a full rendering of every authored ASS effect or an image subtitle.
