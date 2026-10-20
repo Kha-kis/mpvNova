@@ -64,18 +64,25 @@ internal object OpenSubtitlesSettings {
 
     fun username(context: Context): String = read(context)?.optString("username").orEmpty()
 
+    fun isKeyVerified(context: Context): Boolean = read(context)?.optBoolean("key_verified", false) == true
+
     fun saveVerifiedKey(context: Context, key: String) {
         require(validApiKey(key))
-        write(context, JSONObject().put("key", key).put("host", "api.opensubtitles.com"))
+        val state = read(context)?.takeIf { it.optString("key") == key }?.let { JSONObject(it.toString()) }
+            ?: JSONObject().put("key", key).put("host", "api.opensubtitles.com")
+        write(context, state.put("key_verified", true))
     }
 
     fun saveSession(context: Context, session: OpenSubtitlesSession) {
         write(context, JSONObject().put("key", session.credentials.apiKey).put("token", session.credentials.token)
-            .put("host", session.credentials.apiHost).put("username", session.username))
+            .put("host", session.credentials.apiHost).put("username", session.username).put("key_verified", true))
     }
 
     fun clearSession(context: Context) {
-        credentials(context)?.let { saveVerifiedKey(context, it.apiKey) }
+        credentials(context)?.let {
+            write(context, JSONObject().put("key", it.apiKey).put("host", "api.opensubtitles.com")
+                .put("key_verified", isKeyVerified(context)))
+        }
     }
 
     @Synchronized

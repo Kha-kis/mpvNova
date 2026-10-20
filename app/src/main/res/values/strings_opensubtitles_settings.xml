@@ -7,6 +7,7 @@
     <string name="os_settings_key_help">OpenSubtitles.com API Consumers key</string>
     <string name="os_settings_key_missing">Not configured</string>
     <string name="os_settings_key_saved">Verified</string>
+    <string name="os_settings_key_unverified">Saved (not verified)</string>
     <string name="os_settings_key_invalid">Enter a valid API key.</string>
     <string name="os_settings_checking">Checking API key…</string>
     <string name="os_settings_account">Account</string>
@@ -22,6 +23,9 @@
     <string name="os_settings_login_failed">Sign-in failed. Check your username and password.</string>
     <string name="os_settings_key_rejected">OpenSubtitles rejected this API key.</string>
     <string name="os_settings_unavailable">Could not reach OpenSubtitles. Try again.</string>
+    <string name="os_settings_timeout">OpenSubtitles timed out. Try again.</string>
+    <string name="os_settings_invalid_response">OpenSubtitles returned an unexpected response. Try again later.</string>
+    <string name="os_settings_request_failed">OpenSubtitles request failed. Try again later.</string>
     <string name="os_settings_rate_limit">Too many requests. Try again later.</string>
     <string name="os_settings_save_failed">Could not save OpenSubtitles settings.</string>
     <string name="os_settings_browser_unavailable">No browser is available.</string>

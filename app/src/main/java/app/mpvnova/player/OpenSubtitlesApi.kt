@@ -82,6 +82,14 @@ class OpenSubtitlesClient internal constructor(private val http: OpenSubtitlesHt
         active.get()?.cancel()
     }
 
+    fun verifyApiKey(apiKey: String) = call { operation ->
+        // The languages endpoint is public and accepts invalid keys. Search is key-gated
+        // and does not consume download quota; use a small, unlikely-to-match query.
+        json(operation, OpenSubtitlesCredentials(apiKey), "GET", "subtitles?query=mpvnova+key+verification")
+            .getJSONArray("data")
+        Unit
+    }
+
     fun login(apiKey: String, username: String, password: String): OpenSubtitlesSession = call { operation ->
         if (username.isBlank() || username.length > MAX_USERNAME_LENGTH)
             fail(OpenSubtitlesFailureReason.INVALID_REQUEST)

@@ -15,6 +15,7 @@ import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import app.mpvnova.player.OpenSubtitlesClient
 import app.mpvnova.player.OpenSubtitlesException
+import app.mpvnova.player.OpenSubtitlesFailureReason
 import app.mpvnova.player.OpenSubtitlesSettings
 import app.mpvnova.player.R
 import app.mpvnova.player.databinding.DialogOpensubtitlesLoginBinding
@@ -73,7 +74,11 @@ private class OpenSubtitlesPreferenceController(
         val busy = pending != null
         keyPreference.isEnabled = !busy
         keyPreference.setSummary(
-            if (credentials == null) R.string.os_settings_key_missing else R.string.os_settings_key_saved,
+            when {
+                credentials == null -> R.string.os_settings_key_missing
+                OpenSubtitlesSettings.isKeyVerified(context) -> R.string.os_settings_key_saved
+                else -> R.string.os_settings_key_unverified
+            },
         )
         enabledPreference.isEnabled = credentials != null && !busy
         accountPreference.isEnabled = credentials != null && !busy
@@ -111,15 +116,17 @@ private class OpenSubtitlesPreferenceController(
         }
         keyPreference.setSummary(R.string.os_settings_checking)
         runOperation(
-            operation = { client.languages(app.mpvnova.player.OpenSubtitlesCredentials(key)); key },
+            operation = { client.verifyApiKey(key); key },
             success = {
-                if (OpenSubtitlesSettings.credentials(context)?.apiKey != it)
-                    OpenSubtitlesSettings.saveVerifiedKey(context, it)
+                OpenSubtitlesSettings.saveVerifiedKey(context, it)
                 toast(R.string.os_settings_key_saved)
             },
-            failure = { toast(if ((it as? OpenSubtitlesException)?.status in
-                listOf(HttpURLConnection.HTTP_UNAUTHORIZED, HttpURLConnection.HTTP_FORBIDDEN))
-                R.string.os_settings_key_rejected else failureMessage(it)) },
+            failure = {
+                val message = if ((it as? OpenSubtitlesException)?.status in
+                    listOf(HttpURLConnection.HTTP_UNAUTHORIZED, HttpURLConnection.HTTP_FORBIDDEN))
+                    R.string.os_settings_key_rejected else failureMessage(it)
+                Toast.makeText(context, fragment.failureText(it, message), Toast.LENGTH_LONG).show()
+            },
         )
     }
 
@@ -161,7 +168,7 @@ private class OpenSubtitlesPreferenceController(
                         binding.osLoginConfirm.isEnabled = true
                         val unauthorized = (it as? OpenSubtitlesException)?.status ==
                             HttpURLConnection.HTTP_UNAUTHORIZED
-                        binding.osLoginStatus.setText(if (unauthorized)
+                        binding.osLoginStatus.text = fragment.failureText(it, if (unauthorized)
                             R.string.os_settings_login_failed else failureMessage(it))
                     },
                     saveFailure = {
@@ -225,8 +232,14 @@ private class OpenSubtitlesPreferenceController(
     }
 
     private fun failureMessage(error: IOException): Int = when ((error as? OpenSubtitlesException)?.status) {
+        HttpURLConnection.HTTP_FORBIDDEN -> R.string.os_search_forbidden
         HTTP_TOO_MANY_REQUESTS -> R.string.os_settings_rate_limit
-        else -> R.string.os_settings_unavailable
+        else -> when ((error as? OpenSubtitlesException)?.reason) {
+            OpenSubtitlesFailureReason.NETWORK -> R.string.os_settings_unavailable
+            OpenSubtitlesFailureReason.TIMEOUT -> R.string.os_settings_timeout
+            OpenSubtitlesFailureReason.INVALID_RESPONSE -> R.string.os_settings_invalid_response
+            else -> R.string.os_settings_request_failed
+        }
     }
 
     private fun toast(resource: Int) = Toast.makeText(context, resource, Toast.LENGTH_LONG).show()
@@ -245,6 +258,12 @@ private class OpenSubtitlesPreferenceController(
         worker.shutdownNow()
         handler.removeCallbacksAndMessages(null)
     }
+}
+
+private fun OpenSubtitlesPreference.failureText(error: IOException, resource: Int): String {
+    val text = getString(resource)
+    val status = (error as? OpenSubtitlesException)?.status ?: return text
+    return getString(R.string.os_error_http_status, text, status)
 }
 
 private const val HTTP_TOO_MANY_REQUESTS = 429
