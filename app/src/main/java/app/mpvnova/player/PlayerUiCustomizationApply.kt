@@ -128,6 +128,7 @@ private fun MPVActivity.applySeekbarGeometry(
     )
     binding.playbackSeekbar.setChapterMarkersVisible(style.chapterMarkersVisible)
     binding.playbackSeekbar.setBarAppearance(style, this)
+    binding.seekOverlayBar.setBarAppearance(style, this)
     binding.playbackSeekbar.setVisibilityIfChanged(
         if (style.seekbarVisible) View.VISIBLE else View.GONE,
     )

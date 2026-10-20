@@ -29,6 +29,7 @@ internal fun MPVActivity.updateMediaSessionNow() {
 // silently dropped on the UI side (event-thread side-effects only).
 
 private val METADATA_UI_HANDLERS: Map<String, MPVActivity.() -> Unit> = mapOf(
+    "demuxer-cache-time" to { updatePlaybackBuffer() },
     "track-list" to {
         player.loadTracks()
         refreshSubPickerAfterTrackChange(tracksChanged = true)

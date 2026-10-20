@@ -116,6 +116,13 @@ open class MPVActivity : AppCompatActivity() {
         if (!userIsOperatingSeekbar && pendingSeekbarSeekMs == null && pendingDpadSeekPreviewMs == null)
             updatePlaybackTimeline(psc.position)
     }
+    @Volatile internal var bufferUiPending = false
+    internal val bufferUiRunnable = Runnable {
+        bufferUiPending = false
+        if (activityIsForeground &&
+            (binding.controls.visibility == View.VISIBLE || binding.seekOverlay.visibility == View.VISIBLE))
+            updatePlaybackBuffer()
+    }
 
     // TV/leanback mode — system-bar calls are no-ops but hitch the decoder.
     internal var isTvUiMode = false
@@ -644,6 +651,7 @@ open class MPVActivity : AppCompatActivity() {
         activityIsForeground = false
         eventUiHandler.removeCallbacksAndMessages(null)
         timePosUiPending = false
+        bufferUiPending = false
         metadataUiPending = false
         mediaSessionUpdatePending = false
         if (isFinishing) {

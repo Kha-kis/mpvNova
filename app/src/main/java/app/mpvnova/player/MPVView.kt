@@ -188,6 +188,7 @@ internal class MPVView(context: Context, attrs: AttributeSet) : BaseMPVView(cont
         val p = arrayOf(
             Property("time-pos/full", MPV_FORMAT_DOUBLE),
             Property("duration/full", MPV_FORMAT_DOUBLE),
+            Property("demuxer-cache-time", MPV_FORMAT_DOUBLE),
             Property("pause", MPV_FORMAT_FLAG),
             Property("paused-for-cache", MPV_FORMAT_FLAG),
             Property("speed", MPV_FORMAT_STRING),

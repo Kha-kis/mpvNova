@@ -14,6 +14,7 @@ internal fun MPVActivity.updatePlaybackDuration(durationMs: Long) {
     val seekbarMaxChanged = !userIsOperatingSeekbar && binding.playbackSeekbar.max != seekbarMax
     if (seekbarMaxChanged)
         binding.playbackSeekbar.max = seekbarMax
+    updatePlaybackBuffer()
     if (duration > 0 && seekbarMaxChanged)
         updateChapterMarkers()
     if (binding.timeInfoPanel.visibility == View.VISIBLE)

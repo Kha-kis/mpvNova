@@ -93,6 +93,7 @@ internal fun MPVActivity.setPlaybackSeekbarProgress(progress: Int) {
 }
 
 internal fun MPVActivity.updatePlaybackTimeline(positionMs: Long, forceTextUpdate: Boolean = false) {
+    updatePlaybackBuffer()
     if (!userIsOperatingSeekbar) {
         val progress = seekbarProgressFromMillis(positionMs)
         val now = SystemClock.uptimeMillis()
@@ -104,6 +105,15 @@ internal fun MPVActivity.updatePlaybackTimeline(positionMs: Long, forceTextUpdat
             setPlaybackSeekbarProgress(progress)
     }
     updatePlaybackText((positionMs / MILLIS_PER_SECOND_LONG).toInt().coerceAtLeast(0), force = forceTextUpdate)
+}
+
+internal fun MPVActivity.updatePlaybackBuffer() {
+    binding.playbackSeekbar.secondaryProgress = bufferedSeekbarProgress(
+        psc.bufferedPosition, psc.duration, binding.playbackSeekbar.max,
+    )
+    binding.seekOverlayBar.secondaryProgress = bufferedSeekbarProgress(
+        psc.bufferedPosition, psc.duration, binding.seekOverlayBar.max,
+    )
 }
 
 internal fun MPVActivity.updatePlaybackText(position: Int, force: Boolean = false) {

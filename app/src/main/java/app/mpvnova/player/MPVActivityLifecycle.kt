@@ -94,6 +94,7 @@ internal fun MPVActivity.cancelAllScheduledWork() {
     clockHandler.removeCallbacks(clockRunnable)
     stopServiceHandler.removeCallbacks(stopServiceRunnable)
     timePosUiPending = false
+    bufferUiPending = false
     metadataUiPending = false
     mediaSessionUpdatePending = false
 }

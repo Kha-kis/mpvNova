@@ -65,7 +65,9 @@ private fun MPVActivity.handleMpvEndFile() {
 }
 
 private fun MPVActivity.handleMpvStartFile() {
+    psc.update("demuxer-cache-time")
     eventUiHandler.post {
+        updatePlaybackBuffer()
         closeOpenSubtitlesSearch(restorePlayback = false)
         releaseOpenSubtitlesPlaybackFiles()
     }

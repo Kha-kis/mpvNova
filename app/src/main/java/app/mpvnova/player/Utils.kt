@@ -545,6 +545,10 @@ internal object Utils {
         @Volatile
         var duration = 0L
             private set
+        /** Estimated end of demuxer-buffered data in milliseconds, not cache-fill percent. */
+        @Volatile
+        var bufferedPosition = 0L
+            private set
         @Volatile
         var playlistPos = 0
             private set
@@ -563,6 +567,7 @@ internal object Utils {
         /** callback for properties of type <code>MPV_FORMAT_NONE</code> */
         @Synchronized
         fun update(property: String): Boolean {
+            if (property == "demuxer-cache-time") bufferedPosition = 0L
             return meta.update(property)
         }
 
@@ -632,6 +637,11 @@ internal object Utils {
                     duration = ceil(value * MILLIS_PER_SECOND_DOUBLE).coerceAtLeast(0.0).toLong()
                     true
                 }
+                "demuxer-cache-time" -> {
+                    bufferedPosition = if (value.isFinite())
+                        (value * MILLIS_PER_SECOND_DOUBLE).coerceAtLeast(0.0).toLong() else 0L
+                    false
+                }
                 else -> false
             }
         }
@@ -641,6 +651,7 @@ internal object Utils {
         fun eof() {
             position = -1L
             duration = 0L
+            bufferedPosition = 0L
         }
 
         private val mediaMetadataBuilder = MediaMetadata.Builder()

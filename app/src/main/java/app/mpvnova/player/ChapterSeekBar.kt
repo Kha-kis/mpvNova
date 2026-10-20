@@ -84,6 +84,9 @@ class ChapterSeekBar @JvmOverloads constructor(
         )
         style = Paint.Style.FILL
     }
+    private val segmentBufferPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
 
     private val density: Float get() = resources.displayMetrics.density
     private var trackHeightPx = TRACK_HEIGHT_DP * density
@@ -207,6 +210,7 @@ class ChapterSeekBar @JvmOverloads constructor(
             applyTrackColors(themedContext)
         }
         markerPaint.color = chapterMarkerColor?.resolvePlayerBarColor(themedContext) ?: MARKER_COLOR
+        segmentBufferPaint.color = resolveBufferedColor(themedContext)
         val shape = thumbShape
         val color = thumbColor
         if (shape != null && color != null) {
@@ -235,6 +239,7 @@ class ChapterSeekBar @JvmOverloads constructor(
         unplayedColor = style.seekbarUnplayedColor
         chapterMarkerColor = style.chapterMarkerColor
         markerPaint.color = chapterMarkerColor?.resolvePlayerBarColor(themedContext) ?: MARKER_COLOR
+        segmentBufferPaint.color = resolveBufferedColor(themedContext)
         markerShape = style.chapterMarkerShape
         markerPaint.isAntiAlias = markerShape == PlayerChapterMarkerShape.DOTS
         markerSizePercent = style.chapterMarkerSizePercent.coerceIn(
@@ -250,7 +255,6 @@ class ChapterSeekBar @JvmOverloads constructor(
         val layers = progressDrawable?.mutate() as? LayerDrawable ?: return
         listOf(
             android.R.id.progress to playedColor,
-            android.R.id.secondaryProgress to bufferedColor,
             android.R.id.background to unplayedColor,
         ).forEach { (id, color) ->
             layers.findDrawableByLayerId(id)?.let { layer ->
@@ -261,6 +265,12 @@ class ChapterSeekBar @JvmOverloads constructor(
                 }
             }
         }
+        layers.findDrawableByLayerId(android.R.id.secondaryProgress)?.setTint(resolveBufferedColor(themedContext))
+    }
+
+    private fun resolveBufferedColor(themedContext: Context): Int {
+        val color = (bufferedColor ?: PlayerSeekbarThumbColor.APP_COLOR).resolvePlayerBarColor(themedContext)
+        return Color.argb(BUFFERED_ALPHA, Color.red(color), Color.green(color), Color.blue(color))
     }
 
     /** Draw the bar as segmented chapter pills split by real gaps (minimal seek overlay). */
@@ -361,6 +371,8 @@ class ChapterSeekBar @JvmOverloads constructor(
         val radius = halfH
         val fraction = if (max > 0) (progress.toFloat() / max).coerceIn(0f, 1f) else 0f
         val progressX = left + fraction * span
+        val bufferFraction = if (max > 0) (secondaryProgress.toFloat() / max).coerceIn(0f, 1f) else 0f
+        val bufferX = left + bufferFraction * span
         val gapHalf = gapWidthPx / 2f
         val lastIndex = chapterFractions.size
 
@@ -376,6 +388,12 @@ class ChapterSeekBar @JvmOverloads constructor(
             canvas.drawRoundRect(
                 segL, centerY - halfH, segR, centerY + halfH, radius, radius, segmentTrackPaint
             )
+            if (bufferX > segL) {
+                canvas.drawRoundRect(
+                    segL, centerY - halfH, minOf(bufferX, segR), centerY + halfH,
+                    radius, radius, segmentBufferPaint,
+                )
+            }
             if (progressX > segL) {
                 val fillR = minOf(progressX, segR)
                 canvas.drawRoundRect(
@@ -407,5 +425,6 @@ class ChapterSeekBar @JvmOverloads constructor(
         private const val GAP_WIDTH_DP = 6f
         private const val SEGMENT_TRACK_ALPHA_BOOST = 1.4f
         private const val MAX_ALPHA = 255
+        private const val BUFFERED_ALPHA = 85
     }
 }
