@@ -20,7 +20,17 @@
     <string name="os_search_episode_invalid">Enter valid season and episode numbers.</string>
     <string name="os_search_error">Subtitle search failed. Try again.</string>
     <string name="os_search_download_error">Subtitle download failed. Try again.</string>
+    <string name="os_search_cache_full">Could not reserve subtitle storage. Remove a downloaded subtitle and try again.</string>
+    <string name="os_search_unsupported_subtitle">The downloaded file is not a supported subtitle.</string>
+    <string name="os_search_download_address">OpenSubtitles returned an unsupported download address.</string>
+    <string name="os_search_response_too_large">The OpenSubtitles response exceeds the size limit.</string>
+    <string name="os_search_invalid_response">OpenSubtitles returned an unexpected response.</string>
+    <string name="os_search_network_error">Could not connect to OpenSubtitles. Check your connection and try again.</string>
+    <string name="os_search_timeout">The OpenSubtitles request timed out. Try again.</string>
     <string name="os_search_auth_expired">OpenSubtitles session expired. Sign in again.</string>
+    <string name="os_search_auth_required">OpenSubtitles rejected this request. Check your API key in Settings and sign in if required.</string>
+    <string name="os_search_forbidden">OpenSubtitles denied access. Check your API key and API Consumer permissions.</string>
+    <string name="os_error_http_status">%1$s (HTTP %2$d)</string>
     <string name="os_search_quota">OpenSubtitles download quota reached.</string>
     <string name="os_search_download_remaining">Subtitle downloaded. Downloads remaining: %1$d.</string>
     <string name="os_search_download_remaining_reset">Subtitle downloaded. Downloads remaining: %1$d. Resets %2$s.</string>

@@ -465,15 +465,17 @@ internal class OpenSubtitlesSearchDialog(
     private fun showStatus(message: Int) { status.setText(message); resizeContent() }
     private fun showFailure(error: Throwable, downloading: Boolean, fallback: Int? = null) {
         val failure = error as? OpenSubtitlesException
-        showStatus(when (failure?.status) {
-            HTTP_UNAUTHORIZED, HTTP_FORBIDDEN -> R.string.os_search_auth_expired
-            HTTP_QUOTA, HTTP_RATE_LIMIT -> R.string.os_search_quota
-            else -> when (failure?.reason) {
-                OpenSubtitlesFailureReason.AUTHENTICATION -> R.string.os_search_auth_expired
-                OpenSubtitlesFailureReason.QUOTA, OpenSubtitlesFailureReason.RATE_LIMIT -> R.string.os_search_quota
-                else -> fallback ?: if (downloading) R.string.os_search_download_error else R.string.os_search_error
-            }
-        })
+        android.util.Log.w("mpv", "OpenSubtitles ${if (downloading) "download" else "search"} failed: " +
+            "reason=${failure?.reason?.name ?: "UNKNOWN"}, status=${failure?.status ?: "none"}, " +
+            "stage=${failure?.stage?.name ?: "none"}")
+        showStatus(openSubtitlesSearchFailureMessage(
+            failure, !credentialsProvider()?.token.isNullOrBlank(),
+            fallback ?: if (downloading) R.string.os_search_download_error else R.string.os_search_error,
+        ))
+        if (failure?.status != null) {
+            status.text = activity.getString(R.string.os_error_http_status, status.text, failure.status)
+            resizeContent()
+        }
     }
 
     private fun safeText(value: String): String {
@@ -491,10 +493,6 @@ internal class OpenSubtitlesSearchDialog(
         const val MAX_LANGUAGES = 300
         const val MAX_DISPLAY_LENGTH = 500
         const val DISABLED_ALPHA = 0.6f
-        const val HTTP_UNAUTHORIZED = 401
-        const val HTTP_FORBIDDEN = 403
-        const val HTTP_QUOTA = 406
-        const val HTTP_RATE_LIMIT = 429
     }
 
     private data class PageSelection(

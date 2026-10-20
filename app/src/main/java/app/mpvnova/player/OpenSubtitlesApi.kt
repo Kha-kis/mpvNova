@@ -59,10 +59,15 @@ enum class OpenSubtitlesFailureReason {
     NETWORK, TIMEOUT, CANCELLED, BUSY, INVALID_RESPONSE, SIZE_LIMIT, UNSUPPORTED_SUBTITLE, CACHE,
 }
 
+enum class OpenSubtitlesFailureStage {
+    DOWNLOAD_REQUEST, DOWNLOAD_METADATA, DOWNLOAD_ADDRESS, DOWNLOAD_TRANSFER, SUBTITLE_VALIDATION,
+}
+
 // Never retain a server body, URL, local path, credential, or underlying exception.
 class OpenSubtitlesException(
     val reason: OpenSubtitlesFailureReason,
     val status: Int? = null,
+    val stage: OpenSubtitlesFailureStage? = null,
 ) : IOException("OpenSubtitles request failed: ${reason.name}")
 
 /** Blocking worker-thread API. One operation per client; simultaneous callers receive BUSY.
@@ -89,7 +94,7 @@ class OpenSubtitlesClient internal constructor(private val http: OpenSubtitlesHt
         val host = openSubtitlesApiHost(response.requiredString("base_url"))
         OpenSubtitlesSession(
             OpenSubtitlesCredentials(apiKey, token, host), username,
-            response.optJSONObject("user")?.optionalNonnegativeInt("allowed_downloads"),
+            response.optJSONObject("user")?.optionalInt("allowed_downloads"),
         )
     }
 
@@ -140,16 +145,21 @@ class OpenSubtitlesClient internal constructor(private val http: OpenSubtitlesHt
         // Reserve capacity before consuming remote quota. Active playback files are never evicted.
         OpenSubtitlesCache.reserve(cacheDir).use { slot ->
             // No conversion, timeshift, force_download, or paid-action parameters.
-            val response = json(operation, credentials, "POST", "download", JSONObject().put("file_id", result.fileId))
-            val remaining = response.optionalNonnegativeInt("remaining")
-            val link = response.optionalString("link")
-            if (link.isNullOrBlank()) fail(
-                if (remaining == 0) OpenSubtitlesFailureReason.QUOTA else OpenSubtitlesFailureReason.INVALID_RESPONSE,
-            )
-            val file = http.download(operation, link, slot,
-                response.optionalString("file_name") ?: result.fileName)
-            OpenSubtitlesDownload(file, remaining, response.optionalString("reset_time_utc")
-                ?: response.optionalString("reset_time"))
+            val response = atOpenSubtitlesStage(OpenSubtitlesFailureStage.DOWNLOAD_REQUEST) {
+                json(operation, credentials, "POST", "download", JSONObject().put("file_id", result.fileId))
+            }
+            atOpenSubtitlesStage(OpenSubtitlesFailureStage.DOWNLOAD_METADATA) {
+                val remaining = response.optionalInt("remaining", allowNegative = true)
+                val link = response.optionalString("link")
+                if (link.isNullOrBlank()) fail(
+                    if (remaining != null && remaining <= 0) OpenSubtitlesFailureReason.QUOTA
+                    else OpenSubtitlesFailureReason.INVALID_RESPONSE,
+                )
+                val file = http.download(operation, link, slot,
+                    response.optionalString("file_name") ?: result.fileName)
+                OpenSubtitlesDownload(file, remaining, response.optionalString("reset_time_utc")
+                    ?: response.optionalString("reset_time"))
+            }
         }
     }
 
@@ -290,7 +300,7 @@ private fun JSONArray.subtitleResults(operation: OpenSubtitlesCall): List<OpenSu
             results.add(OpenSubtitlesResult(
                 id, file.optionalString("file_name").orEmpty(), attributes.requiredString("language"),
                 attributes.optionalString("release").orEmpty(), attributes.optBoolean("hearing_impaired"),
-                attributes.optionalNonnegativeInt("download_count") ?: 0,
+                attributes.optionalInt("download_count") ?: 0,
                 attributes.optBoolean("moviehash_match"),
             ))
             if (results.size > MAX_PAGE_RESULTS) fail(OpenSubtitlesFailureReason.SIZE_LIMIT)
@@ -309,10 +319,10 @@ private fun JSONObject.optionalString(key: String): String? {
     return (get(key) as? String) ?: fail(OpenSubtitlesFailureReason.INVALID_RESPONSE)
 }
 
-private fun JSONObject.requiredNonnegativeInt(key: String): Int = optionalNonnegativeInt(key)
+private fun JSONObject.requiredNonnegativeInt(key: String): Int = optionalInt(key)
     ?: fail(OpenSubtitlesFailureReason.INVALID_RESPONSE)
 
-private fun JSONObject.optionalNonnegativeInt(key: String): Int? {
+private fun JSONObject.optionalInt(key: String, allowNegative: Boolean = false): Int? {
     if (!has(key) || isNull(key)) return null
     val value = get(key)
     val parsed = when (value) {
@@ -320,5 +330,5 @@ private fun JSONObject.optionalNonnegativeInt(key: String): Int? {
         is String -> value.toIntOrNull()
         else -> null
     }
-    return parsed?.takeIf { it >= 0 } ?: fail(OpenSubtitlesFailureReason.INVALID_RESPONSE)
+    return parsed?.takeIf { allowNegative || it >= 0 } ?: fail(OpenSubtitlesFailureReason.INVALID_RESPONSE)
 }

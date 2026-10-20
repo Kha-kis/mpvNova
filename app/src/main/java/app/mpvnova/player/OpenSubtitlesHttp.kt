@@ -338,7 +338,9 @@ internal class OpenSubtitlesHttp(
 
     fun download(operation: OpenSubtitlesCall, link: String, slot: OpenSubtitlesCacheSlot, fileName: String): File {
         // Validate before touching the filesystem or making a request.
-        var uri: URI? = safeHttpsUri(link, DOWNLOAD_HOSTS)
+        var uri: URI? = atOpenSubtitlesStage(OpenSubtitlesFailureStage.DOWNLOAD_ADDRESS) {
+            safeHttpsUri(link, DOWNLOAD_HOSTS)
+        }
         val root = slot.root
         val partial = OpenSubtitlesCache.createPartial(slot)
         try {
@@ -346,10 +348,14 @@ internal class OpenSubtitlesHttp(
             while (uri != null) {
                 operation.checkActive()
                 if (requests++ > MAX_REDIRECTS) fail(OpenSubtitlesFailureReason.UNSAFE_HOST)
-                uri = downloadRequest(operation, uri, partial)
+                uri = atOpenSubtitlesStage(OpenSubtitlesFailureStage.DOWNLOAD_TRANSFER) {
+                    downloadRequest(operation, checkNotNull(uri), partial)
+                }
             }
             operation.checkActive()
-            val extension = subtitleExtension(operation, partial, fileName)
+            val extension = atOpenSubtitlesStage(OpenSubtitlesFailureStage.SUBTITLE_VALIDATION) {
+                subtitleExtension(operation, partial, fileName)
+            }
             val destination = File(root, "${partial.nameWithoutExtension}.$extension")
             OpenSubtitlesCache.publish(slot, partial, destination, operation)
             return destination
