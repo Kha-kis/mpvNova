@@ -132,7 +132,7 @@ internal class OpenSubtitlesSearchDialog(
         ))
         panelMaxHeight = dialog.window?.attributes?.height ?: 0
         resizeContent()
-        title.requestFocus()
+        search.requestFocus()
         if (credentials() == null) showStatus(R.string.os_search_unavailable) else loadLanguages()
     }
 
