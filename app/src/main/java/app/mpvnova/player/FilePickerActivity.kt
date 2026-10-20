@@ -202,9 +202,7 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
 
         internal val MEDIA_FILE_FILTER = FileFilter { file ->
             if (file.isDirectory) {
-                val contents: Array<String> = file.list() ?: arrayOf()
-                // filter hidden files due to stuff like ".thumbnails"
-                contents.filterNot { it.startsWith('.') }.any()
+                true
             } else {
                 Utils.MEDIA_EXTENSIONS.contains(file.extension.lowercase())
             }
