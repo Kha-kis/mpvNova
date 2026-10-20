@@ -1,4 +1,5 @@
 #include <jni.h>
+#include <string>
 
 #include <mpv/client.h>
 
@@ -89,6 +90,13 @@ void *event_thread(void *arg)
             mp_property = (mpv_event_property*)mp_event->data;
             sendPropertyUpdateToJava(env, mp_property);
             break;
+        case MPV_EVENT_COMMAND_REPLY: {
+            const std::string name = "command-result/" + std::to_string(mp_event->reply_userdata);
+            int64_t status = mp_event->error;
+            mpv_event_property result = {name.c_str(), MPV_FORMAT_INT64, &status};
+            sendPropertyUpdateToJava(env, &result);
+            break;
+        }
         default:
             if (mp_event->event_id == MPV_EVENT_START_FILE) {
                 const auto *start = static_cast<mpv_event_start_file*>(mp_event->data);

@@ -27,6 +27,22 @@ internal fun MPVActivity.openSubtitlesTrackIds(file: File): List<Int> {
     }
 }
 
+internal fun MPVActivity.completeOpenSubtitlesAdd(requestId: Long, status: Long) {
+    val file = pendingOpenSubtitlesCommands.remove(requestId) ?: return
+    pendingOpenSubtitlesAdds.remove(file)
+    if (status < 0L) {
+        pendingOpenSubtitlesRemovals.remove(file)
+        pendingOpenSubtitlesRemoveCommands.remove(file)
+        openSubtitlesPlaybackFiles.remove(file)
+        openSubtitlesPlaybackDownloads.entries.removeAll { it.value.first == file }
+        if (pendingOpenSubtitlesFocus == file) pendingOpenSubtitlesFocus = null
+        discardOpenSubtitlesDownload(file, cacheDir)
+        if (!isFinishing && !isDestroyed) showToast(getString(R.string.os_downloads_load_failed))
+    }
+    finishOpenSubtitlesRemovals()
+    refreshSubPickerAfterTrackChange()
+}
+
 internal fun MPVActivity.finishOpenSubtitlesRemovals() {
     if (pendingOpenSubtitlesAdds.isEmpty() && pendingOpenSubtitlesRemovals.isEmpty()) return
     val paths = (pendingOpenSubtitlesAdds + pendingOpenSubtitlesRemovals).map { it.absolutePath }.toSet()

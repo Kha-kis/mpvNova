@@ -38,6 +38,11 @@ fun mpvCommand(cmd: Array<out String>) {
     MPVLib.command(cmd)
 }
 
+internal fun mpvCommandAsync(requestId: Long, cmd: Array<out String>): Int {
+    ensureNativeLibrariesLoaded()
+    return MPVLib.commandAsync(requestId, cmd)
+}
+
 internal fun mpvLoadReplacementFile(filepath: String): Long {
     ensureNativeLibrariesLoaded()
     return MPVLib.loadFile(filepath)

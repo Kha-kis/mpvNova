@@ -391,6 +391,7 @@ open class MPVActivity : AppCompatActivity() {
     internal val openSubtitlesPlaybackDownloads = mutableMapOf<Int, Pair<java.io.File, OpenSubtitlesResult>>()
     internal val pendingOpenSubtitlesRemovals = mutableSetOf<java.io.File>()
     internal val pendingOpenSubtitlesAdds = mutableSetOf<java.io.File>()
+    internal val pendingOpenSubtitlesCommands = mutableMapOf<Long, java.io.File>()
     internal val pendingOpenSubtitlesRemoveCommands = mutableSetOf<java.io.File>()
     internal var pendingOpenSubtitlesFocus: java.io.File? = null
     internal var playerTitleStyle = PlayerTitleStyle.DEFAULT

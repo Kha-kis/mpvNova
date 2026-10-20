@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="os_downloads_load_failed">The subtitle downloaded, but the player could not load it. The failed download has been removed.</string>
     <string name="os_downloads_title">Downloaded subtitles</string>
     <string name="os_downloads_action">Downloads</string>
     <string name="os_downloads_remove">Remove subtitle</string>

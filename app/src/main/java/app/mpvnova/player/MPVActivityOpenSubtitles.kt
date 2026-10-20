@@ -1,6 +1,9 @@
 package app.mpvnova.player
 
 import java.io.File
+import java.util.concurrent.atomic.AtomicLong
+
+private val openSubtitlesCommandIds = AtomicLong(1L)
 
 internal fun MPVActivity.openOpenSubtitlesSearch(onDismiss: () -> Unit = {}) {
     if (!OpenSubtitlesSettings.isAvailable(this)) {
@@ -55,8 +58,11 @@ internal fun MPVActivity.applyOpenSubtitlesDownload(subtitle: File, result: Open
     } else if (pendingOpenSubtitlesAdds.add(subtitle)) {
         val flags = if (result.hearingImpaired) "select+hearing-impaired" else "select"
         val language = result.language.takeIf { Regex("[a-z]{2,3}(?:-[a-z]{2,3})?").matches(it) }.orEmpty()
-        mpvCommand(arrayOf("async", "sub-add", subtitle.absolutePath, flags,
+        val requestId = openSubtitlesCommandIds.getAndIncrement()
+        pendingOpenSubtitlesCommands[requestId] = subtitle
+        val status = mpvCommandAsync(requestId, arrayOf("sub-add", subtitle.absolutePath, flags,
             openSubtitlesTrackTitle(result), language))
+        if (status < 0) completeOpenSubtitlesAdd(requestId, status.toLong())
     }
 }
 
@@ -75,6 +81,7 @@ internal fun MPVActivity.releaseOpenSubtitlesPlaybackFiles() {
     openSubtitlesPlaybackFiles.clear()
     openSubtitlesPlaybackDownloads.clear()
     pendingOpenSubtitlesAdds.clear()
+    pendingOpenSubtitlesCommands.clear()
     pendingOpenSubtitlesRemoveCommands.clear()
     pendingOpenSubtitlesRemovals.forEach { discardOpenSubtitlesDownload(it, cacheDir) }
     pendingOpenSubtitlesRemovals.clear()

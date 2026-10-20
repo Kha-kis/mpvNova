@@ -39,6 +39,12 @@ internal class MpvActivityEventObserver(private val activity: MPVActivity) : Mpv
     }
 
     override fun eventProperty(property: String, value: Long): Unit = with(activity) {
+        if (property.startsWith("command-result/")) {
+            val requestId = property.substringAfter('/').toLongOrNull() ?: return
+            // Cache cleanup must survive the foreground UI queue being cleared on pause.
+            runOnUiThread { completeOpenSubtitlesAdd(requestId, value) }
+            return
+        }
         if (property == END_FILE_REASON_PROPERTY) {
             pendingEndFileReason = value
             return

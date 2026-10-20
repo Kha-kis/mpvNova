@@ -28,6 +28,7 @@ extern "C" {
     jni_func(void, destroy);
 
     jni_func(void, command, jobjectArray jarray);
+    jni_func(jint, commandAsync, jlong request_id, jobjectArray jarray);
     jni_func(jlong, loadFile, jstring jpath);
 };
 
@@ -100,7 +101,7 @@ jni_func(void, destroy) {
     g_mpv = NULL;
 }
 
-jni_func(void, command, jobjectArray jarray) {
+static int run_command(JNIEnv *env, jobjectArray jarray, uint64_t request_id) {
     CHECK_MPV_INIT();
 
     const char *arguments[128] = {0};
@@ -116,7 +117,17 @@ jni_func(void, command, jobjectArray jarray) {
         env->DeleteLocalRef(argument);
     }
 
-    mpv_command(g_mpv, arguments);
+    return request_id ? mpv_command_async(g_mpv, request_id, arguments) : mpv_command(g_mpv, arguments);
+}
+
+jni_func(void, command, jobjectArray jarray) {
+    run_command(env, jarray, 0);
+}
+
+jni_func(jint, commandAsync, jlong request_id, jobjectArray jarray) {
+    if (request_id <= 0)
+        return MPV_ERROR_INVALID_PARAMETER;
+    return run_command(env, jarray, static_cast<uint64_t>(request_id));
 }
 
 jni_func(jlong, loadFile, jstring jpath) {
