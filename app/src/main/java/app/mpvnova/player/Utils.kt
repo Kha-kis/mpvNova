@@ -264,6 +264,7 @@ private fun storageVolumeDisplayName(volume: StorageVolume, context: Context, ro
     }
 }
 
+@Suppress("TooManyFunctions")
 internal object Utils {
     @Volatile
     private var bundledAssetsReady = false
@@ -470,6 +471,22 @@ internal object Utils {
     fun isLikelyMediaPath(name: String): Boolean {
         val ext = name.substringAfterLast('.', "").lowercase()
         return MEDIA_EXTENSIONS.contains(ext)
+    }
+
+    /** Constructs a memory:// URL with an M3U playlist from the given entries. */
+    fun makeMemoryPlaylist(entries: Iterable<String>): String {
+        val lines = mutableListOf("memory://#EXTM3U")
+        val badChars = listOf("\r", "\n", "\u0000")
+        for (entry in entries) {
+            if (entry.isEmpty())
+                continue
+            if (entry.startsWith("#"))
+                throw IllegalArgumentException("Playlist entry cannot start with #")
+            if (entry.findAnyOf(badChars) != null)
+                throw IllegalArgumentException("Playlist entry contains illegal character")
+            lines += entry
+        }
+        return lines.joinToString("\n", "", "\n")
     }
 
     class AudioMetadata {
