@@ -306,12 +306,12 @@ public class DocumentPickerFragment extends AbstractFilePickerFragment<Uri> {
             return uri.equals(((Document) o).uri);
         }
 
-        // Sort directories before files, alphabetically otherwise
+        // Sort directories before files, in natural order otherwise
         @Override
         public int compareTo(Document other) {
             if (isDir != other.isDir)
                 return other.isDir ? 1 : -1;
-            return displayName.compareToIgnoreCase(other.displayName);
+            return AbstractFilePickerFragment.naturalCompare(displayName, other.displayName);
         }
     }
 

@@ -413,7 +413,7 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
      * Compare two files to determine their relative sort order. This follows the usual
      * comparison interface. Override to determine your own custom sort order.
      * <p/>
-     * Default behaviour is to place directories before files, but sort them alphabetically
+     * Default behaviour is to place directories before files, but sort them in natural order
      * otherwise.
      * Runs on the loader's worker thread; overrides must not access views or activity contexts.
      *
@@ -426,7 +426,7 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
         final boolean ldir = lhs.isDirectory(), rdir = rhs.isDirectory();
         if (ldir != rdir)
             return rdir ? 1 : -1;
-        return lhs.getName().compareToIgnoreCase(rhs.getName());
+        return naturalCompare(lhs.getName(), rhs.getName());
     }
 
     private static final String TAG = "mpv";
