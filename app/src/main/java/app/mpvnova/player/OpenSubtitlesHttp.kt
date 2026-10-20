@@ -84,7 +84,7 @@ internal object OpenSubtitlesCache {
     private val records = java.util.concurrent.ConcurrentHashMap<String, Record>()
     private val reservations = mutableMapOf<String, Int>()
     private val activePartials = mutableSetOf<String>()
-    private val name = Regex("opensubtitles--?\\d+\\.(?:srt|ass|ssa|vtt)")
+    private val name = Regex("opensubtitles--?\\d+\\.(?:srt|ass|ssa|vtt|sub|mpl)")
 
     fun reserve(cacheDir: File): OpenSubtitlesCacheSlot {
         val root = cacheDir.canonicalFile
@@ -481,6 +481,8 @@ private fun subtitleExtension(operation: OpenSubtitlesCall, file: File, fileName
     operation.checkActive()
     if (text.isEmpty() || text.any { it < ' ' && it !in "\t\r\n" })
         fail(OpenSubtitlesFailureReason.UNSUPPORTED_SUBTITLE)
+    val legacyExtension = legacySubtitleExtension(text)
+    if (legacyExtension != null) return legacyExtension
     if (text.startsWith("<") || text.startsWith("{"))
         fail(OpenSubtitlesFailureReason.UNSUPPORTED_SUBTITLE)
     if (text.startsWith("[") && !text.startsWith("[Script Info]", ignoreCase = true))
@@ -507,3 +509,9 @@ private fun isAssSubtitle(text: String): Boolean =
 
 private fun isSrtSubtitle(text: String): Boolean =
     Regex("(?m)^\\s*\\d{1,3}:\\d{2}:\\d{2},\\d{3}\\s+-->\\s+\\d{1,3}:\\d{2}:\\d{2},\\d{3}").containsMatchIn(text)
+
+private fun legacySubtitleExtension(text: String): String? = when {
+    Regex("\\A\\{[0-9]{1,10}\\}\\{[0-9]{1,10}\\}[^\\r\\n]+(?:\\r?\\n|$)").containsMatchIn(text) -> "sub"
+    Regex("\\A\\[[0-9]{1,10}\\]\\[[0-9]{1,10}\\][^\\r\\n]+(?:\\r?\\n|$)").containsMatchIn(text) -> "mpl"
+    else -> null
+}
