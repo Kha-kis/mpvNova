@@ -355,3 +355,24 @@ index 0000000000..b973cc84b6
 +
 +// Read the startup FEL preference without exposing the decoder option struct.
 +bool mp_vd_lavc_dovi_fel_enabled(struct mpv_global *global);
+diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
+index 7b74d10..06237c0 100644
+--- a/filters/f_enhancement_pair.c
++++ b/filters/f_enhancement_pair.c
+@@ -224,6 +224,16 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
+     mp_filter_add_pin(f, MP_PIN_IN,  "in");
+     mp_filter_add_pin(f, MP_PIN_OUT, "out");
+ 
++    // The enhancement stream is decoded by a child of this filter. Keep the
++    // base stream's hardware decoding intact, but decode the EL in software:
++    // some Android devices cannot run both HEVC decoders at once.
++    struct mp_stream_info *parent_info = mp_filter_find_stream_info(f);
++    struct mp_stream_info *el_info = talloc_zero(f, struct mp_stream_info);
++    if (parent_info)
++        *el_info = *parent_info;
++    el_info->force_swdec = true;
++    f->stream_info = el_info;
++
+     struct priv *p = f->priv;
+     p->el_dec = mp_decoder_wrapper_create(f, el_sh);
+     if (p->el_dec)
