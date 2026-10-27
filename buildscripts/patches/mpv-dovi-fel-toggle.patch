@@ -376,3 +376,15 @@ index 7b74d10..06237c0 100644
      struct priv *p = f->priv;
      p->el_dec = mp_decoder_wrapper_create(f, el_sh);
      if (p->el_dec)
+diff --git a/filters/f_decoder_wrapper.c b/filters/f_decoder_wrapper.c
+index 2397c85..112bcfa 100644
+--- a/filters/f_decoder_wrapper.c
++++ b/filters/f_decoder_wrapper.c
+@@ -1418,6 +1418,7 @@ struct mp_decoder_wrapper *mp_decoder_wrapper_create(struct mp_filter *parent,
+             p->stream_info = (struct mp_stream_info){
+                 .dr_vo = sinfo->dr_vo,
+                 .hwdec_devs = sinfo->hwdec_devs,
++                .force_swdec = sinfo->force_swdec,
+             };
+         }
+ 

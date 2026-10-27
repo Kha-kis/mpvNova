@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        arch: [armv7l, arm64, x86, x86_64]
+        arch: [arm64]
     steps:
       - uses: actions/checkout@v6
 
@@ -129,6 +129,7 @@ jobs:
           path: collected/*.so
 
   bundle:
+    if: false # This experimental branch only packages arm64 for the onn. test.
     runs-on: ubuntu-24.04
     needs: build
     steps:
