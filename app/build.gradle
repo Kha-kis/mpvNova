@@ -58,6 +58,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = '.feltest'
+        }
         release {
             minifyEnabled = true
             shrinkResources = true
