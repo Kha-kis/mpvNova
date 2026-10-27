@@ -95,6 +95,37 @@ index cfe27185da..5d2a247e24 100644
      const AVBitStreamFilter *def = av_bsf_get_by_name("dovi_split");
      if (!def) {
          MP_WARN(demuxer, "Dolby Vision EL: 'dovi_split' BSF not available in "
+@@ -98,10 +104,29 @@ struct mp_dovi_split *mp_dovi_split_create(struct demuxer *demuxer,
+     el->codec->fps = bl->codec->fps;
+     el->codec->disp_w = par_out->width;
+     el->codec->disp_h = par_out->height;
+-    if (par_out->extradata_size > 0) {
++    // If hvcE is absent, dovi_split retains the BL's codec private data.
++    // Passing those 4K parameter sets to the 1080p EL decoder can make
++    // MediaCodec.configure fail. Let the in-band EL VPS/SPS/PPS initialize it.
++    bool el_has_own_extradata = par_out->extradata_size > 0 &&
++        (par_out->extradata_size != s->bsf->par_in->extradata_size ||
++         memcmp(par_out->extradata, s->bsf->par_in->extradata,
++                par_out->extradata_size) != 0);
++    if (el_has_own_extradata) {
+         el->codec->extradata = talloc_memdup(el->codec, par_out->extradata,
+                                              par_out->extradata_size);
+         el->codec->extradata_size = par_out->extradata_size;
++    } else {
++        // Keep only the hvcC length-size header. This makes FFmpeg's
++        // hevc_mp4toannexb filter convert EL packets without passing BL
++        // parameter sets to MediaCodec as the EL's csd-0.
++        if (par_out->extradata_size >= 23 && par_out->extradata[0] == 1) {
++            el->codec->extradata = talloc_memdup(el->codec,
++                                                 par_out->extradata, 23);
++            ((uint8_t *)el->codec->extradata)[22] = 0;
++            el->codec->extradata_size = 23;
++        }
++        MP_VERBOSE(demuxer, "Dolby Vision EL: no separate codec private data; "
++                   "using in-band parameter sets.\n");
+     }
+     for (int i = 0; i < par_out->nb_coded_side_data; i++) {
+         const AVPacketSideData *sd = &par_out->coded_side_data[i];
 diff --git a/video/decode/vd_lavc.c b/video/decode/vd_lavc.c
 index 6ecb233b49..76e9deab4a 100644
 --- a/video/decode/vd_lavc.c
