@@ -1,3 +1,18 @@
+diff --git a/libavcodec/mediacodecdec_common.c b/libavcodec/mediacodecdec_common.c
+--- a/libavcodec/mediacodecdec_common.c
++++ b/libavcodec/mediacodecdec_common.c
+@@ -775,6 +775,11 @@ static int mediacodec_dec_get_video_codec(AVCodecContext *avctx, MediaCodecDecContext *s,
+     profile = ff_AMediaCodecProfile_getProfileFromAVCodecContext(avctx);
+     if (profile < 0) {
+         av_log(avctx, AV_LOG_WARNING, "Unsupported or unknown profile\n");
+     }
++    if (!strcmp(mime, "video/dolby-vision")) {
++        int32_t dv_profile;
++        if (ff_AMediaFormat_getInt32(format, "profile", &dv_profile))
++            profile = dv_profile;
++    }
+ 
+     s->codec_name = ff_AMediaCodecList_getCodecNameByType(mime, profile, 0, avctx);
 diff --git a/libavcodec/mediacodecdec.c b/libavcodec/mediacodecdec.c
 --- a/libavcodec/mediacodecdec.c
 +++ b/libavcodec/mediacodecdec.c
