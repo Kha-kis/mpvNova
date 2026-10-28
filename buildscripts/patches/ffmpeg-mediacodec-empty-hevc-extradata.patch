@@ -1,0 +1,16 @@
+diff --git a/libavcodec/mediacodecdec.c b/libavcodec/mediacodecdec.c
+index bc176d8..3eec76d 100644
+--- a/libavcodec/mediacodecdec.c
++++ b/libavcodec/mediacodecdec.c
+@@ -197,6 +197,11 @@ static int hevc_set_extradata(AVCodecContext *avctx, FFAMediaFormat *format)
+     int i;
+     int ret;
+ 
++    // In-band parameter sets can initialize HEVC streams without extradata.
++    // The parser below expects a non-NULL buffer, so leave csd-0 unset.
++    if (!avctx->extradata || avctx->extradata_size <= 0)
++        return 0;
++
+     HEVCParamSets ps = {0};
+     HEVCSEI sei = {0};
+ 

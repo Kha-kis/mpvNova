@@ -24,6 +24,13 @@ fi
 if [ ! -d ffmpeg ]; then
 	git clone --depth=1 -b "$v_ci_ffmpeg" https://github.com/FFmpeg/FFmpeg ffmpeg
 fi
+ffmpeg_patch="$PWD/../patches/ffmpeg-mediacodec-empty-hevc-extradata.patch"
+if git -C ffmpeg apply --check "$ffmpeg_patch" 2>/dev/null; then
+	git -C ffmpeg apply "$ffmpeg_patch"
+elif ! git -C ffmpeg apply --reverse --check "$ffmpeg_patch" 2>/dev/null; then
+	echo >&2 "FFmpeg MediaCodec patch does not match the dependency checkout."
+	exit 1
+fi
 
 # freetype2
 [ ! -d freetype2 ] && git clone --recurse-submodules https://gitlab.freedesktop.org/freetype/freetype.git freetype2 -b VER-${v_freetype//./-}
