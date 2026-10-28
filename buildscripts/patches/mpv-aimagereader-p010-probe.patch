@@ -1,5 +1,5 @@
 diff --git a/video/out/hwdec/hwdec_aimagereader.c b/video/out/hwdec/hwdec_aimagereader.c
-index 55883c0..1038739 100644
+index 55883c0..fabcdc7 100644
 --- a/video/out/hwdec/hwdec_aimagereader.c
 +++ b/video/out/hwdec/hwdec_aimagereader.c
 @@ -35,6 +35,7 @@
@@ -57,7 +57,7 @@ index 55883c0..1038739 100644
 +    // Experimental onn. 4K Pro FEL path: request a 10-bit output surface.
 +    // The P010 ImageReader requires the decoded dimensions on this device.
 +    media_status_t ret = p->AImageReader_newWithUsage(3840, 2160,
-+        0x36, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE,
++        0x36, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
          max_images, &p->reader);
      if (ret != AMEDIA_OK) {
          MP_ERR(hw, "newWithUsage failed: %d\n", ret);
