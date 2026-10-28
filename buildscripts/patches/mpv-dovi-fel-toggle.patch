@@ -220,7 +220,7 @@ index 2397c85..4e39529 100644
          }
  
 diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
-index 7b74d10..8f24ee3 100644
+index 7b74d10..6688f69 100644
 --- a/filters/f_enhancement_pair.c
 +++ b/filters/f_enhancement_pair.c
 @@ -29,7 +29,7 @@
@@ -236,14 +236,14 @@ index 7b74d10..8f24ee3 100644
      mp_filter_add_pin(f, MP_PIN_IN,  "in");
      mp_filter_add_pin(f, MP_PIN_OUT, "out");
  
-+    // The base layer owns the renderer's AImageReader surface. Decode the
-+    // enhancement layer to copied frames so a second MediaCodec instance does
-+    // not try to connect to that same surface.
++    // The base layer owns the renderer's AImageReader surface. This decoder's
++    // copied MediaCodec output is 8-bit NV12, which loses the 10-bit FEL
++    // residual. Decode the smaller enhancement layer in software instead.
 +    struct mp_stream_info *parent_info = mp_filter_find_stream_info(f);
 +    struct mp_stream_info *el_info = talloc_zero(f, struct mp_stream_info);
 +    if (parent_info)
 +        *el_info = *parent_info;
-+    el_info->force_hwdec_copy = true;
++    el_info->force_swdec = true;
 +    f->stream_info = el_info;
 +
      struct priv *p = f->priv;
