@@ -77,6 +77,7 @@ jobs:
       - name: Verify native configuration and patches (${{ matrix.arch }})
         run: |
           grep -qx '#define HAVE_LIBCURL 1' "buildscripts/deps/mpv/_build_${{ matrix.arch }}/config.h"
+          git -C buildscripts/deps/ffmpeg apply --reverse ../../patches/ffmpeg-mediacodec-explicit-dv.patch
           git -C buildscripts/deps/ffmpeg apply --reverse ../../patches/ffmpeg-mediacodec-empty-hevc-extradata.patch
           git -C buildscripts/deps/ffmpeg diff --exit-code
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-dovi-fel-toggle.patch
