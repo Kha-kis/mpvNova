@@ -220,7 +220,7 @@ index 2397c85..4e39529 100644
          }
  
 diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
-index 7b74d10..6688f69 100644
+index 7b74d10..18afa81 100644
 --- a/filters/f_enhancement_pair.c
 +++ b/filters/f_enhancement_pair.c
 @@ -29,7 +29,7 @@
@@ -232,7 +232,20 @@ index 7b74d10..6688f69 100644
  
  struct priv {
      struct mp_decoder_wrapper *el_dec;
-@@ -224,6 +224,16 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
+@@ -152,6 +152,12 @@ static void pair_process(struct mp_filter *f)
+             struct mp_image *el = take_head(&p->el_pending, &p->num_el_pending);
+             take_head(&p->bl_pending, &p->num_bl_pending);
+             inherit_dovi_from_el(bl, el);
++            if (bl->pts >= 82.8 && bl->pts < 82.9)
++                MP_INFO(f, "FEL probe pts=%.6f bl_dovi=%p el_dovi=%p "
++                           "bl_no_el=%d bl_repr=%d el_fmt=%d\n",
++                        bl->pts, bl->dovi, el->dovi,
++                        bl->params.no_enhancement_layer, bl->params.repr.sys,
++                        el->imgfmt);
+             if (bl->params.no_enhancement_layer) {
+                 talloc_free(el);
+             } else {
+@@ -224,6 +230,16 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
      mp_filter_add_pin(f, MP_PIN_IN,  "in");
      mp_filter_add_pin(f, MP_PIN_OUT, "out");
  
