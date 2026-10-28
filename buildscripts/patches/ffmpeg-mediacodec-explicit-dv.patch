@@ -1,0 +1,52 @@
+diff --git a/libavcodec/mediacodecdec.c b/libavcodec/mediacodecdec.c
+--- a/libavcodec/mediacodecdec.c
++++ b/libavcodec/mediacodecdec.c
+@@ -59,6 +59,8 @@ typedef struct MediaCodecH264DecContext {
+     int use_ndk_codec;
+     // Ref. MediaFormat KEY_OPERATING_RATE
+     int operating_rate;
++    /* Explicit experiment: 0 retains HEVC; 7 or 8 selects Android DV. */
++    int dolby_vision_profile;
+ } MediaCodecH264DecContext;
+ 
+ static av_cold int mediacodec_decode_close(AVCodecContext *avctx)
+@@ -325,6 +332,14 @@ static av_cold int mediacodec_decode_init(AVCodecContext *avctx)
+         goto done;
+     }
+ 
++    if (s->dolby_vision_profile &&
++        (avctx->codec_id != AV_CODEC_ID_HEVC ||
++         (s->dolby_vision_profile != 7 && s->dolby_vision_profile != 8))) {
++        av_log(avctx, AV_LOG_ERROR, "Dolby Vision MediaCodec profile must be 7 or 8 on HEVC\n");
++        ret = AVERROR(EINVAL);
++        goto done;
++    }
++
+     switch (avctx->codec_id) {
+ #if CONFIG_AV1_MEDIACODEC_DECODER
+     case AV_CODEC_ID_AV1:
+@@ -346,11 +361,14 @@ static av_cold int mediacodec_decode_init(AVCodecContext *avctx)
+ #endif
+ #if CONFIG_HEVC_MEDIACODEC_DECODER
+     case AV_CODEC_ID_HEVC:
+-        codec_mime = "video/hevc";
++        codec_mime = s->dolby_vision_profile ? "video/dolby-vision" : "video/hevc";
+ 
+         ret = hevc_set_extradata(avctx, format);
+         if (ret < 0)
+             goto done;
++        if (s->dolby_vision_profile)
++            ff_AMediaFormat_setInt32(format, "profile",
++                s->dolby_vision_profile == 7 ? 0x80 : 0x100);
+         break;
+ #endif
+ #if CONFIG_MPEG2_MEDIACODEC_DECODER
+@@ -600,6 +618,8 @@ static const AVOption ff_mediacodec_vdec_options[] = {
+                    OFFSET(use_ndk_codec), AV_OPT_TYPE_BOOL, {.i64 = -1}, -1, 1, VD },
+     { "operating_rate", "The desired operating rate that the codec will need to operate at, zero for unspecified",
+             OFFSET(operating_rate), AV_OPT_TYPE_INT, {.i64 = 0}, 0, INT_MAX, VD },
++    { "dolby_vision_profile", "Select Android Dolby Vision MIME for an HEVC Dolby Vision track (7 or 8; 0 keeps HEVC)",
++            OFFSET(dolby_vision_profile), AV_OPT_TYPE_INT, {.i64 = 0}, 0, 8, VD },
+     { NULL }
+ };
+ 
