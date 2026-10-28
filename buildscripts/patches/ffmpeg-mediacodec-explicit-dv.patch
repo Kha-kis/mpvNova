@@ -1,7 +1,7 @@
 diff --git a/libavcodec/mediacodecdec_common.c b/libavcodec/mediacodecdec_common.c
 --- a/libavcodec/mediacodecdec_common.c
 +++ b/libavcodec/mediacodecdec_common.c
-@@ -775,6 +775,11 @@ static int mediacodec_dec_get_video_codec(AVCodecContext *avctx, MediaCodecDecContext *s,
+@@ -775,7 +775,18 @@ static int mediacodec_dec_get_video_codec(AVCodecContext *avctx, MediaCodecDecContext *s,
      profile = ff_AMediaCodecProfile_getProfileFromAVCodecContext(avctx);
      if (profile < 0) {
          av_log(avctx, AV_LOG_WARNING, "Unsupported or unknown profile\n");
@@ -13,6 +13,13 @@ diff --git a/libavcodec/mediacodecdec_common.c b/libavcodec/mediacodecdec_common
 +    }
  
      s->codec_name = ff_AMediaCodecList_getCodecNameByType(mime, profile, 0, avctx);
++    if (!s->codec_name && !strcmp(mime, "video/dolby-vision") && profile == 0x80) {
++        s->codec_name = ff_AMediaCodecList_getCodecNameByType(mime, 0x100, 0, avctx);
++        if (s->codec_name)
++            av_log(avctx, AV_LOG_WARNING,
++                   "Profile 7 not advertised; trying Profile 8 Dolby Vision codec %s\n", s->codec_name);
++    }
+     if (!s->codec_name) {
 diff --git a/libavcodec/mediacodecdec.c b/libavcodec/mediacodecdec.c
 --- a/libavcodec/mediacodecdec.c
 +++ b/libavcodec/mediacodecdec.c
