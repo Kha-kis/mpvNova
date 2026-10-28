@@ -220,9 +220,18 @@ index 2397c85..4e39529 100644
          }
  
 diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
-index 7b74d10..3cb2525 100644
+index 7b74d10..8f24ee3 100644
 --- a/filters/f_enhancement_pair.c
 +++ b/filters/f_enhancement_pair.c
+@@ -29,7 +29,7 @@
+ #define PTS_MATCH_TOLERANCE 1e-6
+ 
+ // Number of frames hold for matching.
+-#define QUEUE_MAX MP_ENHANCEMENT_PAIR_QUEUE_MAX
++#define QUEUE_MAX 2
+ 
+ struct priv {
+     struct mp_decoder_wrapper *el_dec;
 @@ -224,6 +224,16 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
      mp_filter_add_pin(f, MP_PIN_IN,  "in");
      mp_filter_add_pin(f, MP_PIN_OUT, "out");
