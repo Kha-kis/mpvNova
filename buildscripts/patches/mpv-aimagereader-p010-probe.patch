@@ -1,12 +1,18 @@
 diff --git a/video/out/hwdec/hwdec_aimagereader.c b/video/out/hwdec/hwdec_aimagereader.c
-index 55883c0..ab03c94 100644
+index 55883c0..fabcdc7 100644
 --- a/video/out/hwdec/hwdec_aimagereader.c
 +++ b/video/out/hwdec/hwdec_aimagereader.c
-@@ -37,2 +37,3 @@ typedef void *EGLImageKHR;
+@@ -35,6 +35,7 @@
+ typedef void *GLeglImageOES;
+ typedef void *EGLImageKHR;
  #define EGL_NATIVE_BUFFER_ANDROID 0x3140
 +#define GL_TEXTURE_BINDING_EXTERNAL_OES 0x8D67
  
-@@ -62,2 +63,7 @@ struct priv {
+ struct priv_owner {
+     struct mp_hwdec_ctx hwctx;
+@@ -60,6 +61,11 @@ struct priv {
+     struct mp_log *log;
+ 
      GLuint gl_texture;
 +    GLuint yuv_texture;
 +    GLuint yuv_fbo;
@@ -14,7 +20,11 @@ index 55883c0..ab03c94 100644
 +    GLuint yuv_vao;
 +    bool logged_format;
      AImage *image;
-@@ -77,2 +83,20 @@ struct priv {
+     EGLImageKHR egl_image;
+ 
+@@ -75,6 +81,24 @@ struct priv {
+     void (EGLAPIENTRY *EGLImageTargetTexture2DOES)(GLenum, GLeglImageOES);
+ };
  
 +static GLuint compile_shader(GL *gl, GLenum type, const char *source,
 +                             struct mp_log *log)
@@ -35,7 +45,11 @@ index 55883c0..ab03c94 100644
 +}
 +
  static const struct { const char *symbol; int offset; } lib_functions[] = {
-@@ -160,5 +184,6 @@ static int init(struct ra_hwdec *hw)
+     { "AImageReader_newWithUsage", offsetof(struct priv_owner, AImageReader_newWithUsage) },
+     { "AImageReader_getWindow", offsetof(struct priv_owner, AImageReader_getWindow) },
+@@ -158,9 +182,10 @@ static int init(struct ra_hwdec *hw)
+     // The documentation recommends a margin of 2 for acquireLatestImage to
+     // work correctly.
      const int max_images = 3;
 -    // dummy dimensions, AImageReader only transports hardware buffers
 -    media_status_t ret = p->AImageReader_newWithUsage(16, 16,
@@ -45,14 +59,22 @@ index 55883c0..ab03c94 100644
 +    media_status_t ret = p->AImageReader_newWithUsage(3840, 2160,
 +        0x36, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
          max_images, &p->reader);
-@@ -266,3 +291,5 @@ static int mapper_init(struct ra_hwdec_mapper *mapper)
+     if (ret != AMEDIA_OK) {
+         MP_ERR(hw, "newWithUsage failed: %d\n", ret);
+@@ -264,7 +289,9 @@ static int mapper_init(struct ra_hwdec_mapper *mapper)
+ 
+     mapper->dst_params = mapper->src_params;
      mapper->dst_params.imgfmt = IMGFMT_RGB0;
 -    mapper->dst_params.hw_subfmt = 0;
 +    // The output texture carries Y, Cb, Cr in RGB channels at 10-bit
 +    // precision. Tell vo_gpu_next to preserve the source YUV representation.
 +    mapper->dst_params.hw_subfmt = IMGFMT_P010;
  
-@@ -277,2 +304,48 @@ static int mapper_init(struct ra_hwdec_mapper *mapper)
+     // texture creation
+     gl->GenTextures(1, &p->gl_texture);
+@@ -275,21 +302,62 @@ static int mapper_init(struct ra_hwdec_mapper *mapper)
+     gl->TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+     gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
  
 +    static const char *vertex_source =
 +        "#version 300 es\n"
@@ -101,7 +123,9 @@ index 55883c0..ab03c94 100644
 +    gl->GenVertexArrays(1, &p->yuv_vao);
 +
      struct ra_tex_params params = {
-@@ -282,12 +355,7 @@ static int mapper_init(struct ra_hwdec_mapper *mapper)
+         .dimensions = 2,
+         .w = mapper->src_params.w,
+         .h = mapper->src_params.h,
          .d = 1,
 -        .format = ra_find_unorm_format(mapper->ra, 1, 4),
 +        .format = format,
@@ -116,14 +140,22 @@ index 55883c0..ab03c94 100644
 -    mapper->tex[0] = ra_create_wrapped_tex(mapper->ra, &params, p->gl_texture);
 +    mapper->tex[0] = ra_create_wrapped_tex(mapper->ra, &params, p->yuv_texture);
      if (!mapper->tex[0])
-@@ -310,2 +378,6 @@ static void mapper_uninit(struct ra_hwdec_mapper *mapper)
+         return -1;
+ 
+@@ -308,6 +376,10 @@ static void mapper_uninit(struct ra_hwdec_mapper *mapper)
+     p->gl_texture = 0;
+ 
      ra_tex_free(mapper->ra, &mapper->tex[0]);
 +    gl->DeleteTextures(1, &p->yuv_texture);
 +    gl->DeleteFramebuffers(1, &p->yuv_fbo);
 +    gl->DeleteVertexArrays(1, &p->yuv_vao);
 +    gl->DeleteProgram(p->yuv_program);
  
-@@ -388,2 +460,7 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+     mp_mutex_destroy(&p->lock);
+     mp_cond_destroy(&p->cond);
+@@ -386,6 +458,11 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+     // Update texture size since it may differ
+     AHardwareBuffer_Desc d;
      o->AHardwareBuffer_describe(hwbuf, &d);
 +    if (!p->logged_format) {
 +        MP_INFO(p, "FEL P010 reader buffer format=%u size=%ux%u\n",
@@ -131,7 +163,11 @@ index 55883c0..ab03c94 100644
 +        p->logged_format = true;
 +    }
      if (mapper->tex[0]->params.w != d.width || mapper->tex[0]->params.h != d.height) {
-@@ -408,2 +485,50 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+         MP_VERBOSE(p, "Texture dimensions changed to %dx%d\n", d.width, d.height);
+         mapper->tex[0]->params.w = d.width;
+@@ -406,6 +483,44 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+     p->EGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, p->egl_image);
+     gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
  
 +    GLint old_fbo = 0, old_program = 0, old_vao = 0, old_active = 0;
 +    GLint old_external = 0, old_viewport[4] = {0};
@@ -171,14 +207,31 @@ index 55883c0..ab03c94 100644
 +        return -1;
 +    }
 +
-+    // The YUV copy has its own texture. Do not retain this large decoder
-+    // surface until the next frame while the limited CMA pool is under load.
-+    // Finish is deliberately conservative for this memory-lifetime probe;
-+    // replace it with a fence only if the lifetime experiment succeeds.
-+    gl->Finish();
-+    p->DestroyImageKHR(eglGetCurrentDisplay(), p->egl_image);
-+    p->egl_image = 0;
-+    o->AImage_delete(p->image);
-+    p->image = NULL;
-+
      return 0;
+ }
+ 
+diff --git a/video/out/vo_gpu_next.c b/video/out/vo_gpu_next.c
+index bd3d1aa..257d9c3 100644
+--- a/video/out/vo_gpu_next.c
++++ b/video/out/vo_gpu_next.c
+@@ -999,7 +999,19 @@ static bool map_frame(pl_gpu gpu, pl_tex *tex, const struct pl_source_frame *src
+         par = p->hwdec.mapper->dst_params;
+     }
+ 
+-    mp_image_params_guess_csp(&par);
++    if (par.hw_subfmt == IMGFMT_P010 && fp->hwdec) {
++        // The experimental Android mapper stores raw YCbCr values in an
++        // rgba16f texture. Guess colorspace as P010 so RGB0 does not erase
++        // Dolby Vision, then describe the already-normalized 10-bit samples.
++        par.imgfmt = IMGFMT_P010;
++        mp_image_params_guess_csp(&par);
++        par.imgfmt = IMGFMT_RGB0;
++        par.repr.bits = (struct pl_bit_encoding) {
++            .sample_depth = 10, .color_depth = 10,
++        };
++    } else {
++        mp_image_params_guess_csp(&par);
++    }
+ 
+     *frame = (struct pl_frame) {
+         .color = par.color,
