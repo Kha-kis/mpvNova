@@ -207,19 +207,53 @@ index cfe2718..84c8fe1 100644
          new_demux_packet_from_avpacket(s->demuxer->packet_pool, s->staging);
      if (dp) {
 diff --git a/filters/f_decoder_wrapper.c b/filters/f_decoder_wrapper.c
-index 2397c85..112bcfa 100644
+index 2397c85..4e39529 100644
 --- a/filters/f_decoder_wrapper.c
 +++ b/filters/f_decoder_wrapper.c
-@@ -1418,6 +1418,7 @@ struct mp_decoder_wrapper *mp_decoder_wrapper_create(struct mp_filter *parent,
+@@ -1418,6 +1418,8 @@ struct mp_decoder_wrapper *mp_decoder_wrapper_create(struct mp_filter *parent,
              p->stream_info = (struct mp_stream_info){
                  .dr_vo = sinfo->dr_vo,
                  .hwdec_devs = sinfo->hwdec_devs,
 +                .force_swdec = sinfo->force_swdec,
++                .force_hwdec_copy = sinfo->force_hwdec_copy,
              };
          }
  
+diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
+index 7b74d10..3cb2525 100644
+--- a/filters/f_enhancement_pair.c
++++ b/filters/f_enhancement_pair.c
+@@ -224,6 +224,16 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
+     mp_filter_add_pin(f, MP_PIN_IN,  "in");
+     mp_filter_add_pin(f, MP_PIN_OUT, "out");
+ 
++    // The base layer owns the renderer's AImageReader surface. Decode the
++    // enhancement layer to copied frames so a second MediaCodec instance does
++    // not try to connect to that same surface.
++    struct mp_stream_info *parent_info = mp_filter_find_stream_info(f);
++    struct mp_stream_info *el_info = talloc_zero(f, struct mp_stream_info);
++    if (parent_info)
++        *el_info = *parent_info;
++    el_info->force_hwdec_copy = true;
++    f->stream_info = el_info;
++
+     struct priv *p = f->priv;
+     p->el_dec = mp_decoder_wrapper_create(f, el_sh);
+     if (p->el_dec)
+diff --git a/filters/filter.h b/filters/filter.h
+index 5bf1e48..61fc463 100644
+--- a/filters/filter.h
++++ b/filters/filter.h
+@@ -408,6 +408,7 @@ struct mp_stream_info {
+     bool vflip;
+     bool rotate90;
+     bool force_swdec;
++    bool force_hwdec_copy;
+     struct vo *dr_vo; // for calling vo_get_image()
+ };
+ 
 diff --git a/video/decode/vd_lavc.c b/video/decode/vd_lavc.c
-index 6ecb233..76e9dea 100644
+index 6ecb233..0a1e8a7 100644
 --- a/video/decode/vd_lavc.c
 +++ b/video/decode/vd_lavc.c
 @@ -22,8 +22,10 @@
@@ -291,7 +325,25 @@ index 6ecb233..76e9dea 100644
      bool use_hwdec;
      struct hwdec_info hwdec; // valid only if use_hwdec==true
      bstr *attempted_hwdecs;
-@@ -724,6 +742,72 @@ static void reinit(struct mp_filter *vd)
+@@ -238,6 +256,7 @@ typedef struct lavc_ctx {
+     struct vo *vo;
+     struct mp_hwdec_devices *hwdec_devs;
+     bool force_swdec;
++    bool force_hwdec_copy;
+ 
+     // Wrapped AVHWDeviceContext* used for decoding.
+     AVBufferRef *hwdec_dev;
+@@ -511,7 +530,8 @@ static void select_and_set_hwdec(struct mp_filter *vd)
+     int num_hwdecs = 0;
+     add_all_hwdec_methods(&hwdecs, &num_hwdecs);
+ 
+-    char **hwdec_api = ctx->hwdec_opts->hwdec_api;
++    char *copy_api[] = {"mediacodec-copy", NULL};
++    char **hwdec_api = ctx->force_hwdec_copy ? copy_api : ctx->hwdec_opts->hwdec_api;
+     for (int i = 0; hwdec_api && hwdec_api[i]; i++) {
+         bstr opt = bstr0(hwdec_api[i]);
+ 
+@@ -724,6 +744,72 @@ static void reinit(struct mp_filter *vd)
      ctx->wait_for_keyframe = ctx->use_hwdec ? HWDEC_WAIT_KEYFRAME_COUNT : 0;
  }
  
@@ -364,7 +416,7 @@ index 6ecb233..76e9dea 100644
  static void init_avctx(struct mp_filter *vd)
  {
      vd_ffmpeg_ctx *ctx = vd->priv;
-@@ -867,6 +951,11 @@ static void init_avctx(struct mp_filter *vd)
+@@ -867,6 +953,11 @@ static void init_avctx(struct mp_filter *vd)
          goto error;
      }
  
@@ -376,7 +428,7 @@ index 6ecb233..76e9dea 100644
  #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
      if (avctx->width > 8192 || avctx->height > 8192) {
          MP_ERR(vd, "Frame size too big %" PRIu32 "x%" PRIu32 ".\n", avctx->width, avctx->height);
-@@ -903,6 +992,13 @@ static void reset_avctx(struct mp_filter *vd)
+@@ -903,6 +994,13 @@ static void reset_avctx(struct mp_filter *vd)
  
      if (ctx->avctx && avcodec_is_open(ctx->avctx))
          avcodec_flush_buffers(ctx->avctx);
@@ -390,7 +442,7 @@ index 6ecb233..76e9dea 100644
      ctx->flushing = false;
      ctx->hwdec_request_reinit = false;
      // Wait for the first keyframe after reset to ensure the decoder state is
-@@ -936,6 +1032,9 @@ static void uninit_avctx(struct mp_filter *vd)
+@@ -936,6 +1034,9 @@ static void uninit_avctx(struct mp_filter *vd)
      flush_all(vd);
      av_frame_free(&ctx->pic);
      mp_free_av_packet(&ctx->avpkt);
@@ -400,7 +452,7 @@ index 6ecb233..76e9dea 100644
      av_buffer_unref(&ctx->cached_hw_frames_ctx);
  
      avcodec_free_context(&ctx->avctx);
-@@ -1217,6 +1316,52 @@ static void handle_err(struct mp_filter *vd)
+@@ -1217,6 +1318,52 @@ static void handle_err(struct mp_filter *vd)
      }
  }
  
@@ -453,7 +505,7 @@ index 6ecb233..76e9dea 100644
  static int send_packet(struct mp_filter *vd, struct demux_packet *pkt)
  {
      vd_ffmpeg_ctx *ctx = vd->priv;
-@@ -1245,9 +1390,7 @@ static int send_packet(struct mp_filter *vd, struct demux_packet *pkt)
+@@ -1245,9 +1392,7 @@ static int send_packet(struct mp_filter *vd, struct demux_packet *pkt)
      if (avctx->skip_frame == AVDISCARD_ALL)
          return 0;
  
@@ -464,6 +516,14 @@ index 6ecb233..76e9dea 100644
      if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
          return ret;
  
+@@ -1529,6 +1674,7 @@ static struct mp_decoder *create(struct mp_filter *parent,
+         ctx->hwdec_devs = info->hwdec_devs;
+         ctx->vo = info->dr_vo;
+         ctx->force_swdec = info->force_swdec;
++        ctx->force_hwdec_copy = info->force_hwdec_copy;
+     }
+ 
+     reinit(vd);
 diff --git a/video/decode/vd_lavc.h b/video/decode/vd_lavc.h
 new file mode 100644
 index 0000000000..b973cc84b6
