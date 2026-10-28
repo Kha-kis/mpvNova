@@ -81,6 +81,7 @@ jobs:
           git -C buildscripts/deps/ffmpeg diff --exit-code
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-dovi-fel-toggle.patch
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-external-subtitle-url.patch
+          git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-aimagereader-p010-probe.patch
           git -C buildscripts/deps/mpv diff --exit-code
           test -z "$(git -C buildscripts/deps/mpv status --porcelain --untracked-files=no)"
 

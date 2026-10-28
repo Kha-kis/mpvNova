@@ -1,0 +1,27 @@
+diff --git a/video/out/hwdec/hwdec_aimagereader.c b/video/out/hwdec/hwdec_aimagereader.c
+index 55883c0..1ef9a15 100644
+--- a/video/out/hwdec/hwdec_aimagereader.c
++++ b/video/out/hwdec/hwdec_aimagereader.c
+@@ -158,9 +158,10 @@ static int init(struct ra_hwdec *hw)
+     // The documentation recommends a margin of 2 for acquireLatestImage to
+     // work correctly.
+     const int max_images = 3;
+-    // dummy dimensions, AImageReader only transports hardware buffers
+-    media_status_t ret = p->AImageReader_newWithUsage(16, 16,
+-        AIMAGE_FORMAT_PRIVATE, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE,
++    // Experimental onn. 4K Pro FEL path: request a 10-bit output surface.
++    // The P010 ImageReader requires the decoded dimensions on this device.
++    media_status_t ret = p->AImageReader_newWithUsage(3840, 2160,
++        0x36, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE,
+         max_images, &p->reader);
+     if (ret != AMEDIA_OK) {
+         MP_ERR(hw, "newWithUsage failed: %d\n", ret);
+@@ -386,6 +387,8 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+     // Update texture size since it may differ
+     AHardwareBuffer_Desc d;
+     o->AHardwareBuffer_describe(hwbuf, &d);
++    MP_INFO(p, "FEL P010 reader buffer format=%u size=%ux%u\n",
++            d.format, d.width, d.height);
+     if (mapper->tex[0]->params.w != d.width || mapper->tex[0]->params.h != d.height) {
+         MP_VERBOSE(p, "Texture dimensions changed to %dx%d\n", d.width, d.height);
+         mapper->tex[0]->params.w = d.width;
