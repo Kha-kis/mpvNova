@@ -72,7 +72,7 @@ index 1ea43ac..4f6ed08 100644
      struct sh_stream_group *group = talloc_zero(bl_sh, struct sh_stream_group);
      MP_TARRAY_APPEND(group, group->members, group->num_members, bl_sh);
 diff --git a/demux/dovi_split.c b/demux/dovi_split.c
-index cfe2718..84c8fe1 100644
+index cfe2718..17e0e9f 100644
 --- a/demux/dovi_split.c
 +++ b/demux/dovi_split.c
 @@ -15,6 +15,7 @@
@@ -168,7 +168,18 @@ index cfe2718..84c8fe1 100644
      const AVBitStreamFilter *def = av_bsf_get_by_name("dovi_split");
      if (!def) {
          MP_WARN(demuxer, "Dolby Vision EL: 'dovi_split' BSF not available in "
-@@ -98,10 +161,22 @@ struct mp_dovi_split *mp_dovi_split_create(struct demuxer *demuxer,
+@@ -83,7 +146,9 @@ struct mp_dovi_split *mp_dovi_split_create(struct demuxer *demuxer,
+     }
+     s->bsf->time_base_in = mp_get_codec_timebase(bl->codec);
+ 
+-    if (av_opt_set(s->bsf, "mode", "el", AV_OPT_SEARCH_CHILDREN) < 0)
++    // Keep the RPU with the software-decoded EL. The hardware BL decoder does
++    // not expose RPU frame metadata, so the pair filter inherits it from EL.
++    if (av_opt_set(s->bsf, "mode", "el_rpu", AV_OPT_SEARCH_CHILDREN) < 0)
+         goto fail;
+     if (av_bsf_init(s->bsf) < 0)
+         goto fail;
+@@ -98,10 +163,22 @@ struct mp_dovi_split *mp_dovi_split_create(struct demuxer *demuxer,
      el->codec->fps = bl->codec->fps;
      el->codec->disp_w = par_out->width;
      el->codec->disp_h = par_out->height;
@@ -192,7 +203,7 @@ index cfe2718..84c8fe1 100644
      }
      for (int i = 0; i < par_out->nb_coded_side_data; i++) {
          const AVPacketSideData *sd = &par_out->coded_side_data[i];
-@@ -188,6 +263,13 @@ struct demux_packet *mp_dovi_split_dispatch(struct mp_dovi_split *s,
+@@ -188,6 +265,13 @@ struct demux_packet *mp_dovi_split_dispatch(struct mp_dovi_split *s,
          return NULL;
      }
  
