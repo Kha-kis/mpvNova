@@ -21,6 +21,9 @@ cpu=armv7-a
 
 cpuflags=
 [[ "$ndk_triple" == "arm"* ]] && cpuflags="$cpuflags -mfpu=neon -mcpu=cortex-a8"
+if [[ "${MPV_FEL_A55_PROBE:-0}" == 1 && "$ndk_triple" == arm* ]]; then
+	cpuflags="-mfpu=neon -mcpu=cortex-a55"
+fi
 
 args=(
 	--target-os=android --enable-cross-compile

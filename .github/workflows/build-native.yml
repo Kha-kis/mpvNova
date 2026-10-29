@@ -19,6 +19,14 @@ on:
         options:
           - software
           - hardware-copy
+      fel_cpu_target:
+        description: Experimental 32-bit FFmpeg CPU target for the onn. V2
+        required: true
+        default: generic
+        type: choice
+        options:
+          - generic
+          - cortex-a55
 
 jobs:
   build:
@@ -57,6 +65,8 @@ jobs:
           ./include/download-deps.sh
 
       - name: Build native libraries (${{ matrix.arch }})
+        env:
+          MPV_FEL_A55_PROBE: ${{ inputs.fel_cpu_target == 'cortex-a55' && '1' || '0' }}
         run: |
           cd buildscripts
           ./buildall.sh --arch ${{ matrix.arch }} --only-deps mpvnova
@@ -98,7 +108,11 @@ jobs:
         env:
           MPV_FEL_YUV8_PROBE: ${{ inputs.fel_renderer == 'yuv8' && '1' || '0' }}
           MPV_FEL_EL_HWCOPY_PROBE: ${{ inputs.el_decoder == 'hardware-copy' && '1' || '0' }}
+          MPV_FEL_A55_PROBE: ${{ inputs.fel_cpu_target == 'cortex-a55' && '1' || '0' }}
         run: |
+          if [ "$MPV_FEL_A55_PROBE" = 1 ]; then
+            grep -q -- '-mcpu=cortex-a55' "buildscripts/deps/ffmpeg/_build_${{ matrix.arch }}/ffbuild/config.mak"
+          fi
           grep -qx '#define HAVE_LIBCURL 1' "buildscripts/deps/mpv/_build_${{ matrix.arch }}/config.h"
           git -C buildscripts/deps/ffmpeg apply --reverse ../../patches/ffmpeg-mediacodec-explicit-dv.patch
           git -C buildscripts/deps/ffmpeg apply --reverse ../../patches/ffmpeg-mediacodec-empty-hevc-extradata.patch
