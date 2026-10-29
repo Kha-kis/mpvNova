@@ -1,0 +1,68 @@
+diff --git a/audio/decode/ad_lavc.c b/audio/decode/ad_lavc.c
+--- a/audio/decode/ad_lavc.c
++++ b/audio/decode/ad_lavc.c
+@@ -286,7 +286,7 @@
+ {
+     struct priv *priv = ad->priv;
+ 
+-    lavc_process(ad, &priv->state, send_packet, receive_frame);
++    lavc_process(ad, &priv->state, send_packet, receive_frame, false);
+ }
+ 
+ static const struct mp_filter_info ad_lavc_filter = {
+diff --git a/filters/f_decoder_wrapper.h b/filters/f_decoder_wrapper.h
+--- a/filters/f_decoder_wrapper.h
++++ b/filters/f_decoder_wrapper.h
+@@ -122,7 +122,8 @@
+ };
+ void lavc_process(struct mp_filter *f, struct lavc_state *state,
+                   int (*send)(struct mp_filter *f, struct demux_packet *pkt),
+-                  int (*receive)(struct mp_filter *f, struct mp_frame *res));
++                  int (*receive)(struct mp_filter *f, struct mp_frame *res),
++                  bool wait_for_async_send);
+ 
+ // ad_spdif.c
+ struct mp_decoder_list *select_spdif_codec(const char *codec, const char *pref);
+diff --git a/filters/f_decoder_wrapper.c b/filters/f_decoder_wrapper.c
+--- a/filters/f_decoder_wrapper.c
++++ b/filters/f_decoder_wrapper.c
+@@ -1472,7 +1472,8 @@
+ 
+ void lavc_process(struct mp_filter *f, struct lavc_state *state,
+                   int (*send)(struct mp_filter *f, struct demux_packet *pkt),
+-                  int (*receive)(struct mp_filter *f, struct mp_frame *res))
++                  int (*receive)(struct mp_filter *f, struct mp_frame *res),
++                  bool wait_for_async_send)
+ {
+     if (!mp_pin_in_needs_data(f->ppins[1]))
+         return;
+@@ -1508,10 +1509,13 @@
+         }
+         int ret_send = send(f, pkt);
+         if (ret_send == AVERROR(EAGAIN)) {
+-            // Should never happen, but can happen with broken decoders.
+-            MP_WARN(f, "could not consume packet\n");
++            // The FEL IPC sender signals this filter when its bounded queue
++            // has room. Retrying immediately would spin on the same packet.
++            if (!wait_for_async_send)
++                MP_WARN(f, "could not consume packet\n");
+             mp_pin_out_unread(f->ppins[0], frame);
+-            mp_filter_wakeup(f);
++            if (!wait_for_async_send)
++                mp_filter_wakeup(f);
+             return;
+         }
+         state->packets_sent = true;
+diff --git a/video/decode/vd_lavc.c b/video/decode/vd_lavc.c
+--- a/video/decode/vd_lavc.c
++++ b/video/decode/vd_lavc.c
+@@ -1726,7 +1726,8 @@
+ {
+     vd_ffmpeg_ctx *ctx = vd->priv;
+ 
+-    lavc_process(vd, &ctx->state, send_packet, receive_frame);
++    lavc_process(vd, &ctx->state, send_packet, receive_frame,
++                 ctx->fel_client != NULL);
+ }
+ 
+ static void vd_lavc_reset(struct mp_filter *vd)

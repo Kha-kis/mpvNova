@@ -118,7 +118,7 @@ aimagereader_patch=mpv-aimagereader-p010-probe
 if [ "${MPV_FEL_YUV8_PROBE:-0}" = 1 ]; then
 	aimagereader_patch=mpv-aimagereader-yuv8-probe
 fi
-for patch_name in mpv-dovi-fel-toggle mpv-fel-strict-pair mpv-fel-ipc-client mpv-external-subtitle-url "$aimagereader_patch"; do
+for patch_name in mpv-dovi-fel-toggle mpv-fel-strict-pair mpv-fel-ipc-client mpv-fel-ipc-backpressure mpv-external-subtitle-url "$aimagereader_patch"; do
 	patch="$PWD/../patches/$patch_name.patch"
 	if git -C mpv apply --check "$patch" 2>/dev/null; then
 		git -C mpv apply "$patch"
