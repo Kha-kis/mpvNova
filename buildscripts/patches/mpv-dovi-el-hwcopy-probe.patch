@@ -1,7 +1,23 @@
 diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
 --- a/filters/f_enhancement_pair.c
 +++ b/filters/f_enhancement_pair.c
-@@ -237,5 +237,6 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
+@@ -159,4 +159,7 @@ static void pair_process(struct mp_filter *f)
+                         bl->params.no_enhancement_layer, bl->params.repr.sys,
+                         el->imgfmt);
++            if (bl->pts >= 3.754 && bl->pts < 3.755)
++                MP_INFO(f, "FEL hwcopy exact matched pts=%.6f el_fmt=%d no_el=%d\n",
++                        bl->pts, el->imgfmt, bl->params.no_enhancement_layer);
+             if (bl->params.no_enhancement_layer) {
+                 talloc_free(el);
+@@ -182,5 +185,7 @@ static void pair_process(struct mp_filter *f)
+                    p->num_bl_pending, p->num_el_pending,
+                    p->num_el_pending > 0 ? p->el_pending[0]->pts : -1.0);
+
++        if (bl->pts >= 3.754 && bl->pts < 3.755)
++            MP_INFO(f, "FEL hwcopy exact base only pts=%.6f\n", bl->pts);
+         take_head(&p->bl_pending, &p->num_bl_pending);
+         bl->enhancement_layer = NULL;
+@@ -237,5 +242,6 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
      struct mp_stream_info *el_info = talloc_zero(f, struct mp_stream_info);
      if (parent_info)
          *el_info = *parent_info;
