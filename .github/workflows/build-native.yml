@@ -2,6 +2,15 @@ name: build-native
 
 on:
   workflow_dispatch:
+    inputs:
+      fel_renderer:
+        description: Experimental FEL base-layer buffer path
+        required: true
+        default: p010
+        type: choice
+        options:
+          - p010
+          - yuv8
 
 jobs:
   build:
@@ -32,6 +41,8 @@ jobs:
           IN_CI=1 ./include/download-sdk.sh
 
       - name: Download deps
+        env:
+          MPV_FEL_YUV8_PROBE: ${{ inputs.fel_renderer == 'yuv8' && '1' || '0' }}
         run: |
           cd buildscripts
           ./include/download-deps.sh

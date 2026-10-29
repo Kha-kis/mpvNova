@@ -1,0 +1,237 @@
+diff --git a/video/out/hwdec/hwdec_aimagereader.c b/video/out/hwdec/hwdec_aimagereader.c
+index 55883c0..fabcdc7 100644
+--- a/video/out/hwdec/hwdec_aimagereader.c
++++ b/video/out/hwdec/hwdec_aimagereader.c
+@@ -35,6 +35,7 @@
+ typedef void *GLeglImageOES;
+ typedef void *EGLImageKHR;
+ #define EGL_NATIVE_BUFFER_ANDROID 0x3140
++#define GL_TEXTURE_BINDING_EXTERNAL_OES 0x8D67
+ 
+ struct priv_owner {
+     struct mp_hwdec_ctx hwctx;
+@@ -60,6 +61,11 @@ struct priv {
+     struct mp_log *log;
+ 
+     GLuint gl_texture;
++    GLuint yuv_texture;
++    GLuint yuv_fbo;
++    GLuint yuv_program;
++    GLuint yuv_vao;
++    bool logged_format;
+     AImage *image;
+     EGLImageKHR egl_image;
+ 
+@@ -75,6 +81,24 @@ struct priv {
+     void (EGLAPIENTRY *EGLImageTargetTexture2DOES)(GLenum, GLeglImageOES);
+ };
+ 
++static GLuint compile_shader(GL *gl, GLenum type, const char *source,
++                             struct mp_log *log)
++{
++    GLuint shader = gl->CreateShader(type);
++    gl->ShaderSource(shader, 1, &source, NULL);
++    gl->CompileShader(shader);
++    GLint ok = 0;
++    gl->GetShaderiv(shader, GL_COMPILE_STATUS, &ok);
++    if (!ok) {
++        char info[1024] = {0};
++        gl->GetShaderInfoLog(shader, sizeof(info), NULL, info);
++        mp_err(log, "FEL YUV shader compile failed: %s\n", info);
++        gl->DeleteShader(shader);
++        return 0;
++    }
++    return shader;
++}
++
+ static const struct { const char *symbol; int offset; } lib_functions[] = {
+     { "AImageReader_newWithUsage", offsetof(struct priv_owner, AImageReader_newWithUsage) },
+     { "AImageReader_getWindow", offsetof(struct priv_owner, AImageReader_getWindow) },
+@@ -158,9 +182,10 @@ static int init(struct ra_hwdec *hw)
+     // The documentation recommends a margin of 2 for acquireLatestImage to
+     // work correctly.
+     const int max_images = 3;
+-    // dummy dimensions, AImageReader only transports hardware buffers
+-    media_status_t ret = p->AImageReader_newWithUsage(16, 16,
+-        AIMAGE_FORMAT_PRIVATE, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE,
++    // Experimental onn. 4K Pro FEL path: use the stable 8-bit YUV surface.
++    // Keep the decoded dimensions used by the direct buffer probe.
++    media_status_t ret = p->AImageReader_newWithUsage(3840, 2160,
++        AIMAGE_FORMAT_PRIVATE, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE,
+         max_images, &p->reader);
+     if (ret != AMEDIA_OK) {
+         MP_ERR(hw, "newWithUsage failed: %d\n", ret);
+@@ -264,7 +289,9 @@ static int mapper_init(struct ra_hwdec_mapper *mapper)
+ 
+     mapper->dst_params = mapper->src_params;
+     mapper->dst_params.imgfmt = IMGFMT_RGB0;
+-    mapper->dst_params.hw_subfmt = 0;
++    // The output texture carries Y, Cb, Cr in RGB channels at 8-bit
++    // precision. Tell vo_gpu_next to preserve the source YUV representation.
++    mapper->dst_params.hw_subfmt = IMGFMT_NV12;
+ 
+     // texture creation
+     gl->GenTextures(1, &p->gl_texture);
+@@ -275,21 +302,62 @@ static int mapper_init(struct ra_hwdec_mapper *mapper)
+     gl->TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+     gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+ 
++    static const char *vertex_source =
++        "#version 300 es\n"
++        "out vec2 uv; void main() {"
++        "vec2 pos = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);"
++        "uv = pos; gl_Position = vec4(pos * 2.0 - 1.0, 0.0, 1.0); }";
++    static const char *fragment_source =
++        "#version 300 es\n"
++        "#extension GL_EXT_YUV_target : require\n"
++        "precision highp float;"
++        "uniform __samplerExternal2DY2YEXT source;"
++        "in vec2 uv; out vec4 color;"
++        "void main() { color = vec4(texture(source, uv).xyz, 1.0); }";
++    GLuint vs = compile_shader(gl, GL_VERTEX_SHADER, vertex_source, p->log);
++    GLuint fs = compile_shader(gl, GL_FRAGMENT_SHADER, fragment_source, p->log);
++    if (!vs || !fs)
++        return -1;
++    p->yuv_program = gl->CreateProgram();
++    gl->AttachShader(p->yuv_program, vs);
++    gl->AttachShader(p->yuv_program, fs);
++    gl->LinkProgram(p->yuv_program);
++    gl->DeleteShader(vs);
++    gl->DeleteShader(fs);
++    GLint linked = 0;
++    gl->GetProgramiv(p->yuv_program, GL_LINK_STATUS, &linked);
++    if (!linked) {
++        MP_ERR(p, "FEL YUV shader link failed\n");
++        return -1;
++    }
++
++    const struct ra_format *format = ra_find_named_format(mapper->ra, "rgba16f");
++    if (!format || !format->renderable) {
++        MP_ERR(p, "FEL rgba16f render target unavailable\n");
++        return -1;
++    }
++    gl->GenTextures(1, &p->yuv_texture);
++    gl->BindTexture(GL_TEXTURE_2D, p->yuv_texture);
++    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
++    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
++    gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mapper->src_params.w,
++                   mapper->src_params.h, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
++    gl->BindTexture(GL_TEXTURE_2D, 0);
++    gl->GenFramebuffers(1, &p->yuv_fbo);
++    gl->GenVertexArrays(1, &p->yuv_vao);
++
+     struct ra_tex_params params = {
+         .dimensions = 2,
+         .w = mapper->src_params.w,
+         .h = mapper->src_params.h,
+         .d = 1,
+-        .format = ra_find_unorm_format(mapper->ra, 1, 4),
++        .format = format,
+         .render_src = true,
+         .src_linear = true,
+-        .external_oes = true,
+     };
+-
+-    if (params.format->ctype != RA_CTYPE_UNORM)
+-        return -1;
+-
+-    mapper->tex[0] = ra_create_wrapped_tex(mapper->ra, &params, p->gl_texture);
++    mapper->tex[0] = ra_create_wrapped_tex(mapper->ra, &params, p->yuv_texture);
+     if (!mapper->tex[0])
+         return -1;
+ 
+@@ -308,6 +376,10 @@ static void mapper_uninit(struct ra_hwdec_mapper *mapper)
+     p->gl_texture = 0;
+ 
+     ra_tex_free(mapper->ra, &mapper->tex[0]);
++    gl->DeleteTextures(1, &p->yuv_texture);
++    gl->DeleteFramebuffers(1, &p->yuv_fbo);
++    gl->DeleteVertexArrays(1, &p->yuv_vao);
++    gl->DeleteProgram(p->yuv_program);
+ 
+     mp_mutex_destroy(&p->lock);
+     mp_cond_destroy(&p->cond);
+@@ -386,6 +458,11 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+     // Update texture size since it may differ
+     AHardwareBuffer_Desc d;
+     o->AHardwareBuffer_describe(hwbuf, &d);
++    if (!p->logged_format) {
++        MP_INFO(p, "FEL YUV8 reader buffer format=%u size=%ux%u\n",
++                d.format, d.width, d.height);
++        p->logged_format = true;
++    }
+     if (mapper->tex[0]->params.w != d.width || mapper->tex[0]->params.h != d.height) {
+         MP_VERBOSE(p, "Texture dimensions changed to %dx%d\n", d.width, d.height);
+         mapper->tex[0]->params.w = d.width;
+@@ -406,6 +483,44 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+     p->EGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, p->egl_image);
+     gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+ 
++    GLint old_fbo = 0, old_program = 0, old_vao = 0, old_active = 0;
++    GLint old_external = 0, old_viewport[4] = {0};
++    gl->GetIntegerv(GL_FRAMEBUFFER_BINDING, &old_fbo);
++    gl->GetIntegerv(GL_CURRENT_PROGRAM, &old_program);
++    gl->GetIntegerv(GL_VERTEX_ARRAY_BINDING, &old_vao);
++    gl->GetIntegerv(GL_VIEWPORT, old_viewport);
++    gl->GetIntegerv(GL_ACTIVE_TEXTURE, &old_active);
++    gl->ActiveTexture(GL_TEXTURE0);
++    gl->GetIntegerv(GL_TEXTURE_BINDING_EXTERNAL_OES, &old_external);
++
++    gl->BindFramebuffer(GL_FRAMEBUFFER, p->yuv_fbo);
++    gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
++                             GL_TEXTURE_2D, p->yuv_texture, 0);
++    GLenum status = gl->CheckFramebufferStatus(GL_FRAMEBUFFER);
++    if (status != GL_FRAMEBUFFER_COMPLETE) {
++        MP_ERR(p, "FEL YUV framebuffer incomplete: 0x%x\n", status);
++        gl->BindFramebuffer(GL_FRAMEBUFFER, old_fbo);
++        gl->ActiveTexture(old_active);
++        return -1;
++    }
++    gl->Viewport(0, 0, d.width, d.height);
++    gl->UseProgram(p->yuv_program);
++    gl->BindVertexArray(p->yuv_vao);
++    gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, p->gl_texture);
++    gl->Uniform1i(gl->GetUniformLocation(p->yuv_program, "source"), 0);
++    gl->DrawArrays(GL_TRIANGLES, 0, 3);
++    GLenum draw_error = gl->GetError();
++    gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, old_external);
++    gl->ActiveTexture(old_active);
++    gl->BindVertexArray(old_vao);
++    gl->UseProgram(old_program);
++    gl->BindFramebuffer(GL_FRAMEBUFFER, old_fbo);
++    gl->Viewport(old_viewport[0], old_viewport[1], old_viewport[2], old_viewport[3]);
++    if (draw_error != GL_NO_ERROR) {
++        MP_ERR(p, "FEL YUV draw failed: 0x%x\n", draw_error);
++        return -1;
++    }
++
+     return 0;
+ }
+ 
+diff --git a/video/out/vo_gpu_next.c b/video/out/vo_gpu_next.c
+index bd3d1aa..257d9c3 100644
+--- a/video/out/vo_gpu_next.c
++++ b/video/out/vo_gpu_next.c
+@@ -999,7 +999,19 @@ static bool map_frame(pl_gpu gpu, pl_tex *tex, const struct pl_source_frame *src
+         par = p->hwdec.mapper->dst_params;
+     }
+ 
+-    mp_image_params_guess_csp(&par);
++    if (par.hw_subfmt == IMGFMT_NV12 && fp->hwdec) {
++        // The experimental Android mapper stores raw YCbCr values in an
++        // rgba16f texture. Guess colorspace as NV12 so RGB0 does not erase
++        // Dolby Vision, then describe the already-normalized 8-bit samples.
++        par.imgfmt = IMGFMT_NV12;
++        mp_image_params_guess_csp(&par);
++        par.imgfmt = IMGFMT_RGB0;
++        par.repr.bits = (struct pl_bit_encoding) {
++            .sample_depth = 8, .color_depth = 8,
++        };
++    } else {
++        mp_image_params_guess_csp(&par);
++    }
+ 
+     *frame = (struct pl_frame) {
+         .color = par.color,
