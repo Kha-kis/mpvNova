@@ -136,6 +136,15 @@ if [ "$aimagereader_patch" = mpv-aimagereader-p010-probe ]; then
 		exit 1
 	fi
 fi
+if [ "${MPV_FEL_PRIVATE_GPU_CONTROL:-0}" = 1 ]; then
+	patch="$PWD/../patches/mpv-aimagereader-private-gpu-control.patch"
+	if git -C mpv apply --check "$patch" 2>/dev/null; then
+		git -C mpv apply "$patch"
+	elif ! git -C mpv apply --reverse --check "$patch" 2>/dev/null; then
+		echo >&2 "mpv private GPU control patch does not match the dependency checkout."
+		exit 1
+	fi
+fi
 if [ "${MPV_FEL_EL_HWCOPY_PROBE:-0}" = 1 ]; then
 	patch="$PWD/../patches/mpv-dovi-el-hwcopy-probe.patch"
 	if git -C mpv apply --check "$patch" 2>/dev/null; then

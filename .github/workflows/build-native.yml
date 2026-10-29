@@ -11,6 +11,7 @@ on:
         options:
           - p010
           - yuv8
+          - private-gpu-control
       el_decoder:
         description: Experimental FEL enhancement-layer decoder
         required: true
@@ -69,6 +70,7 @@ jobs:
       - name: Download deps
         env:
           MPV_FEL_YUV8_PROBE: ${{ inputs.fel_renderer == 'yuv8' && '1' || '0' }}
+          MPV_FEL_PRIVATE_GPU_CONTROL: ${{ inputs.fel_renderer == 'private-gpu-control' && '1' || '0' }}
           MPV_FEL_EL_HWCOPY_PROBE: ${{ inputs.el_decoder == 'hardware-copy' && '1' || '0' }}
           MPV_FEL_HEVC10_NEON_PROBE: ${{ inputs.fel_hevc10_neon_probe && '1' || '0' }}
         run: |
@@ -136,6 +138,7 @@ jobs:
       - name: Verify native configuration and patches (${{ matrix.arch }})
         env:
           MPV_FEL_YUV8_PROBE: ${{ inputs.fel_renderer == 'yuv8' && '1' || '0' }}
+          MPV_FEL_PRIVATE_GPU_CONTROL: ${{ inputs.fel_renderer == 'private-gpu-control' && '1' || '0' }}
           MPV_FEL_EL_HWCOPY_PROBE: ${{ inputs.el_decoder == 'hardware-copy' && '1' || '0' }}
           MPV_FEL_A55_PROBE: ${{ inputs.fel_cpu_target == 'cortex-a55' && '1' || '0' }}
           MPV_FEL_HEVC10_NEON_PROBE: ${{ inputs.fel_hevc10_neon_probe && '1' || '0' }}
@@ -160,6 +163,9 @@ jobs:
           renderer_patch=mpv-aimagereader-p010-probe
           if [ "$MPV_FEL_YUV8_PROBE" = 1 ]; then renderer_patch=mpv-aimagereader-yuv8-probe; fi
           if [ "$MPV_FEL_YUV8_PROBE" != 1 ]; then
+            if [ "$MPV_FEL_PRIVATE_GPU_CONTROL" = 1 ]; then
+              git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-aimagereader-private-gpu-control.patch
+            fi
             git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-fel-p010-egl-diagnostics.patch
           fi
           git -C buildscripts/deps/mpv apply --reverse "../../patches/${renderer_patch}.patch"

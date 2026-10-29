@@ -1,0 +1,15 @@
+diff --git a/video/out/hwdec/hwdec_aimagereader.c b/video/out/hwdec/hwdec_aimagereader.c
+--- a/video/out/hwdec/hwdec_aimagereader.c
++++ b/video/out/hwdec/hwdec_aimagereader.c
+@@ -182,8 +182,8 @@ static int init(struct ra_hwdec *hw)
+     // work correctly.
+     const int max_images = 3;
+-    // Experimental onn. 4K Pro FEL path: request a 10-bit output surface.
+-    // The P010 ImageReader requires the decoded dimensions on this device.
++    // Diagnostic control: use the stock private GPU surface to test FEL
++    // composition without the P010 reader's buffer allocation failure.
+     media_status_t ret = p->AImageReader_newWithUsage(3840, 2160,
+-        0x36, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
++        AIMAGE_FORMAT_PRIVATE, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE,
+         max_images, &p->reader);
+     if (ret != AMEDIA_OK) {
