@@ -159,6 +159,9 @@ jobs:
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-external-subtitle-url.patch
           renderer_patch=mpv-aimagereader-p010-probe
           if [ "$MPV_FEL_YUV8_PROBE" = 1 ]; then renderer_patch=mpv-aimagereader-yuv8-probe; fi
+          if [ "$MPV_FEL_YUV8_PROBE" != 1 ]; then
+            git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-fel-p010-egl-diagnostics.patch
+          fi
           git -C buildscripts/deps/mpv apply --reverse "../../patches/${renderer_patch}.patch"
           git -C buildscripts/deps/mpv diff --exit-code
           test -z "$(git -C buildscripts/deps/mpv status --porcelain --untracked-files=no)"
