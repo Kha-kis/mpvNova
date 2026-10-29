@@ -135,6 +135,13 @@ if [ "$aimagereader_patch" = mpv-aimagereader-p010-probe ]; then
 		echo >&2 "mpv P010 EGL diagnostics patch does not match the dependency checkout."
 		exit 1
 	fi
+	patch="$PWD/../patches/mpv-fel-p010-packed-target-probe.patch"
+	if git -C mpv apply --check "$patch" 2>/dev/null; then
+		git -C mpv apply "$patch"
+	elif ! git -C mpv apply --reverse --check "$patch" 2>/dev/null; then
+		echo >&2 "mpv P010 packed-target probe patch does not match the dependency checkout."
+		exit 1
+	fi
 fi
 if [ "${MPV_FEL_EL_HWCOPY_PROBE:-0}" = 1 ]; then
 	patch="$PWD/../patches/mpv-dovi-el-hwcopy-probe.patch"
