@@ -105,9 +105,9 @@ index 55883c0..fabcdc7 100644
 +        return -1;
 +    }
 +
-+    const struct ra_format *format = ra_find_named_format(mapper->ra, "rgba16f");
++    const struct ra_format *format = ra_find_named_format(mapper->ra, "rgba8");
 +    if (!format || !format->renderable) {
-+        MP_ERR(p, "FEL rgba16f render target unavailable\n");
++        MP_ERR(p, "FEL rgba8 render target unavailable\n");
 +        return -1;
 +    }
 +    gl->GenTextures(1, &p->yuv_texture);
@@ -116,8 +116,8 @@ index 55883c0..fabcdc7 100644
 +    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 +    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 +    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-+    gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mapper->src_params.w,
-+                   mapper->src_params.h, 0, GL_RGBA, GL_HALF_FLOAT, NULL);
++    gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mapper->src_params.w,
++                   mapper->src_params.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 +    gl->BindTexture(GL_TEXTURE_2D, 0);
 +    gl->GenFramebuffers(1, &p->yuv_fbo);
 +    gl->GenVertexArrays(1, &p->yuv_vao);
@@ -221,7 +221,7 @@ index bd3d1aa..257d9c3 100644
 -    mp_image_params_guess_csp(&par);
 +    if (par.hw_subfmt == IMGFMT_NV12 && fp->hwdec) {
 +        // The experimental Android mapper stores raw YCbCr values in an
-+        // rgba16f texture. Guess colorspace as NV12 so RGB0 does not erase
++        // rgba8 texture. Guess colorspace as NV12 so RGB0 does not erase
 +        // Dolby Vision, then describe the already-normalized 8-bit samples.
 +        par.imgfmt = IMGFMT_NV12;
 +        mp_image_params_guess_csp(&par);
