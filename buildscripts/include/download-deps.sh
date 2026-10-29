@@ -100,13 +100,6 @@ if [ ! -d libplacebo ]; then
 	git -C libplacebo checkout $v_ci_libplacebo
 	git -C libplacebo submodule update --init --recursive
 fi
-patch="$PWD/../patches/libplacebo-opengl-rgb10a2-fel-probe.patch"
-if git -C libplacebo apply --check "$patch" 2>/dev/null; then
-	git -C libplacebo apply "$patch"
-elif ! git -C libplacebo apply --reverse --check "$patch" 2>/dev/null; then
-	echo >&2 "libplacebo packed 10-bit probe patch does not match the dependency checkout."
-	exit 1
-fi
 
 # curl
 if [ ! -d curl ]; then
