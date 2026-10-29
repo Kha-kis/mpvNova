@@ -86,10 +86,11 @@ jobs:
       - name: Build ARM HEVC checkasm probe
         if: inputs.fel_hevc10_neon_probe
         run: |
-          NDK_DIR=$(echo buildscripts/sdk/android-ndk-*)
-          export PATH="$NDK_DIR/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
+          TOOLCHAIN_BIN=$(echo buildscripts/sdk/android-ndk-*/toolchains/llvm/prebuilt/*/bin)
+          test -x "$TOOLCHAIN_BIN/llvm-ar"
+          export PATH="$TOOLCHAIN_BIN:$PATH"
           make -C buildscripts/deps/ffmpeg/_build_${{ matrix.arch }} -j2 \
-            AR=llvm-ar RANLIB=llvm-ranlib checkasm
+            AR="$TOOLCHAIN_BIN/llvm-ar" RANLIB="$TOOLCHAIN_BIN/llvm-ranlib" checkasm
 
       - name: Upload ARM HEVC checkasm probe
         if: inputs.fel_hevc10_neon_probe
