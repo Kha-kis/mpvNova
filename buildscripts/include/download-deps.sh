@@ -127,6 +127,15 @@ for patch_name in mpv-dovi-fel-toggle mpv-fel-strict-pair mpv-fel-ipc-client mpv
 		exit 1
 	fi
 done
+if [ "$aimagereader_patch" = mpv-aimagereader-p010-probe ]; then
+	patch="$PWD/../patches/mpv-fel-p010-egl-diagnostics.patch"
+	if git -C mpv apply --check "$patch" 2>/dev/null; then
+		git -C mpv apply "$patch"
+	elif ! git -C mpv apply --reverse --check "$patch" 2>/dev/null; then
+		echo >&2 "mpv P010 EGL diagnostics patch does not match the dependency checkout."
+		exit 1
+	fi
+fi
 if [ "${MPV_FEL_EL_HWCOPY_PROBE:-0}" = 1 ]; then
 	patch="$PWD/../patches/mpv-dovi-el-hwcopy-probe.patch"
 	if git -C mpv apply --check "$patch" 2>/dev/null; then

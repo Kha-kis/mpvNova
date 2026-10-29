@@ -1,0 +1,27 @@
+diff --git a/video/out/hwdec/hwdec_aimagereader.c b/video/out/hwdec/hwdec_aimagereader.c
+index fabcdc70e..6d89d5cde 100644
+--- a/video/out/hwdec/hwdec_aimagereader.c
++++ b/video/out/hwdec/hwdec_aimagereader.c
+@@ -470,14 +470,20 @@ static int mapper_map(struct ra_hwdec_mapper *mapper)
+     }
+ 
+     EGLClientBuffer buf = p->GetNativeClientBufferANDROID(hwbuf);
+-    if (!buf)
++    if (!buf) {
++        MP_ERR(p, "FEL native client buffer import failed: egl=0x%x format=%u %ux%u\n",
++               eglGetError(), d.format, d.width, d.height);
+         return -1;
++    }
+ 
+     const int attribs[] = {EGL_NONE};
+     p->egl_image = p->CreateImageKHR(eglGetCurrentDisplay(),
+         EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, buf, attribs);
+-    if (!p->egl_image)
++    if (!p->egl_image) {
++        MP_ERR(p, "FEL EGL image creation failed: egl=0x%x format=%u %ux%u\n",
++               eglGetError(), d.format, d.width, d.height);
+         return -1;
++    }
+ 
+     gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, p->gl_texture);
+     p->EGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, p->egl_image);
