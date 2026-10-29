@@ -1,0 +1,11 @@
+diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
+--- a/filters/f_enhancement_pair.c
++++ b/filters/f_enhancement_pair.c
+@@ -237,5 +237,6 @@ struct mp_filter *mp_enhancement_pair_create(struct mp_filter *parent,
+     struct mp_stream_info *el_info = talloc_zero(f, struct mp_stream_info);
+     if (parent_info)
+         *el_info = *parent_info;
+-    el_info->force_swdec = true;
++    el_info->force_swdec = false;
++    el_info->force_hwdec_copy = true;
+     f->stream_info = el_info;

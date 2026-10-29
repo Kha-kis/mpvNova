@@ -11,6 +11,14 @@ on:
         options:
           - p010
           - yuv8
+      el_decoder:
+        description: Experimental FEL enhancement-layer decoder
+        required: true
+        default: software
+        type: choice
+        options:
+          - software
+          - hardware-copy
 
 jobs:
   build:
@@ -43,6 +51,7 @@ jobs:
       - name: Download deps
         env:
           MPV_FEL_YUV8_PROBE: ${{ inputs.fel_renderer == 'yuv8' && '1' || '0' }}
+          MPV_FEL_EL_HWCOPY_PROBE: ${{ inputs.el_decoder == 'hardware-copy' && '1' || '0' }}
         run: |
           cd buildscripts
           ./include/download-deps.sh
@@ -88,11 +97,15 @@ jobs:
       - name: Verify native configuration and patches (${{ matrix.arch }})
         env:
           MPV_FEL_YUV8_PROBE: ${{ inputs.fel_renderer == 'yuv8' && '1' || '0' }}
+          MPV_FEL_EL_HWCOPY_PROBE: ${{ inputs.el_decoder == 'hardware-copy' && '1' || '0' }}
         run: |
           grep -qx '#define HAVE_LIBCURL 1' "buildscripts/deps/mpv/_build_${{ matrix.arch }}/config.h"
           git -C buildscripts/deps/ffmpeg apply --reverse ../../patches/ffmpeg-mediacodec-explicit-dv.patch
           git -C buildscripts/deps/ffmpeg apply --reverse ../../patches/ffmpeg-mediacodec-empty-hevc-extradata.patch
           git -C buildscripts/deps/ffmpeg diff --exit-code
+          if [ "$MPV_FEL_EL_HWCOPY_PROBE" = 1 ]; then
+            git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-dovi-el-hwcopy-probe.patch
+          fi
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-dovi-fel-toggle.patch
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-external-subtitle-url.patch
           renderer_patch=mpv-aimagereader-p010-probe

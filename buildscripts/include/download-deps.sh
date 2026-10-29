@@ -118,5 +118,14 @@ for patch_name in mpv-dovi-fel-toggle mpv-external-subtitle-url "$aimagereader_p
 		exit 1
 	fi
 done
+if [ "${MPV_FEL_EL_HWCOPY_PROBE:-0}" = 1 ]; then
+	patch="$PWD/../patches/mpv-dovi-el-hwcopy-probe.patch"
+	if git -C mpv apply --check "$patch" 2>/dev/null; then
+		git -C mpv apply "$patch"
+	elif ! git -C mpv apply --reverse --check "$patch" 2>/dev/null; then
+		echo >&2 "mpv EL hardware-copy probe patch does not match the dependency checkout."
+		exit 1
+	fi
+fi
 
 cd ..
