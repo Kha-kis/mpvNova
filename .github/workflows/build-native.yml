@@ -83,6 +83,19 @@ jobs:
           cd buildscripts
           ./buildall.sh --arch ${{ matrix.arch }} --only-deps mpvnova
 
+      - name: Build ARM HEVC checkasm probe
+        if: inputs.fel_hevc10_neon_probe
+        run: |
+          make -C buildscripts/deps/ffmpeg/_build_${{ matrix.arch }} -j2 checkasm
+
+      - name: Upload ARM HEVC checkasm probe
+        if: inputs.fel_hevc10_neon_probe
+        uses: actions/upload-artifact@v7
+        with:
+          name: hevc-checkasm-${{ matrix.arch }}
+          if-no-files-found: error
+          path: buildscripts/deps/ffmpeg/_build_${{ matrix.arch }}/tests/checkasm/checkasm
+
       - name: Build libplayer.so (${{ matrix.arch }})
         run: |
           NDK_DIR=$(echo buildscripts/sdk/android-ndk-*)

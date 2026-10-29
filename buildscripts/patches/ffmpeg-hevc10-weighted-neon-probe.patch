@@ -14,7 +14,7 @@ index e32a0bf..8888a52 100644
                                            arm/rv40dsp_neon.o
 diff --git a/libavcodec/arm/hevc10_weighted_neon.c b/libavcodec/arm/hevc10_weighted_neon.c
 new file mode 100644
-index 0000000..2f9fa26
+index 0000000..9a5aed4
 --- /dev/null
 +++ b/libavcodec/arm/hevc10_weighted_neon.c
 @@ -0,0 +1,93 @@
@@ -85,7 +85,7 @@ index 0000000..2f9fa26
 +    const ptrdiff_t dststride = _dststride / 2;
 +    const ptrdiff_t srcstride = _srcstride / 2;
 +    const int shift = denom + 5;
-+    const int offset = ((ox0 + ox1) * 4 + 1) << (shift - 1);
++    const int offset = ((ox0 + ox1) * 4 + 1) * (1 << (shift - 1));
 +    const int32x4_t rounding = vdupq_n_s32(offset);
 +    const int32x4_t rshift = vdupq_n_s32(-shift);
 +    const int16x4_t weight0 = vdup_n_s16(wx0);
@@ -108,7 +108,7 @@ index 0000000..2f9fa26
 +        }
 +        src += srcstride;
 +        dst += dststride;
-+        src2 += 64;
++        src2 += MAX_PB_SIZE;
 +    }
 +}
 diff --git a/libavcodec/arm/hevcdsp_init_neon.c b/libavcodec/arm/hevcdsp_init_neon.c
@@ -143,3 +143,45 @@ index 6f11361..bbdca9d 100644
          c->add_residual[0] = ff_hevc_add_residual_4x4_10_neon;
          c->add_residual[1] = ff_hevc_add_residual_8x8_10_neon;
          c->add_residual[2] = ff_hevc_add_residual_16x16_10_neon;
+diff --git a/tests/checkasm/hevc_pel.c b/tests/checkasm/hevc_pel.c
+index e89facb..27515d2 100644
+--- a/tests/checkasm/hevc_pel.c
++++ b/tests/checkasm/hevc_pel.c
+@@ -221,6 +221,18 @@ static void checkasm_check_hevc_qpel_uni_w(void)
+                                 }
+                             }
+                         }
++                        if (bit_depth == 10 && i == 0 && j == 0) {
++                            randomize_buffers();
++                            CLEAR_PIXEL_RECT(dst0);
++                            CLEAR_PIXEL_RECT(dst1);
++                            call_ref(dst0, dst0_stride, src0, sizes[idx] * SIZEOF_PIXEL,
++                                     sizes[idx], 2, -35, -12, i, j, sizes[idx]);
++                            call_new(dst1, dst1_stride, src1, sizes[idx] * SIZEOF_PIXEL,
++                                     sizes[idx], 2, -35, -12, i, j, sizes[idx]);
++                            checkasm_check_pixel_padded(dst0, dst0_stride,
++                                                        dst1, dst1_stride,
++                                                        sizes[idx], sizes[idx], "dst_negative_weight");
++                        }
+                     }
+                 }
+             }
+@@ -337,6 +349,18 @@ static void checkasm_check_hevc_qpel_bi_w(void)
+                                 }
+                             }
+                         }
++                        if (bit_depth == 10 && i == 0 && j == 0) {
++                            randomize_buffers_ref();
++                            CLEAR_PIXEL_RECT(dst0);
++                            CLEAR_PIXEL_RECT(dst1);
++                            call_ref(dst0, dst0_stride, src0, sizes[idx] * SIZEOF_PIXEL,
++                                     ref0, sizes[idx], 2, -35, 69, -12, 27, i, j, sizes[idx]);
++                            call_new(dst1, dst1_stride, src1, sizes[idx] * SIZEOF_PIXEL,
++                                     ref1, sizes[idx], 2, -35, 69, -12, 27, i, j, sizes[idx]);
++                            checkasm_check_pixel_padded(dst0, dst0_stride,
++                                                        dst1, dst1_stride,
++                                                        sizes[idx], sizes[idx], "dst_asymmetric_weights");
++                        }
+                     }
+                 }
+             }
