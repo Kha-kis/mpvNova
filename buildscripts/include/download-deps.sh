@@ -33,6 +33,15 @@ for patch_name in ffmpeg-mediacodec-empty-hevc-extradata ffmpeg-mediacodec-expli
 		exit 1
 	fi
 done
+if [ "${MPV_FEL_HEVC10_NEON_PROBE:-0}" = 1 ]; then
+	ffmpeg_patch="$PWD/../patches/ffmpeg-hevc10-weighted-neon-probe.patch"
+	if git -C ffmpeg apply --check "$ffmpeg_patch" 2>/dev/null; then
+		git -C ffmpeg apply "$ffmpeg_patch"
+	elif ! git -C ffmpeg apply --reverse --check "$ffmpeg_patch" 2>/dev/null; then
+		echo >&2 "FFmpeg HEVC10 NEON probe patch does not match the dependency checkout."
+		exit 1
+	fi
+fi
 
 # freetype2
 [ ! -d freetype2 ] && git clone --recurse-submodules https://gitlab.freedesktop.org/freetype/freetype.git freetype2 -b VER-${v_freetype//./-}
