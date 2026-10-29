@@ -14,7 +14,7 @@ index e32a0bf..8888a52 100644
                                            arm/rv40dsp_neon.o
 diff --git a/libavcodec/arm/hevc10_weighted_neon.c b/libavcodec/arm/hevc10_weighted_neon.c
 new file mode 100644
-index 0000000..9a5aed4
+index 0000000..4b98e6f
 --- /dev/null
 +++ b/libavcodec/arm/hevc10_weighted_neon.c
 @@ -0,0 +1,93 @@
@@ -30,7 +30,7 @@ index 0000000..9a5aed4
 +#include <stdint.h>
 +#include <stddef.h>
 +
-+#include "libavcodec/hevc/dsp.h"
++#include "hevcdsp_arm.h"
 +
 +static inline uint16x4_t clip10(int32x4_t value)
 +{
@@ -111,14 +111,14 @@ index 0000000..9a5aed4
 +        src2 += MAX_PB_SIZE;
 +    }
 +}
-diff --git a/libavcodec/arm/hevcdsp_init_neon.c b/libavcodec/arm/hevcdsp_init_neon.c
-index 6f11361..bbdca9d 100644
---- a/libavcodec/arm/hevcdsp_init_neon.c
-+++ b/libavcodec/arm/hevcdsp_init_neon.c
-@@ -24,6 +24,16 @@
- #include "libavcodec/avcodec.h"
- #include "hevcdsp_arm.h"
+diff --git a/libavcodec/arm/hevcdsp_arm.h b/libavcodec/arm/hevcdsp_arm.h
+index de23033..0ffbc17 100644
+--- a/libavcodec/arm/hevcdsp_arm.h
++++ b/libavcodec/arm/hevcdsp_arm.h
+@@ -22,5 +22,14 @@
+ #include "libavcodec/hevc/dsp.h"
  
+ void ff_hevc_dsp_init_neon(HEVCDSPContext *c, const int bit_depth);
 +void ff_hevc_put_pel_uni_w_10_neon(uint8_t *dst, ptrdiff_t dststride,
 +                                   const uint8_t *src, ptrdiff_t srcstride,
 +                                   int height, int denom, int wx, int ox,
@@ -128,11 +128,13 @@ index 6f11361..bbdca9d 100644
 +                                  const int16_t *src2, int height, int denom,
 +                                  int wx0, int wx1, int ox0, int ox1,
 +                                  intptr_t mx, intptr_t my, int width);
-+
- void ff_hevc_sao_band_filter_neon_8_wrapper(uint8_t *_dst, const uint8_t *_src,
-                                   ptrdiff_t stride_dst, ptrdiff_t stride_src,
-                                   const int16_t *sao_offset_val, int sao_left_class,
-@@ -303,6 +313,10 @@ av_cold void ff_hevc_dsp_init_neon(HEVCDSPContext *c, const int bit_depth)
+ 
+ #endif /* AVCODEC_ARM_HEVCDSP_ARM_H */
+diff --git a/libavcodec/arm/hevcdsp_init_neon.c b/libavcodec/arm/hevcdsp_init_neon.c
+index 6f11361..fb8a768 100644
+--- a/libavcodec/arm/hevcdsp_init_neon.c
++++ b/libavcodec/arm/hevcdsp_init_neon.c
+@@ -303,6 +303,10 @@ av_cold void ff_hevc_dsp_init_neon(HEVCDSPContext *c, const int bit_depth)
      }
  
      if (bit_depth == 10) {
