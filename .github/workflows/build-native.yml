@@ -27,6 +27,11 @@ on:
         options:
           - generic
           - cortex-a55
+      fel_profile_symbols:
+        description: Preserve FFmpeg symbols for isolated performance profiling
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -67,6 +72,7 @@ jobs:
       - name: Build native libraries (${{ matrix.arch }})
         env:
           MPV_FEL_A55_PROBE: ${{ inputs.fel_cpu_target == 'cortex-a55' && '1' || '0' }}
+          MPV_FEL_PROFILE_SYMBOLS: ${{ inputs.fel_profile_symbols && '1' || '0' }}
         run: |
           cd buildscripts
           ./buildall.sh --arch ${{ matrix.arch }} --only-deps mpvnova
@@ -129,6 +135,8 @@ jobs:
           test -z "$(git -C buildscripts/deps/mpv status --porcelain --untracked-files=no)"
 
       - name: Collect .so files
+        env:
+          MPV_FEL_PROFILE_SYMBOLS: ${{ inputs.fel_profile_symbols && '1' || '0' }}
         run: |
           arch=${{ matrix.arch }}
           mkdir -p collected
@@ -141,6 +149,10 @@ jobs:
 
           cp buildscripts/prefix/$arch/lib/*.so collected/
           cp app/src/main/libs/$abi/*.so collected/
+          if [ "$MPV_FEL_PROFILE_SYMBOLS" = 1 ]; then
+            cp "buildscripts/deps/ffmpeg/_build_$arch/libavcodec/libavcodec.so" collected/libavcodec.so
+            readelf -S collected/libavcodec.so | grep -q '\.symtab'
+          fi
           for lib in libplayer libmpv libavcodec libavdevice libavfilter libavformat libavutil libswresample libswscale libc++_shared; do
             test -s "collected/$lib.so"
           done

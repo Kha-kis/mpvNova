@@ -45,6 +45,9 @@ args=(
 	# useful for the `dump-cache` command
 	--enable-muxer=mov,matroska,mpegts
 )
+if [[ "${MPV_FEL_PROFILE_SYMBOLS:-0}" == 1 ]]; then
+	args+=(--enable-debug=1 --disable-stripping)
+fi
 ../configure "${args[@]}"
 
 make -j$cores
