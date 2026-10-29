@@ -150,6 +150,8 @@ jobs:
             git -C buildscripts/deps/ffmpeg apply --reverse ../../patches/ffmpeg-hevc10-weighted-neon-probe.patch
           fi
           git -C buildscripts/deps/ffmpeg diff --exit-code
+          git -C buildscripts/deps/libplacebo apply --reverse ../../patches/libplacebo-opengl-rgb10a2-fel-probe.patch
+          git -C buildscripts/deps/libplacebo diff --exit-code
           if [ "$MPV_FEL_EL_HWCOPY_PROBE" = 1 ]; then
             git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-dovi-el-hwcopy-probe.patch
           fi
