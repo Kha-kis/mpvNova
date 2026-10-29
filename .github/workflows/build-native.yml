@@ -160,7 +160,6 @@ jobs:
           renderer_patch=mpv-aimagereader-p010-probe
           if [ "$MPV_FEL_YUV8_PROBE" = 1 ]; then renderer_patch=mpv-aimagereader-yuv8-probe; fi
           if [ "$MPV_FEL_YUV8_PROBE" != 1 ]; then
-            git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-fel-p010-packed-target-probe.patch
             git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-fel-p010-egl-diagnostics.patch
           fi
           git -C buildscripts/deps/mpv apply --reverse "../../patches/${renderer_patch}.patch"
