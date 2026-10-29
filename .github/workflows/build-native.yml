@@ -153,6 +153,8 @@ jobs:
           if [ "$MPV_FEL_EL_HWCOPY_PROBE" = 1 ]; then
             git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-dovi-el-hwcopy-probe.patch
           fi
+          git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-fel-ipc-client.patch
+          git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-fel-strict-pair.patch
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-dovi-fel-toggle.patch
           git -C buildscripts/deps/mpv apply --reverse ../../patches/mpv-external-subtitle-url.patch
           renderer_patch=mpv-aimagereader-p010-probe

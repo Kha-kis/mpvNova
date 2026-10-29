@@ -1,0 +1,52 @@
+diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
+--- a/filters/f_enhancement_pair.c
++++ b/filters/f_enhancement_pair.c
+@@ -43,7 +43,6 @@
+ 
+     bool bl_eof;
+     bool el_eof;
+-    bool el_seen;
+ };
+ 
+ static int pts_cmp(double a, double b)
+@@ -123,8 +122,6 @@
+ 
+     drain_pin(f, in, &p->bl_pending, &p->num_bl_pending, &p->bl_eof);
+     drain_pin(f, p->el_in, &p->el_pending, &p->num_el_pending, &p->el_eof);
+-    if (p->num_el_pending > 0)
+-        p->el_seen = true;
+ 
+     while (mp_pin_in_needs_data(out)) {
+         if (p->num_bl_pending == 0) {
+@@ -167,18 +164,16 @@
+             continue;
+         }
+ 
+-        // No EL match for the oldest BL. Hold BL unless we have affirmative
+-        // evidence no EL is coming.
+-        bool give_up = p->el_eof ||
+-                       (p->num_el_pending > 0 && cmp > 0) ||
+-                       (p->num_bl_pending >= QUEUE_MAX && p->el_seen);
++        // No EL match for the oldest BL. Queue pressure is not evidence that
++        // its EL is absent: an asynchronous helper can still be decoding it.
++        // Only EOF or a newer EL permits a base-only frame.
++        bool give_up = p->el_eof || (p->num_el_pending > 0 && cmp > 0);
+         if (!give_up)
+             return;
+ 
+         MP_VERBOSE(f, "emitting BL %.6f alone (%s; bl_pending=%d el_pending=%d"
+                    " el head %.6f)\n", bl->pts,
+-                   p->el_eof ? "el_eof" :
+-                   (p->num_el_pending > 0 && cmp > 0) ? "el_newer" : "queue_full",
++                   p->el_eof ? "el_eof" : "el_newer",
+                    p->num_bl_pending, p->num_el_pending,
+                    p->num_el_pending > 0 ? p->el_pending[0]->pts : -1.0);
+ 
+@@ -197,7 +192,6 @@
+         pop_head(&p->el_pending, &p->num_el_pending);
+     p->bl_eof = false;
+     p->el_eof = false;
+-    p->el_seen = false;
+ }
+ 
+ static void pair_destroy(struct mp_filter *f)

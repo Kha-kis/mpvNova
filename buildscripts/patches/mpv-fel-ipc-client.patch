@@ -1,0 +1,245 @@
+diff --git a/filters/filter.h b/filters/filter.h
+--- a/filters/filter.h
++++ b/filters/filter.h
+@@ -408,6 +408,7 @@
+     bool vflip;
+     bool rotate90;
+     bool force_swdec;
++    bool force_fel_ipc; // experimental virtual Dolby Vision enhancement stream
+     bool force_hwdec_copy;
+     struct vo *dr_vo; // for calling vo_get_image()
+ };
+diff --git a/filters/f_decoder_wrapper.c b/filters/f_decoder_wrapper.c
+--- a/filters/f_decoder_wrapper.c
++++ b/filters/f_decoder_wrapper.c
+@@ -1419,6 +1419,7 @@
+                 .dr_vo = sinfo->dr_vo,
+                 .hwdec_devs = sinfo->hwdec_devs,
+                 .force_swdec = sinfo->force_swdec,
++                .force_fel_ipc = sinfo->force_fel_ipc,
+                 .force_hwdec_copy = sinfo->force_hwdec_copy,
+             };
+         }
+diff --git a/filters/f_enhancement_pair.c b/filters/f_enhancement_pair.c
+--- a/filters/f_enhancement_pair.c
++++ b/filters/f_enhancement_pair.c
+@@ -232,6 +232,7 @@
+     if (parent_info)
+         *el_info = *parent_info;
+     el_info->force_swdec = true;
++    el_info->force_fel_ipc = true;
+     f->stream_info = el_info;
+ 
+     struct priv *p = f->priv;
+diff --git a/video/decode/vd_lavc.c b/video/decode/vd_lavc.c
+--- a/video/decode/vd_lavc.c
++++ b/video/decode/vd_lavc.c
+@@ -20,6 +20,8 @@
+ #include <stdlib.h>
+ #include <assert.h>
+ #include <stdbool.h>
++#include <dlfcn.h>
++#include <math.h>
+ 
+ #include <libavcodec/avcodec.h>
+ #include <libavcodec/bsf.h>
+@@ -209,6 +211,8 @@
+     int rank;
+ };
+ 
++struct fel_ipc_client;
++
+ typedef struct lavc_ctx {
+     struct mp_log *log;
+     struct m_config_cache *opts_cache;
+@@ -256,7 +260,21 @@
+     struct vo *vo;
+     struct mp_hwdec_devices *hwdec_devs;
+     bool force_swdec;
++    bool force_fel_ipc;
++    bool fel_failed;
+     bool force_hwdec_copy;
++
++    // Debug-only ARM64 enhancement decoder, loaded from the isolated APK.
++    // Its C API is intentionally absent from the normal mpv link dependencies.
++    void *fel_library;
++    struct fel_ipc_client *fel_client;
++    const char *fel_helper_path;
++    struct fel_ipc_client *(*fel_open)(const char *, void (*)(void *), void *);
++    int (*fel_submit)(struct fel_ipc_client *, const uint8_t *, size_t,
++                      int64_t, int64_t, uint32_t);
++    int (*fel_finish)(struct fel_ipc_client *);
++    int (*fel_receive)(struct fel_ipc_client *, AVFrame *);
++    void (*fel_close)(struct fel_ipc_client **);
+ 
+     // Wrapped AVHWDeviceContext* used for decoding.
+     AVBufferRef *hwdec_dev;
+@@ -1364,10 +1382,77 @@
+     return ret;
+ }
+ 
++static void fel_wakeup(void *opaque)
++{
++    mp_filter_wakeup(opaque);
++}
++
++static void fel_stop(vd_ffmpeg_ctx *ctx)
++{
++    if (ctx->fel_client && ctx->fel_close)
++        ctx->fel_close(&ctx->fel_client);
++}
++
++static bool fel_start(struct mp_filter *vd)
++{
++    vd_ffmpeg_ctx *ctx = vd->priv;
++    if (!ctx->force_fel_ipc || !ctx->fel_helper_path)
++        return false;
++    if (!ctx->fel_library) {
++        const char *library = getenv("MPV_FEL_CLIENT_LIB");
++        ctx->fel_library = dlopen(library && library[0] ? library :
++                                  "libfelreceiver.so", RTLD_NOW | RTLD_LOCAL);
++        if (!ctx->fel_library) {
++            MP_ERR(vd, "FEL IPC client load failed: %s\n", dlerror());
++            return false;
++        }
++#define FEL_SYMBOL(field, symbol) \
++        *(void **)(&ctx->field) = dlsym(ctx->fel_library, symbol)
++        FEL_SYMBOL(fel_open, "fel_ipc_open");
++        FEL_SYMBOL(fel_submit, "fel_ipc_submit");
++        FEL_SYMBOL(fel_finish, "fel_ipc_finish");
++        FEL_SYMBOL(fel_receive, "fel_ipc_receive");
++        FEL_SYMBOL(fel_close, "fel_ipc_close");
++#undef FEL_SYMBOL
++        if (!ctx->fel_open || !ctx->fel_submit || !ctx->fel_finish ||
++            !ctx->fel_receive || !ctx->fel_close) {
++            MP_ERR(vd, "FEL IPC client is missing a required symbol.\n");
++            dlclose(ctx->fel_library);
++            ctx->fel_library = NULL;
++            return false;
++        }
++    }
++    ctx->fel_client = ctx->fel_open(ctx->fel_helper_path, fel_wakeup, vd);
++    if (!ctx->fel_client) {
++        MP_ERR(vd, "FEL IPC helper startup failed.\n");
++        return false;
++    }
++    MP_INFO(vd, "FEL IPC enhancement decoder active.\n");
++    return true;
++}
++
+ static int send_packet(struct mp_filter *vd, struct demux_packet *pkt)
+ {
+     vd_ffmpeg_ctx *ctx = vd->priv;
+     AVCodecContext *avctx = ctx->avctx;
++
++    if (ctx->fel_failed)
++        return AVERROR_EOF;
++
++    if (ctx->fel_client) {
++        int rc;
++        if (!pkt) {
++            rc = ctx->fel_finish(ctx->fel_client);
++        } else {
++            int64_t pts = pkt->pts == MP_NOPTS_VALUE ? AV_NOPTS_VALUE :
++                          llrint(pkt->pts * 1000000.0);
++            int64_t dts = pkt->dts == MP_NOPTS_VALUE ? AV_NOPTS_VALUE :
++                          llrint(pkt->dts * 1000000.0);
++            rc = ctx->fel_submit(ctx->fel_client, pkt->buffer, pkt->len,
++                                 pts, dts, pkt->keyframe ? 1 : 0);
++        }
++        return rc == 0 ? 0 : rc == 1 ? AVERROR(EAGAIN) : AVERROR_EXTERNAL;
++    }
+ 
+     if (ctx->num_requeue_packets && ctx->requeue_packets[0] != pkt)
+         return AVERROR(EAGAIN); // cannot consume the packet
+@@ -1487,6 +1572,34 @@
+ {
+     vd_ffmpeg_ctx *ctx = vd->priv;
+ 
++    if (ctx->fel_failed)
++        return AVERROR_EOF;
++    if (ctx->fel_client) {
++        int rc = ctx->fel_receive(ctx->fel_client, ctx->pic);
++        if (rc == 0)
++            return AVERROR(EAGAIN);
++        if (rc == -2)
++            return AVERROR_EOF;
++        if (rc < 0) {
++            MP_ERR(vd, "FEL IPC enhancement decoder failed.\n");
++            fel_stop(ctx);
++            ctx->fel_failed = true;
++            return AVERROR_EOF;
++        }
++        struct mp_image *image = mp_image_from_av_frame(ctx->pic);
++        if (!image) {
++            av_frame_unref(ctx->pic);
++            ctx->fel_failed = true;
++            return AVERROR_EOF;
++        }
++        image->pts = ctx->pic->pts == AV_NOPTS_VALUE ? MP_NOPTS_VALUE :
++                     ctx->pic->pts / 1000000.0;
++        image->dts = MP_NOPTS_VALUE;
++        av_frame_unref(ctx->pic);
++        *out_frame = MAKE_FRAME(MP_FRAME_VIDEO, image);
++        return 0;
++    }
++
+     int ret = decode_frame(vd);
+ 
+     if (ctx->hwdec_failed) {
+@@ -1599,7 +1712,11 @@
+         }
+         return CONTROL_FALSE;
+     case VDCTRL_REINIT:
++        if (ctx->fel_helper_path)
++            fel_stop(ctx);
+         reinit(vd);
++        if (ctx->fel_helper_path)
++            ctx->fel_failed = !fel_start(vd);
+         return CONTROL_TRUE;
+     }
+     return CONTROL_UNKNOWN;
+@@ -1616,6 +1733,10 @@
+ {
+     vd_ffmpeg_ctx *ctx = vd->priv;
+ 
++    if (ctx->fel_helper_path) {
++        fel_stop(ctx);
++        ctx->fel_failed = !fel_start(vd);
++    }
+     flush_all(vd);
+ 
+     ctx->state = (struct lavc_state){0};
+@@ -1626,6 +1747,9 @@
+ {
+     vd_ffmpeg_ctx *ctx = vd->priv;
+ 
++    fel_stop(ctx);
++    if (ctx->fel_library)
++        dlclose(ctx->fel_library);
+     uninit_avctx(vd);
+ 
+     mp_mutex_destroy(&ctx->dr_lock);
+@@ -1674,6 +1798,7 @@
+         ctx->hwdec_devs = info->hwdec_devs;
+         ctx->vo = info->dr_vo;
+         ctx->force_swdec = info->force_swdec;
++        ctx->force_fel_ipc = info->force_fel_ipc;
+         ctx->force_hwdec_copy = info->force_hwdec_copy;
+     }
+ 
+@@ -1682,6 +1807,14 @@
+     if (!ctx->avctx) {
+         talloc_free(vd);
+         return NULL;
++    }
++
++    if (ctx->force_fel_ipc) {
++        const char *helper = getenv("MPV_FEL_HELPER_PATH");
++        if (helper && helper[0]) {
++            ctx->fel_helper_path = talloc_strdup(ctx, helper);
++            ctx->fel_failed = !fel_start(vd);
++        }
+     }
+ 
+     codec->codec_desc = ctx->avctx->codec_descriptor->long_name;
