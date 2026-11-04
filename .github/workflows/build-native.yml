@@ -34,7 +34,7 @@ on:
         default: false
         type: boolean
       fel_hevc10_neon_probe:
-        description: Experimental 10-bit HEVC weighted pixel and qpel HV NEON routines
+        description: Experimental 10-bit HEVC weighted pixel, qpel HV, and epel HV NEON routines
         required: true
         default: false
         type: boolean
