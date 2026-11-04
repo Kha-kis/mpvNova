@@ -148,10 +148,10 @@ index 0000000..3afb8cb
 +}
 diff --git a/libavcodec/arm/hevc10_luma_weak_neon.c b/libavcodec/arm/hevc10_luma_weak_neon.c
 new file mode 100644
-index 0000000..bf6aeaf
+index 0000000..cbd49f6
 --- /dev/null
 +++ b/libavcodec/arm/hevc10_luma_weak_neon.c
-@@ -0,0 +1,112 @@
+@@ -0,0 +1,114 @@
 +/* Experimental 10-bit HEVC horizontal luma deblock for ARM NEON.
 + * The edge decision and strong filter match the scalar reference; the
 + * four-pixel weak filter is vectorized. Licensed under LGPL-2.1-or-later. */
@@ -160,6 +160,8 @@ index 0000000..bf6aeaf
 +#include <stddef.h>
 +#include <stdint.h>
 +#include <stdlib.h>
++
++#include "hevcdsp_arm.h"
 +
 +static inline int clip_int(int x, int lo, int hi)
 +{
