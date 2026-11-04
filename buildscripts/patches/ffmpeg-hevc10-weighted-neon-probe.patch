@@ -16,10 +16,10 @@ index e32a0bf..82d0bdd 100644
                                            arm/rv40dsp_neon.o
 diff --git a/libavcodec/arm/hevc10_epel_hv_neon.c b/libavcodec/arm/hevc10_epel_hv_neon.c
 new file mode 100644
-index 0000000..3afb8cb
+index 0000000..6b8a30c
 --- /dev/null
 +++ b/libavcodec/arm/hevc10_epel_hv_neon.c
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,149 @@
 +/*
 + * 10-bit HEVC weighted epel HV prediction for ARM NEON.
 + * Copyright (c) 2026 mpvNova contributors
@@ -68,6 +68,30 @@ index 0000000..3afb8cb
 +static inline uint16x4_t clip10(int32x4_t value)
 +{
 +    return vmin_u16(vqmovun_s32(value), vdup_n_u16(1023));
++}
++
++void ff_hevc_put_epel_hv_10_neon(int16_t *dst, const uint8_t *_src,
++                                 ptrdiff_t _srcstride, int height,
++                                 intptr_t mx, intptr_t my, int width)
++{
++    int16_t tmp[(MAX_PB_SIZE + 3) * MAX_PB_SIZE];
++    const int8_t *filter = ff_hevc_epel_filters[my];
++
++    horizontal(tmp, (const uint16_t *)_src, _srcstride / 2,
++               height, width, ff_hevc_epel_filters[mx]);
++    for (int y = 0; y < height; y++) {
++        const int16_t *row = tmp + (y + 1) * MAX_PB_SIZE;
++        int x = 0;
++        for (; x + 4 <= width; x += 4)
++            vst1_s16(dst + x, vmovn_s32(vertical(row + x, filter)));
++        for (; x < width; x++) {
++            int sum = 0;
++            for (int k = 0; k < 4; k++)
++                sum += filter[k] * row[x + (k - 1) * MAX_PB_SIZE];
++            dst[x] = sum >> 6;
++        }
++        dst += MAX_PB_SIZE;
++    }
 +}
 +
 +void ff_hevc_put_epel_uni_w_hv_10_neon(uint8_t *_dst, ptrdiff_t _dststride,
@@ -147,10 +171,10 @@ index 0000000..3afb8cb
 +}
 diff --git a/libavcodec/arm/hevc10_qpel_hv_neon.c b/libavcodec/arm/hevc10_qpel_hv_neon.c
 new file mode 100644
-index 0000000..0b28f59
+index 0000000..b356ea8
 --- /dev/null
 +++ b/libavcodec/arm/hevc10_qpel_hv_neon.c
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,151 @@
 +/*
 + * 10-bit HEVC weighted qpel HV prediction for ARM NEON.
 + * Copyright (c) 2026 mpvNova contributors
@@ -201,6 +225,30 @@ index 0000000..0b28f59
 +static inline uint16x4_t clip10(int32x4_t value)
 +{
 +    return vmin_u16(vqmovun_s32(value), vdup_n_u16(1023));
++}
++
++void ff_hevc_put_qpel_hv_10_neon(int16_t *dst, const uint8_t *_src,
++                                 ptrdiff_t _srcstride, int height,
++                                 intptr_t mx, intptr_t my, int width)
++{
++    int16_t tmp[(MAX_PB_SIZE + 7) * MAX_PB_SIZE];
++    const int8_t *filter = ff_hevc_qpel_filters[my];
++
++    horizontal(tmp, (const uint16_t *)_src, _srcstride / 2,
++               height, width, ff_hevc_qpel_filters[mx]);
++    for (int y = 0; y < height; y++) {
++        const int16_t *row = tmp + (y + 3) * MAX_PB_SIZE;
++        int x = 0;
++        for (; x + 4 <= width; x += 4)
++            vst1_s16(dst + x, vmovn_s32(vertical(row + x, filter)));
++        for (; x < width; x++) {
++            int sum = 0;
++            for (int k = 0; k < 8; k++)
++                sum += filter[k] * row[x + (k - 3) * MAX_PB_SIZE];
++            dst[x] = sum >> 6;
++        }
++        dst += MAX_PB_SIZE;
++    }
 +}
 +
 +void ff_hevc_put_qpel_uni_w_hv_10_neon(uint8_t *_dst, ptrdiff_t _dststride,
@@ -378,10 +426,10 @@ index 0000000..4b98e6f
 +    }
 +}
 diff --git a/libavcodec/arm/hevcdsp_arm.h b/libavcodec/arm/hevcdsp_arm.h
-index de23033..b7d9b7f 100644
+index de23033..349d13f 100644
 --- a/libavcodec/arm/hevcdsp_arm.h
 +++ b/libavcodec/arm/hevcdsp_arm.h
-@@ -22,5 +22,32 @@
+@@ -22,5 +22,38 @@
  #include "libavcodec/hevc/dsp.h"
  
  void ff_hevc_dsp_init_neon(HEVCDSPContext *c, const int bit_depth);
@@ -412,10 +460,16 @@ index de23033..b7d9b7f 100644
 +                                      const int16_t *src2, int height, int denom,
 +                                      int wx0, int wx1, int ox0, int ox1,
 +                                      intptr_t mx, intptr_t my, int width);
++void ff_hevc_put_qpel_hv_10_neon(int16_t *dst, const uint8_t *src,
++                                 ptrdiff_t srcstride, int height,
++                                 intptr_t mx, intptr_t my, int width);
++void ff_hevc_put_epel_hv_10_neon(int16_t *dst, const uint8_t *src,
++                                 ptrdiff_t srcstride, int height,
++                                 intptr_t mx, intptr_t my, int width);
  
  #endif /* AVCODEC_ARM_HEVCDSP_ARM_H */
 diff --git a/libavcodec/arm/hevcdsp_init_neon.c b/libavcodec/arm/hevcdsp_init_neon.c
-index 6f11361..96e9f2d 100644
+index 6f11361..9492298 100644
 --- a/libavcodec/arm/hevcdsp_init_neon.c
 +++ b/libavcodec/arm/hevcdsp_init_neon.c
 @@ -69,6 +69,7 @@ void ff_hevc_idct_16x16_10_neon(int16_t *coeffs, int col_limit);
@@ -426,7 +480,7 @@ index 6f11361..96e9f2d 100644
  #define PUT_PIXELS(name) \
      void name(int16_t *dst, const uint8_t *src, \
                                  ptrdiff_t srcstride, int height, \
-@@ -303,6 +304,14 @@ av_cold void ff_hevc_dsp_init_neon(HEVCDSPContext *c, const int bit_depth)
+@@ -303,6 +304,16 @@ av_cold void ff_hevc_dsp_init_neon(HEVCDSPContext *c, const int bit_depth)
      }
  
      if (bit_depth == 10) {
@@ -437,6 +491,8 @@ index 6f11361..96e9f2d 100644
 +            c->put_hevc_qpel_bi_w[x][1][1]  = ff_hevc_put_qpel_bi_w_hv_10_neon;
 +            c->put_hevc_epel_uni_w[x][1][1] = ff_hevc_put_epel_uni_w_hv_10_neon;
 +            c->put_hevc_epel_bi_w[x][1][1]  = ff_hevc_put_epel_bi_w_hv_10_neon;
++            c->put_hevc_qpel[x][1][1]       = ff_hevc_put_qpel_hv_10_neon;
++            c->put_hevc_epel[x][1][1]       = ff_hevc_put_epel_hv_10_neon;
 +        }
          c->add_residual[0] = ff_hevc_add_residual_4x4_10_neon;
          c->add_residual[1] = ff_hevc_add_residual_8x8_10_neon;
